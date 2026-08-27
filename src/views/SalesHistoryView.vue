@@ -71,6 +71,14 @@
             </div>
           </template>
         </Column>
+
+        <template #empty>
+          <AppEmptyState
+            icon="ri-file-list-3-line"
+            title="Nenhuma venda registrada"
+            description="Não foram encontradas vendas concluídas ou canceladas no sistema."
+          />
+        </template>
       </DataTable>
     </div>
 
@@ -123,6 +131,7 @@ import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Dialog from 'primevue/dialog'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import PosWhatsappReceiptDialog from '@/components/pos/PosWhatsappReceiptDialog.vue'
 import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 

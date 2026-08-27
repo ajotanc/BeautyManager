@@ -125,6 +125,14 @@
             </div>
           </template>
         </Column>
+
+        <template #empty>
+          <AppEmptyState
+            icon="ri-box-3-line"
+            title="Nenhum produto cadastrado"
+            description="Cadastre seu primeiro produto para gerenciar estoque, preços e realizar vendas."
+          />
+        </template>
       </DataTable>
     </div>
 
@@ -150,6 +158,7 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Tag from 'primevue/tag'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import ProductFormDialog from '@/components/products/ProductFormDialog.vue'
 import CategoryManageDialog from '@/components/products/CategoryManageDialog.vue'
 import BrandManageDialog from '@/components/products/BrandManageDialog.vue'

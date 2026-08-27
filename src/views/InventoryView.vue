@@ -49,6 +49,14 @@
             <span class="reason-tag">{{ translateReason(data.reason) }}</span>
           </template>
         </Column>
+
+        <template #empty>
+          <AppEmptyState
+            icon="ri-archive-line"
+            title="Nenhuma movimentação encontrada"
+            description="Ainda não há histórico de entradas, saídas ou vendas registradas no estoque."
+          />
+        </template>
       </DataTable>
     </div>
   </div>
@@ -60,6 +68,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { inventory } from '@/services/inventory'
 import { useProductStore } from '@/stores/productStore'
 import type { IInventoryTransaction, InventoryReason } from '@/types/inventory'

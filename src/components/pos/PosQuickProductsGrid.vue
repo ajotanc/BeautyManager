@@ -9,13 +9,21 @@
         <Tag :value="`${filteredProducts.length} itens`" severity="secondary" class="catalog-count-tag" />
       </div>
 
-      <!-- Filtro Rápido de Categorias -->
-      <div class="category-pills">
+      <!-- Filtro Rápido de Categorias com Arraste Livre (Drag-to-Scroll) -->
+      <div
+        ref="categoryScrollRef"
+        class="category-pills"
+        @wheel.prevent="handleWheelScroll"
+        @mousedown="startDrag"
+        @mouseleave="stopDrag"
+        @mouseup="stopDrag"
+        @mousemove="onDrag"
+      >
         <button
           type="button"
           class="pill-btn"
           :class="{ 'is-active': selectedCategory === 'ALL' }"
-          @click="selectedCategory = 'ALL'"
+          @click="handleCategoryClick('ALL')"
         >
           Todos
         </button>
@@ -23,7 +31,7 @@
           type="button"
           class="pill-btn"
           :class="{ 'is-active': selectedCategory === 'QUICK' }"
-          @click="selectedCategory = 'QUICK'"
+          @click="handleCategoryClick('QUICK')"
         >
           <i class="ri-flashlight-line"></i> Venda Rápida
         </button>
@@ -33,7 +41,7 @@
           type="button"
           class="pill-btn"
           :class="{ 'is-active': selectedCategory === cat.$id }"
-          @click="selectedCategory = cat.$id"
+          @click="handleCategoryClick(cat.$id)"
         >
           {{ cat.name }}
         </button>
@@ -97,6 +105,58 @@ const productStore = useProductStore()
 const posStore = usePosStore()
 
 const selectedCategory = ref<string>('ALL')
+const categoryScrollRef = ref<HTMLElement | null>(null)
+
+let isMouseDown = false
+let startX = 0
+let scrollLeftVal = 0
+let hasMoved = false
+
+function startDrag(e: MouseEvent): void {
+  const el = categoryScrollRef.value
+  if (!el) return
+  isMouseDown = true
+  hasMoved = false
+  startX = e.pageX - el.offsetLeft
+  scrollLeftVal = el.scrollLeft
+}
+
+function stopDrag(): void {
+  isMouseDown = false
+  const el = categoryScrollRef.value
+  if (el) {
+    el.classList.remove('is-dragging')
+  }
+  setTimeout(() => {
+    hasMoved = false
+  }, 60)
+}
+
+function onDrag(e: MouseEvent): void {
+  if (!isMouseDown) return
+  const el = categoryScrollRef.value
+  if (!el) return
+
+  const x = e.pageX - el.offsetLeft
+  const diff = x - startX
+
+  if (Math.abs(diff) > 5) {
+    hasMoved = true
+    el.classList.add('is-dragging')
+    el.scrollLeft = scrollLeftVal - diff * 1.3
+  }
+}
+
+function handleCategoryClick(categoryId: string): void {
+  if (hasMoved) return
+  selectedCategory.value = categoryId
+}
+
+function handleWheelScroll(e: WheelEvent): void {
+  const el = categoryScrollRef.value
+  if (!el) return
+  el.scrollLeft += e.deltaY * 0.9 || e.deltaX * 0.9
+}
 
 function getCategoryName(prod: IProduct): string {
   if (prod.category && typeof prod.category === 'object' && 'name' in prod.category) {
@@ -181,8 +241,19 @@ const filteredProducts = computed(() => {
   display: flex;
   gap: 0.45rem;
   overflow-x: auto;
-  padding-bottom: 0.25rem;
+  padding-bottom: 0.35rem;
   flex-shrink: 0;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(253, 0, 84, 0.25) transparent;
+}
+
+.category-pills.is-dragging {
+  cursor: grabbing;
+  scroll-behavior: auto;
 }
 
 .category-pills::-webkit-scrollbar {
@@ -190,8 +261,8 @@ const filteredProducts = computed(() => {
 }
 
 .category-pills::-webkit-scrollbar-thumb {
-  background: var(--p-brand-200);
-  border-radius: 4px;
+  background: rgba(253, 0, 84, 0.25);
+  border-radius: 9999px;
 }
 
 .pill-btn {

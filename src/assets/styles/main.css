@@ -90,24 +90,45 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: -0.015em;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar {
+/* =========================================================
+ * Scrollbars Modernos e Elegantes (Boutique UI)
+ * ========================================================= */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(253, 0, 84, 0.25) transparent;
+}
+
+*::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 
-::-webkit-scrollbar-track {
-  background: var(--p-brand-50);
+*::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 3px;
+  border-radius: 9999px;
 }
 
-::-webkit-scrollbar-thumb {
-  background: var(--p-brand-200);
-  border-radius: var(--radius-full);
-  border: 2px solid var(--p-brand-50);
+*::-webkit-scrollbar-thumb {
+  background: rgba(253, 0, 84, 0.22);
+  border-radius: 9999px;
+  border: 1px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: var(--p-brand-300);
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(253, 0, 84, 0.45);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-thumb:active {
+  background: var(--p-brand-500);
+  background-clip: content-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* Responsive Container */

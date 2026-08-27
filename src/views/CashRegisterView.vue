@@ -118,6 +118,14 @@
               :value="data.status === 'open' ? 'Aberto' : 'Fechado'" />
           </template>
         </Column>
+
+        <template #empty>
+          <AppEmptyState
+            icon="ri-calendar-check-line"
+            title="Nenhum histórico de fechamento"
+            description="Os caixas fechados anteriormente serão listados aqui para conferência e auditoria."
+          />
+        </template>
       </DataTable>
     </div>
 
@@ -134,6 +142,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import OpenRegisterDialog from '@/components/cash/OpenRegisterDialog.vue'
 import CloseRegisterDialog from '@/components/cash/CloseRegisterDialog.vue'
 import CashMovementDialog from '@/components/cash/CashMovementDialog.vue'

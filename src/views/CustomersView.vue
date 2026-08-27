@@ -187,6 +187,14 @@
             </div>
           </template>
         </Column>
+
+        <template #empty>
+          <AppEmptyState
+            icon="ri-user-heart-line"
+            title="Nenhum cliente cadastrado"
+            description="Cadastre clientes para vincular compras, histórico e gerar comprovantes personalizados."
+          />
+        </template>
       </DataTable>
     </div>
 
@@ -215,6 +223,7 @@ import InputText from 'primevue/inputtext'
 import IconField from 'primevue/iconfield'
 import InputIcon from 'primevue/inputicon'
 import Tag from 'primevue/tag'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerDetailsDialog from '@/components/customers/CustomerDetailsDialog.vue'
 import { useCustomerStore } from '@/stores/customerStore'

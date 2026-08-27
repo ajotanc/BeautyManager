@@ -22,11 +22,12 @@
     </div>
 
     <!-- Lista de Itens do Carrinho -->
-    <div v-if="posStore.cart.length === 0" class="cart-empty">
-      <i class="ri-shopping-bag-3-line empty-icon"></i>
-      <h4 class="empty-title">Pronto para a próxima venda!</h4>
-      <p class="empty-desc">Passe o produto no leitor ou escolha no catálogo ao lado para começar.</p>
-    </div>
+    <AppEmptyState
+      v-if="posStore.cart.length === 0"
+      icon="ri-shopping-bag-3-line"
+      title="Pronto para a próxima venda!"
+      description="Passe o produto no leitor ou escolha no catálogo ao lado para começar."
+    />
 
     <div v-else class="cart-items-list">
       <div
@@ -130,6 +131,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
+import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { usePosStore } from '@/stores/posStore'
 import { formatCurrency } from '@/utils/currency'
 
@@ -343,6 +345,8 @@ function confirmClearCart(): void {
 }
 
 .cart-summary {
+  margin-top: auto;
+  flex-shrink: 0;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
   display: flex;
