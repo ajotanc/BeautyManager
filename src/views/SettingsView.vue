@@ -1,0 +1,533 @@
+<template>
+  <div class="settings-view">
+    <div class="view-header">
+      <div>
+        <h1 class="page-title"><i class="ri-settings-4-line"></i> Configurações & Cupom Térmico</h1>
+        <p class="page-subtitle">Personalize os dados da sua loja, mensagem de rodapé, largura da bobina e QR Code do comprovante</p>
+      </div>
+
+      <div class="header-actions">
+        <Button
+          label="Testar Impressão"
+          icon="ri-printer-line"
+          severity="secondary"
+          variant="outlined"
+          @click="handleTestPrint"
+        />
+        <Button
+          label="Salvar Alterações"
+          icon="ri-check-line"
+          severity="primary"
+          :loading="isSaving"
+          @click="handleSaveSettings"
+        />
+      </div>
+    </div>
+
+    <div class="settings-grid">
+      <!-- Coluna Esquerda: Formulário de Configurações -->
+      <Fluid>
+        <div class="settings-form-panel glass-panel">
+          <!-- Dados da Loja -->
+          <div class="section-heading">
+            <span class="section-title"><i class="ri-store-2-line"></i> Dados da Loja</span>
+            <span class="section-sub">Informações exibidas no topo do cupom fiscal e recibos</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <InputText
+                  id="store_name"
+                  v-model="formData.store_name"
+                  fluid
+                  :invalid="!!errors.store_name"
+                />
+                <label for="store_name">Nome Fantasia da Loja *</label>
+              </FloatLabel>
+              <Message v-if="errors.store_name" severity="error" size="small" variant="simple">
+                {{ errors.store_name }}
+              </Message>
+            </div>
+
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <InputText
+                  id="document_number"
+                  v-model="formData.document_number"
+                  fluid
+                />
+                <label for="document_number">CNPJ ou CPF (Opcional)</label>
+              </FloatLabel>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <InputText id="phone" v-model="formData.phone" fluid />
+                <label for="phone">WhatsApp da Loja</label>
+              </FloatLabel>
+            </div>
+
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <InputText id="instagram" v-model="formData.instagram" fluid />
+                <label for="instagram">Instagram (@loja)</label>
+              </FloatLabel>
+            </div>
+          </div>
+
+          <div class="field-item">
+            <FloatLabel variant="in">
+              <InputText id="address" v-model="formData.address" fluid />
+              <label for="address">Endereço Completo</label>
+            </FloatLabel>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Impressora Térmica & QR Code -->
+          <div class="section-heading">
+            <span class="section-title"><i class="ri-printer-line"></i> Formato da Impressora Térmica & QR Code</span>
+            <span class="section-sub">Dimensões da bobina e código de leitura no comprovante</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <Select
+                  id="receipt_width"
+                  v-model="formData.receipt_width"
+                  :options="[
+                    { label: '58 mm (Padrão Bobina Pequena)', value: '58mm' },
+                    { label: '80 mm (Bobina Larga)', value: '80mm' }
+                  ]"
+                  option-label="label"
+                  option-value="value"
+                  fluid
+                />
+                <label for="receipt_width">Largura da Bobina</label>
+              </FloatLabel>
+            </div>
+
+            <div class="field-item">
+              <FloatLabel variant="in">
+                <Select
+                  id="qrcode_type"
+                  v-model="formData.qrcode_type"
+                  :options="[
+                    { label: 'WhatsApp da Loja (Link Direto)', value: 'whatsapp' },
+                    { label: 'Instagram da Loja', value: 'instagram' },
+                    { label: 'Chave PIX', value: 'pix' },
+                    { label: 'Link Personalizado', value: 'custom' }
+                  ]"
+                  option-label="label"
+                  option-value="value"
+                  fluid
+                />
+                <label for="qrcode_type">Tipo do QR Code</label>
+              </FloatLabel>
+            </div>
+          </div>
+
+          <div v-if="formData.qrcode_type === 'pix'" class="field-item">
+            <FloatLabel variant="in">
+              <InputText id="pix_key" v-model="formData.pix_key" fluid />
+              <label for="pix_key">Chave PIX da Loja</label>
+            </FloatLabel>
+          </div>
+
+          <div v-if="formData.qrcode_type === 'custom'" class="field-item">
+            <FloatLabel variant="in">
+              <InputText id="qrcode_payload" v-model="formData.qrcode_payload" fluid />
+              <label for="qrcode_payload">Link ou Conteúdo do QR Code</label>
+            </FloatLabel>
+          </div>
+
+          <div class="qr-chk-card">
+            <Checkbox v-model="formData.show_qrcode" :binary="true" input-id="show-qr-chk" />
+            <label for="show-qr-chk" class="qr-chk-label">
+              Exibir QR Code no rodapé do comprovante (WhatsApp, Instagram ou PIX)
+            </label>
+          </div>
+
+          <div class="divider"></div>
+
+          <!-- Mensagens Personalizadas -->
+          <div class="section-heading">
+            <span class="section-title"><i class="ri-chat-3-line"></i> Mensagens Personalizadas</span>
+            <span class="section-sub">Texto impresso no final da notinha para o cliente</span>
+          </div>
+
+          <div class="field-item">
+            <FloatLabel variant="in">
+              <Textarea id="receipt_footer" v-model="formData.receipt_footer" rows="3" fluid auto-resize />
+              <label for="receipt_footer">Mensagem de Rodapé (Agradecimento / Trocas)</label>
+            </FloatLabel>
+          </div>
+        </div>
+      </Fluid>
+
+      <!-- Coluna Direita: Live Preview da Bobina Térmica em Tempo Real -->
+      <div class="preview-panel glass-panel">
+        <div class="preview-header">
+          <h3 class="preview-title"><i class="ri-eye-line"></i> Pré-Visualização em Tempo Real</h3>
+          <p class="preview-sub">Bobina física de {{ formData.receipt_width }}</p>
+        </div>
+
+        <ThermalReceiptPreview :settings="computedSettings" />
+      </div>
+    </div>
+
+    <!-- Componente de Impressão Térmica para Teste -->
+    <ThermalReceipt :settings="computedSettings" :i-cart-items="mockTestCartItems" />
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, computed, watch, reactive, onMounted } from 'vue'
+import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
+import Select from 'primevue/select'
+import Checkbox from 'primevue/checkbox'
+import Button from 'primevue/button'
+import FloatLabel from 'primevue/floatlabel'
+import Message from 'primevue/message'
+import Fluid from 'primevue/fluid'
+import ThermalReceiptPreview from '@/components/pos/ThermalReceiptPreview.vue'
+import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
+
+import { useSettingsStore } from '@/stores/settingsStore'
+import { useThermalPrinter } from '@/composables/useThermalPrinter'
+import type { ReceiptWidth, QrCodeType, ISettings } from '@/types/storeSettings'
+import type { ICartItem } from '@/types/sale'
+import { useToast } from 'primevue/usetoast'
+import { parseErrorMessage } from '@/types/errors'
+import { settingsSchema } from '@/schemas/settingsSchema'
+
+const mockTestCartItems: ICartItem[] = [
+  {
+    product: {
+      $id: 'mock-p1',
+      name: 'Batom Líquido Matte 4ml',
+      cost_price: 15,
+      profit_margin: 100,
+      selling_price: 30,
+      stock_quantity: 10,
+      min_stock_alert: 2,
+      barcode: '7891234567890',
+      $createdAt: '',
+      $updatedAt: ''
+    },
+    quantity: 2,
+    subtotal: 60
+  },
+  {
+    product: {
+      $id: 'mock-p2',
+      name: 'Esmalte Cremoso Coleção',
+      cost_price: 5,
+      profit_margin: 100,
+      selling_price: 12,
+      stock_quantity: 15,
+      min_stock_alert: 3,
+      barcode: '7891234567891',
+      $createdAt: '',
+      $updatedAt: ''
+    },
+    quantity: 1,
+    subtotal: 12
+  }
+]
+
+const settingsStore = useSettingsStore()
+const { printReceipt } = useThermalPrinter()
+const toast = useToast()
+
+const isSaving = ref<boolean>(false)
+const errors = reactive<Record<string, string>>({})
+
+const formData = ref<{
+  store_name: string
+  document_number: string
+  phone: string
+  instagram: string
+  address: string
+  receipt_footer: string
+  receipt_width: ReceiptWidth
+  show_qrcode: boolean
+  qrcode_type: QrCodeType
+  qrcode_payload: string
+  pix_key: string
+}>({
+  store_name: '',
+  document_number: '',
+  phone: '',
+  instagram: '',
+  address: '',
+  receipt_footer: '',
+  receipt_width: '58mm',
+  show_qrcode: true,
+  qrcode_type: 'whatsapp',
+  qrcode_payload: '',
+  pix_key: ''
+})
+
+function clearErrors(): void {
+  Object.keys(errors).forEach((key) => delete errors[key])
+}
+
+watch(
+  () => settingsStore.settings,
+  (s) => {
+    if (s) {
+      formData.value = {
+        store_name: s.store_name || '',
+        document_number: s.document_number || '',
+        phone: s.phone || '',
+        instagram: s.instagram || '',
+        address: s.address || '',
+        receipt_footer: s.receipt_footer || '',
+        receipt_width: s.receipt_width || '58mm',
+        show_qrcode: s.show_qrcode ?? true,
+        qrcode_type: s.qrcode_type || 'whatsapp',
+        qrcode_payload: s.qrcode_payload || '',
+        pix_key: s.pix_key || ''
+      }
+    }
+  },
+  { immediate: true }
+)
+
+const computedSettings = computed<Partial<ISettings>>(() => {
+  return {
+    store_name: formData.value.store_name,
+    document_number: formData.value.document_number,
+    phone: formData.value.phone,
+    instagram: formData.value.instagram,
+    address: formData.value.address,
+    receipt_header: formData.value.store_name,
+    receipt_footer: formData.value.receipt_footer,
+    receipt_width: formData.value.receipt_width,
+    show_qrcode: formData.value.show_qrcode,
+    qrcode_type: formData.value.qrcode_type,
+    qrcode_payload: formData.value.qrcode_payload,
+    pix_key: formData.value.pix_key
+  }
+})
+
+async function handleSaveSettings(): Promise<void> {
+  clearErrors()
+
+  // Validação no frontend com Zod
+  const validation = settingsSchema.safeParse({
+    store_name: formData.value.store_name,
+    document_number: formData.value.document_number || undefined,
+    phone: formData.value.phone || undefined,
+    instagram: formData.value.instagram || undefined,
+    address: formData.value.address || undefined,
+    receipt_header: formData.value.store_name,
+    receipt_footer: formData.value.receipt_footer || undefined,
+    receipt_width: formData.value.receipt_width,
+    show_qrcode: formData.value.show_qrcode,
+    qrcode_type: formData.value.qrcode_type,
+    qrcode_payload: formData.value.qrcode_payload || undefined,
+    pix_key: formData.value.pix_key || undefined
+  })
+
+  if (!validation.success) {
+    validation.error.issues.forEach((err) => {
+      const field = String(err.path[0])
+      if (field) {
+        errors[field] = err.message
+      }
+    })
+    toast.add({
+      severity: 'warn',
+      summary: 'Campos Obrigatórios',
+      detail: 'Por favor, revise os campos do formulário.',
+      life: 3000
+    })
+    return
+  }
+
+  isSaving.value = true
+  try {
+    await settingsStore.saveSettings(validation.data)
+    toast.add({
+      severity: 'success',
+      summary: 'Configurações Salvas!',
+      detail: 'As alterações do comprovante foram atualizadas com sucesso.',
+      life: 3000
+    })
+  } catch (error: unknown) {
+    toast.add({
+      severity: 'error',
+      summary: 'Erro ao salvar',
+      detail: parseErrorMessage(error),
+      life: 4000
+    })
+  } finally {
+    isSaving.value = false
+  }
+}
+
+async function handleTestPrint(): Promise<void> {
+  await printReceipt()
+}
+
+onMounted(async () => {
+  await settingsStore.fetchSettings()
+})
+</script>
+
+<style scoped>
+.settings-view {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.view-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-title {
+  font-family: var(--font-title);
+  font-size: 1.45rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.page-title i {
+  color: var(--p-brand-600);
+}
+
+.page-subtitle {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+  margin-top: 0.15rem;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.settings-grid {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.settings-form-panel {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.section-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.section-title {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.section-title i {
+  color: var(--p-brand-600);
+}
+
+.section-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.field-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.qr-chk-card {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: var(--p-surface-50);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.qr-chk-label {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  font-weight: 500;
+  cursor: pointer;
+  line-height: 1.35;
+}
+
+.divider {
+  height: 1px;
+  background: var(--border-subtle);
+  margin: 0.25rem 0;
+}
+
+.preview-panel {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.preview-header {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.15rem;
+}
+
+.preview-title {
+  font-family: var(--font-title);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.preview-title i {
+  color: var(--p-brand-600);
+}
+
+.preview-sub {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+@media (max-width: 960px) {
+  .settings-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

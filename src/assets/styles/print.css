@@ -1,0 +1,353 @@
+/* ==========================================================================
+   ESTILOS DE IMPRESSÃO - BEAUTY MANAGER
+   Totalmente isolados entre:
+   1. Cupom Térmico (58mm / 80mm)
+   2. Folha A4 de Etiquetas Adesivas (31 x 17 mm)
+   ========================================================================== */
+
+/* Em tela regular, oculta ambas as áreas de impressão */
+@media screen {
+  #thermal-receipt-print-area,
+  .print-only,
+  #printable-labels-print-area {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   REGRAS GERAIS DE IMPRESSÃO (Ocultar UI do App)
+   ========================================================================== */
+@media print {
+  /* Ocultar toda a estrutura do app para eliminar páginas em branco */
+  .app-root,
+  .app-navbar,
+  .app-sidebar,
+  .app-content,
+  .p-toast,
+  .p-confirmdialog {
+    display: none !important;
+  }
+
+  /* Reset de Dialogs do PrimeVue */
+  .p-dialog-mask {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .p-dialog {
+    display: contents !important;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+  }
+
+  .p-dialog-header,
+  .p-dialog-footer,
+  .labels-dialog-content {
+    display: none !important;
+  }
+}
+
+/* ==========================================================================
+   MODO 1: IMPRESSÃO DE CUPOM TÉRMICO (58mm / 80mm)
+   Ativado por padrão quando não estiver imprimindo etiquetas
+   ========================================================================== */
+@media print {
+  body:not(.is-printing-labels) @page,
+  body.is-printing-thermal @page {
+    size: auto;
+    margin: 0;
+  }
+
+  /* Oculta área de etiquetas quando estiver imprimindo cupom térmico */
+  body:not(.is-printing-labels) #printable-labels-print-area,
+  body.is-printing-thermal #printable-labels-print-area {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  body:not(.is-printing-labels) html,
+  body:not(.is-printing-labels),
+  body.is-printing-thermal html,
+  body.is-printing-thermal {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+    width: auto !important;
+    height: auto !important;
+  }
+
+  /* Exibição e estilização fiel do Cupom Térmico */
+  body:not(.is-printing-labels) #thermal-receipt-print-area,
+  body:not(.is-printing-labels) #thermal-receipt-print-area *,
+  body.is-printing-thermal #thermal-receipt-print-area,
+  body.is-printing-thermal #thermal-receipt-print-area * {
+    visibility: visible !important;
+  }
+
+  body:not(.is-printing-labels) #thermal-receipt-print-area,
+  body.is-printing-thermal #thermal-receipt-print-area {
+    display: block !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    margin: 0 !important;
+    padding: 1rem 0.85rem !important;
+    background: #ffffff !important;
+    color: #111111 !important;
+    font-family: 'JetBrains Mono', 'Courier New', Courier, monospace !important;
+    font-size: 11px !important;
+    line-height: 1.25 !important;
+    box-sizing: border-box !important;
+  }
+
+  #thermal-receipt-print-area .text-center {
+    text-align: center !important;
+  }
+
+  #thermal-receipt-print-area .font-bold {
+    font-weight: 700 !important;
+  }
+
+  #thermal-receipt-print-area .store-name {
+    font-size: 11.5px !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.2px !important;
+    margin-bottom: 2px !important;
+    white-space: nowrap !important;
+  }
+
+  #thermal-receipt-print-area .store-doc,
+  #thermal-receipt-print-area .store-address,
+  #thermal-receipt-print-area .store-contact,
+  #thermal-receipt-print-area .sale-info,
+  #thermal-receipt-print-area .sub-text {
+    font-size: 10px !important;
+  }
+
+  #thermal-receipt-print-area .receipt-title {
+    font-weight: 700 !important;
+    font-size: 11px !important;
+  }
+
+  #thermal-receipt-print-area .receipt-divider,
+  #thermal-receipt-print-area .divider {
+    overflow: hidden !important;
+    white-space: nowrap !important;
+    letter-spacing: -1px !important;
+    font-size: 10px !important;
+    margin: 3px 0 !important;
+    color: #777777 !important;
+  }
+
+  #thermal-receipt-print-area .items-header {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-weight: 700 !important;
+    font-size: 10px !important;
+    width: 100% !important;
+  }
+
+  #thermal-receipt-print-area .item-line {
+    margin-bottom: 4px !important;
+    width: 100% !important;
+  }
+
+  #thermal-receipt-print-area .item-title {
+    font-size: 10.5px !important;
+    font-weight: 600 !important;
+    word-break: break-word !important;
+  }
+
+  #thermal-receipt-print-area .item-details {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 10px !important;
+    width: 100% !important;
+  }
+
+  #thermal-receipt-print-area .totals-block .row,
+  #thermal-receipt-print-area .totals-section .total-row {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    font-size: 11px !important;
+    margin-bottom: 2px !important;
+    width: 100% !important;
+  }
+
+  #thermal-receipt-print-area .totals-block .grand-total,
+  #thermal-receipt-print-area .totals-section .grand-total {
+    font-size: 13px !important;
+    font-weight: 800 !important;
+    margin: 4px 0 !important;
+    color: #000000 !important;
+  }
+
+  #thermal-receipt-print-area .qrcode-section {
+    margin: 6px 0 !important;
+    text-align: center !important;
+  }
+
+  #thermal-receipt-print-area .qrcode-label {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    margin-bottom: 4px !important;
+  }
+
+  #thermal-receipt-print-area .qrcode-container {
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    width: 100% !important;
+  }
+
+  #thermal-receipt-print-area .qrcode-sub {
+    font-size: 9px !important;
+    margin-top: 2px !important;
+  }
+
+  #thermal-receipt-print-area .receipt-footer {
+    margin-top: 6px !important;
+    font-size: 10px !important;
+    text-align: center !important;
+  }
+
+  #thermal-receipt-print-area .footer-msg {
+    white-space: pre-line !important;
+    font-size: 10px !important;
+  }
+
+  #thermal-receipt-print-area .tech-sub,
+  #thermal-receipt-print-area .system-tag {
+    font-size: 8px !important;
+    color: #888888 !important;
+    margin-top: 4px !important;
+  }
+}
+
+/* ==========================================================================
+   MODO 2: IMPRESSÃO DE FOLHA A4 DE ETIQUETAS (96 Adesivos - 31 x 17 mm)
+   Ativado exclusivamente quando a classe is-printing-labels estiver ativa
+   ========================================================================== */
+@media print {
+  body.is-printing-labels @page {
+    size: A4 portrait !important;
+    margin: 0 !important;
+  }
+
+  /* Oculta cupom térmico durante a impressão de etiquetas */
+  body.is-printing-labels #thermal-receipt-print-area {
+    display: none !important;
+    visibility: hidden !important;
+  }
+
+  body.is-printing-labels html,
+  body.is-printing-labels {
+    width: 210mm !important;
+    height: 297mm !important;
+    min-height: 297mm !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    overflow: hidden !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area {
+    display: grid !important;
+    visibility: visible !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 210mm !important;
+    margin: 0 !important;
+    padding-top: 5mm !important;
+    padding-bottom: 0 !important;
+    padding-left: 7mm !important;
+    padding-right: 7mm !important;
+    background: #ffffff !important;
+    box-sizing: border-box !important;
+    grid-template-columns: repeat(6, 31mm) !important;
+    grid-auto-rows: 17mm !important;
+    column-gap: 2.0mm !important;
+    row-gap: 1.0mm !important;
+    page-break-after: avoid !important;
+    break-after: avoid !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area,
+  body.is-printing-labels #printable-labels-print-area * {
+    visibility: visible !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .label-sticker {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 31mm !important;
+    height: 17mm !important;
+    max-width: 31mm !important;
+    max-height: 17mm !important;
+    padding: 0.5mm 0.6mm !important;
+    border: none !important;
+    background: transparent !important;
+    color: #000000 !important;
+    box-sizing: border-box !important;
+    overflow: hidden !important;
+    page-break-inside: avoid !important;
+    break-inside: avoid !important;
+    text-align: center !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .sticker-store {
+    display: none !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .sticker-name {
+    font-size: 5.5pt !important;
+    font-weight: 800 !important;
+    color: #000000 !important;
+    line-height: 1 !important;
+    max-width: 100% !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .sticker-barcode-box {
+    width: 100% !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    margin: 0 !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .sticker-barcode-box svg {
+    max-height: 9.5mm !important;
+    max-width: 29.5mm !important;
+    height: auto !important;
+    display: block !important;
+  }
+
+  body.is-printing-labels #printable-labels-print-area .sticker-price {
+    font-size: 6pt !important;
+    font-weight: 900 !important;
+    color: #000000 !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
