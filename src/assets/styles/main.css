@@ -18,9 +18,13 @@
 }
 
 /* =========================================================
- * Padronização de Tamanhos para o componente Tag (PrimeVue)
- * Permite usar size="small" ou size="large" (Normal é o default)
+ * Padronização do componente Tag (PrimeVue)
+ * Remove o formato pill (9999px) nativo do PrimeVue e aplica borda elegante
  * ========================================================= */
+.p-tag{
+  border-radius: var(--radius-sm) !important;
+}
+
 .p-tag[size="small"],
 .p-tag.p-tag-sm {
   font-size: 0.72rem;
@@ -45,8 +49,6 @@
 .p-tag.p-tag-lg .p-tag-icon {
   font-size: 1.05rem;
 }
-
-
 
 html, body {
   width: 100%;

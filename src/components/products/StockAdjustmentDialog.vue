@@ -30,8 +30,8 @@
                 <i class="ri-barcode-line"></i>
                 {{ product.barcode }}
               </span>
-              <span class="tag-category" v-if="product.categories?.name">
-                {{ product.categories.name }}
+              <span class="tag-category" v-if="product.category?.name">
+                {{ product.category.name }}
               </span>
             </div>
           </div>

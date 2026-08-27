@@ -27,15 +27,15 @@ export async function authGuard(
   }
 
   if (authStore.isAuthenticated && isPublicRoute && to.name === 'login') {
-    next({ name: 'pos' })
+    next({ name: 'checkout' })
     return
   }
 
   // Verifica permissão de Administrador / Gestor
   const requiresAdmin = to.meta.requiresAdmin === true
   if (requiresAdmin && !authStore.isAdmin) {
-    // Redireciona operadores para o PDV caso tentem acessar área restrita de gestão
-    next({ name: 'pos' })
+    // Redireciona operadores para o Checkout caso tentem acessar área restrita de gestão
+    next({ name: 'checkout' })
     return
   }
 

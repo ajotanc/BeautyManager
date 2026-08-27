@@ -1,33 +1,29 @@
 import { ref } from 'vue'
+import { useVueToPrint } from 'vue-to-print'
+import thermalPrintCss from '@/assets/styles/thermalPrint.css?inline'
 
 export function useThermalPrinter() {
   const isPrinting = ref<boolean>(false)
 
+  const { handlePrint } = useVueToPrint({
+    content: () => document.getElementById('thermal-receipt-print-area'),
+    documentTitle: 'Cupom_Nao_Fiscal',
+    copyStyles: false,
+    pageStyle: thermalPrintCss
+  })
+
   function printReceipt(): Promise<boolean> {
     return new Promise((resolve) => {
       isPrinting.value = true
-      document.body.classList.add('is-printing-thermal')
-      document.body.classList.remove('is-printing-labels')
-
-      window.addEventListener(
-        'afterprint',
-        () => {
-          document.body.classList.remove('is-printing-thermal')
-        },
-        { once: true }
-      )
-
-      setTimeout(() => {
-        try {
-          window.print()
-          isPrinting.value = false
-          resolve(true)
-        } catch {
-          document.body.classList.remove('is-printing-thermal')
-          isPrinting.value = false
-          resolve(false)
-        }
-      }, 150)
+      try {
+        handlePrint()
+        isPrinting.value = false
+        resolve(true)
+      } catch (err: unknown) {
+        console.error('Erro ao imprimir cupom térmico:', err)
+        isPrinting.value = false
+        resolve(false)
+      }
     })
   }
 

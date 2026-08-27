@@ -10,11 +10,11 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    redirect: '/pos'
+    redirect: '/checkout'
   },
   {
-    path: '/pos',
-    name: 'pos',
+    path: '/checkout',
+    name: 'checkout',
     component: () => import('@/views/POSView.vue'),
     meta: { requiresAuth: true }
   },
@@ -43,8 +43,8 @@ const routes: RouteRecordRaw[] = [
     meta: { requiresAuth: true }
   },
   {
-    path: '/cash-register',
-    name: 'cash-register',
+    path: '/cashier',
+    name: 'cashier',
     component: () => import('@/views/CashRegisterView.vue'),
     meta: { requiresAuth: true }
   },
@@ -56,7 +56,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/pos'
+    redirect: '/checkout'
   }
 ]
 

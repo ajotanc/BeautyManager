@@ -1,0 +1,105 @@
+@page {
+  size: A4 portrait;
+  margin: 0;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  width: 210mm;
+  height: 297mm;
+  margin: 0 !important;
+  padding: 0 !important;
+  background: #ffffff !important;
+  overflow: hidden !important;
+  -webkit-print-color-adjust: exact;
+  print-color-adjust: exact;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+#printable-labels-print-area {
+  display: grid !important;
+  width: 210mm !important;
+  height: 280mm !important;
+  max-height: 280mm !important;
+  margin: 0 !important;
+  padding-top: 4.5mm !important;
+  padding-bottom: 0 !important;
+  padding-left: 7mm !important;
+  padding-right: 7mm !important;
+  background: #ffffff !important;
+  box-sizing: border-box !important;
+  grid-template-columns: repeat(6, 31mm) !important;
+  grid-auto-rows: 16.5mm !important;
+  column-gap: 2.0mm !important;
+  row-gap: 0.6mm !important;
+  overflow: hidden !important;
+  page-break-after: avoid !important;
+  break-after: avoid !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+}
+
+.label-sticker {
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 31mm !important;
+  height: 16.5mm !important;
+  max-width: 31mm !important;
+  max-height: 16.5mm !important;
+  padding: 0.4mm 0.5mm !important;
+  border: none !important;
+  background: transparent !important;
+  color: #000000 !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  page-break-inside: avoid !important;
+  break-inside: avoid !important;
+  text-align: center !important;
+}
+
+.sticker-name {
+  font-size: 5.5pt !important;
+  font-weight: 800 !important;
+  color: #000000 !important;
+  line-height: 1 !important;
+  max-width: 100% !important;
+  white-space: nowrap !important;
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+.sticker-barcode-box {
+  width: 100% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  margin: 0 !important;
+}
+
+.sticker-barcode-box svg {
+  max-height: 9.5mm !important;
+  max-width: 29.5mm !important;
+  height: auto !important;
+  display: block !important;
+}
+
+.sticker-price {
+  font-size: 6pt !important;
+  font-weight: 900 !important;
+  color: #000000 !important;
+  line-height: 1 !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}

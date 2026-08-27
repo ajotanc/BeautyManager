@@ -181,7 +181,7 @@
     </div>
 
     <!-- Componente de Impressão Térmica para Teste -->
-    <ThermalReceipt :settings="computedSettings" :i-cart-items="mockTestCartItems" />
+    <ThermalReceipt :settings="computedSettings" />
   </div>
 </template>
 
@@ -201,45 +201,9 @@ import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useThermalPrinter } from '@/composables/useThermalPrinter'
 import type { ReceiptWidth, QrCodeType, ISettings } from '@/types/storeSettings'
-import type { ICartItem } from '@/types/sale'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { settingsSchema } from '@/schemas/settingsSchema'
-
-const mockTestCartItems: ICartItem[] = [
-  {
-    product: {
-      $id: 'mock-p1',
-      name: 'Batom Líquido Matte 4ml',
-      cost_price: 15,
-      profit_margin: 100,
-      selling_price: 30,
-      stock_quantity: 10,
-      min_stock_alert: 2,
-      barcode: '7891234567890',
-      $createdAt: '',
-      $updatedAt: ''
-    },
-    quantity: 2,
-    subtotal: 60
-  },
-  {
-    product: {
-      $id: 'mock-p2',
-      name: 'Esmalte Cremoso Coleção',
-      cost_price: 5,
-      profit_margin: 100,
-      selling_price: 12,
-      stock_quantity: 15,
-      min_stock_alert: 3,
-      barcode: '7891234567891',
-      $createdAt: '',
-      $updatedAt: ''
-    },
-    quantity: 1,
-    subtotal: 12
-  }
-]
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()

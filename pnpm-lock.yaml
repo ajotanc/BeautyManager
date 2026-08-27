@@ -47,6 +47,9 @@ importers:
       vue-router:
         specifier: ^4.5.0
         version: 4.6.4(vue@3.5.41(typescript@5.6.3))
+      vue-to-print:
+        specifier: ^1.5.1
+        version: 1.5.1(vue@3.5.41(typescript@5.6.3))
       xlsx:
         specifier: ^0.18.5
         version: 0.18.5
@@ -2665,6 +2668,11 @@ packages:
     resolution: {integrity: sha512-Hz9q5sa33Yhduglwz6g9skT8OBPii+4bFn88w6J+J4MfEo4KRRpmiNG/hHHkdbRFlLBOqxN8y8gf2Fb0MTUgVg==}
     peerDependencies:
       vue: ^3.5.0
+
+  vue-to-print@1.5.1:
+    resolution: {integrity: sha512-Z8LeXBmw9J5zQrtcqNQeoFNprgs6ituih682SAOv06ExZljvIjt2CEAW7N1XAjLpgzx9LKMrl500G2ZeGugLUg==}
+    peerDependencies:
+      vue: ^3.0.0
 
   vue-tsc@2.2.12:
     resolution: {integrity: sha512-P7OP77b2h/Pmk+lZdJ0YWs+5tJ6J2+uOQPo7tlBnY44QqQSPYvS0qVT4wqDJgwrZaLe47etJLLQRFia71GYITw==}
@@ -5455,6 +5463,10 @@ snapshots:
   vue-router@4.6.4(vue@3.5.41(typescript@5.6.3)):
     dependencies:
       '@vue/devtools-api': 6.6.4
+      vue: 3.5.41(typescript@5.6.3)
+
+  vue-to-print@1.5.1(vue@3.5.41(typescript@5.6.3)):
+    dependencies:
       vue: 3.5.41(typescript@5.6.3)
 
   vue-tsc@2.2.12(typescript@5.6.3):

@@ -47,8 +47,8 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
   // F1 - Frente de Caixa / Foco no Scanner
   if (event.key === 'F1') {
     event.preventDefault()
-    if (route.name !== 'pos') {
-      router.push({ name: 'pos' })
+    if (route.name !== 'checkout') {
+      router.push({ name: 'checkout' })
     } else {
       nextTick(() => {
         const inputEl = (document.getElementById('pos-barcode-scanner-input') as HTMLInputElement | null)
@@ -65,8 +65,8 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
   // F2 - Caixa Diário
   if (event.key === 'F2') {
     event.preventDefault()
-    if (route.name !== 'cash-register') {
-      router.push({ name: 'cash-register' })
+    if (route.name !== 'cashier') {
+      router.push({ name: 'cashier' })
     }
     return
   }
@@ -80,9 +80,9 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
     return
   }
 
-  // F4 - Produtos (quando fora da Frente de Caixa)
+  // F4 - Produtos (quando fora do Checkout)
   if (event.key === 'F4') {
-    if (route.name !== 'pos') {
+    if (route.name !== 'checkout') {
       event.preventDefault()
       if (authStore.isAdmin) {
         router.push({ name: 'products' })
@@ -150,8 +150,19 @@ onUnmounted(() => {
 }
 
 @media print {
-  .app-navbar, .app-sidebar, .app-content {
+  #app,
+  .app-root,
+  .app-body,
+  .app-navbar,
+  .app-sidebar,
+  .app-content {
     display: none !important;
+    height: 0 !important;
+    min-height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
   }
 }
 </style>

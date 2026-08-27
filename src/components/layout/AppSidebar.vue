@@ -5,13 +5,13 @@
       <div class="nav-group">
         <span class="group-label">ATENDIMENTO & VENDAS</span>
         
-        <router-link to="/pos" class="nav-item" active-class="is-active">
+        <router-link to="/checkout" class="nav-item" active-class="is-active">
           <i class="ri-shopping-bag-3-line"></i>
           <span>Frente de Caixa</span>
           <span class="badge-shortcut">F1</span>
         </router-link>
 
-        <router-link to="/cash-register" class="nav-item" active-class="is-active">
+        <router-link to="/cashier" class="nav-item" active-class="is-active">
           <i class="ri-wallet-3-line"></i>
           <span>Caixa Diário</span>
           <span class="badge-shortcut">F2</span>

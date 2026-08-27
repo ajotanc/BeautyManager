@@ -1,12 +1,6 @@
 <template>
-  <Dialog
-    :visible="visible"
-    modal
-    :style="{ width: '640px', maxWidth: '95vw' }"
-    :dismissable-mask="true"
-    @update:visible="(val) => emit('update:visible', val)"
-    class="barcode-print-modal"
-  >
+  <Dialog :visible="visible" modal :style="{ width: '640px', maxWidth: '95vw' }" :dismissable-mask="true"
+    @update:visible="(val) => emit('update:visible', val)" class="barcode-print-modal">
     <template #header>
       <div class="dialog-custom-header">
         <div class="header-icon-box">
@@ -49,19 +43,9 @@
             <div class="field-wrap">
               <label class="field-title">Quantidade de Etiquetas a Imprimir:</label>
               <div class="stepper-wrap">
-                <InputNumber
-                  v-model="labelCount"
-                  :min="1"
-                  :max="960"
-                  show-buttons
-                  button-layout="horizontal"
-                  size="small"
-                  decrement-button-class="stepper-btn"
-                  increment-button-class="stepper-btn"
-                  increment-button-icon="ri-add-line"
-                  decrement-button-icon="ri-subtract-line"
-                  class="custom-stepper"
-                />
+                <InputNumber v-model="labelCount" :min="1" :max="960" show-buttons button-layout="horizontal"
+                  size="small" decrement-button-class="stepper-btn" increment-button-class="stepper-btn"
+                  increment-button-icon="ri-add-line" decrement-button-icon="ri-subtract-line" class="custom-stepper" />
               </div>
             </div>
 
@@ -69,14 +53,8 @@
             <div class="quick-presets-wrap">
               <span class="presets-label">Qtd. Rápida:</span>
               <div class="presets-group">
-                <button
-                  v-for="preset in [6, 18, 48, 96]"
-                  :key="preset"
-                  type="button"
-                  class="preset-pill"
-                  :class="{ 'is-active': labelCount === preset }"
-                  @click="labelCount = preset"
-                >
+                <button v-for="preset in [6, 18, 48, 96]" :key="preset" type="button" class="preset-pill"
+                  :class="{ 'is-active': labelCount === preset }" @click="labelCount = preset">
                   {{ preset === 96 ? '96 (1 Folha)' : preset }}
                 </button>
               </div>
@@ -90,11 +68,8 @@
             <span class="preview-title">
               <i class="ri-eye-line"></i> Pré-Visualização das Etiquetas (31 x 17 mm)
             </span>
-            <Tag
-              :value="`${labelCount} etiquetas • ${Math.ceil(labelCount / 96)} folha(s)`"
-              severity="info"
-              size="small"
-            />
+            <Tag :value="`${labelCount} etiquetas • ${Math.ceil(labelCount / 96)} folha(s)`" severity="info"
+              size="small" />
           </div>
 
           <div class="stickers-sheet-canvas">
@@ -104,13 +79,8 @@
                   {{ product?.name }}
                 </div>
                 <div class="sticker-barcode-box" v-if="product?.barcode">
-                  <ProductBarcode
-                    :value="product.barcode"
-                    :width="0.95"
-                    :height="16"
-                    :font-size="8"
-                    :display-value="true"
-                  />
+                  <ProductBarcode :value="product.barcode" :width="0.95" :height="16" :font-size="8"
+                    :display-value="true" />
                 </div>
                 <div class="sticker-price-tag">
                   {{ formatCurrency(product?.selling_price) }}
@@ -122,40 +92,25 @@
       </div>
     </Fluid>
 
-    <!-- Área de Impressão (Ativada exclusivamente no window.print sem bordas para a folha de 96 adesivos) -->
-    <div id="printable-labels-print-area">
-      <div v-for="i in labelCount" :key="`print-${i}`" class="label-sticker">
-        <div class="sticker-name">{{ product?.name }}</div>
-        <div class="sticker-barcode-box" v-if="product?.barcode">
-          <ProductBarcode
-            :value="product.barcode"
-            :width="0.95"
-            :height="16"
-            :font-size="8"
-            :display-value="true"
-          />
+    <!-- Área de Impressão de Etiquetas (Teleportada para o body para renderização e captura pelo vue-to-print) -->
+    <Teleport to="body">
+      <div v-if="visible" id="printable-labels-print-area" ref="printableLabelsRef">
+        <div v-for="i in labelCount" :key="`print-${i}`" class="label-sticker">
+          <div class="sticker-name">{{ product?.name }}</div>
+          <div class="sticker-barcode-box" v-if="product?.barcode">
+            <ProductBarcode :value="product.barcode" :width="0.95" :height="16" :font-size="8" :display-value="true" />
+          </div>
+          <div class="sticker-price">{{ formatCurrency(product?.selling_price) }}</div>
         </div>
-        <div class="sticker-price">{{ formatCurrency(product?.selling_price) }}</div>
       </div>
-    </div>
+    </Teleport>
 
     <template #footer>
       <div class="dialog-actions">
-        <Button
-          label="Cancelar"
-          severity="secondary"
-          variant="outlined"
-          size="small"
-          @click="emit('update:visible', false)"
-        />
-        <Button
-          label="Imprimir Etiquetas"
-          icon="ri-printer-line"
-          severity="primary"
-          size="small"
-          class="print-action-btn"
-          @click="printLabels"
-        />
+        <Button label="Cancelar" severity="secondary" variant="outlined" size="small"
+          @click="emit('update:visible', false)" />
+        <Button label="Imprimir Etiquetas" icon="ri-printer-line" severity="primary" size="small"
+          class="print-action-btn" @click="handlePrint" />
       </div>
     </template>
   </Dialog>
@@ -168,6 +123,8 @@ import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Tag from 'primevue/tag'
 import Fluid from 'primevue/fluid'
+import { useVueToPrint } from 'vue-to-print'
+import labelsPrintCss from '@/assets/styles/labelsPrint.css?inline'
 import ProductBarcode from '@/components/common/ProductBarcode.vue'
 import type { IProduct } from '@/types/product'
 import { formatCurrency } from '@/utils/currency'
@@ -183,21 +140,14 @@ const emit = defineEmits<{
 }>()
 
 const labelCount = ref<number>(96)
+const printableLabelsRef = ref<HTMLElement | null>(null)
 
-function printLabels(): void {
-  document.body.classList.add('is-printing-labels')
-  document.body.classList.remove('is-printing-thermal')
-
-  window.addEventListener(
-    'afterprint',
-    () => {
-      document.body.classList.remove('is-printing-labels')
-    },
-    { once: true }
-  )
-
-  window.print()
-}
+const { handlePrint } = useVueToPrint({
+  content: printableLabelsRef,
+  documentTitle: 'Etiquetas_Produtos',
+  copyStyles: false,
+  pageStyle: labelsPrintCss
+})
 </script>
 
 <style scoped>
