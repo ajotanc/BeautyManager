@@ -58,7 +58,7 @@
         filter-display="row"
         :global-filter-fields="['name', 'phone', 'document_number']"
         responsive-layout="scroll"
-        empty-message="Nenhum cliente cadastrado."
+        empty-message="Nenhum cliente por aqui ainda. Seu primeiro cliente está a um clique de distância!"
       >
         <template #header>
           <div class="table-header-bar">
@@ -206,7 +206,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import MetricCard from '@/components/common/MetricCard.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'

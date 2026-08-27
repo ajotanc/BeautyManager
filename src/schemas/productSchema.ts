@@ -8,15 +8,14 @@ export const productSchema = z.object({
   category: z.custom<ICategory | null>().optional().nullable(),
   brand: z.custom<IBrand | null>().optional().nullable(),
   
-  // Usar z.coerce ou nullable/optional com refine
-  cost_price: z.number({ error: 'Preço de custo é obrigatório' }).min(0, 'Preço de custo deve ser maior ou igual a zero'),
-  profit_margin: z.number({ error: 'Margem de lucro é obrigatória' }).min(0, 'Margem de lucro deve ser maior ou igual a zero'),
-  selling_price: z.number({ error: 'Preço de venda é obrigatório' }).min(0.01, 'Preço de venda deve ser maior que zero'),
+  cost_price: z.number().nullish().optional(),
+  profit_margin: z.number().nullish().optional(),
+  selling_price: z.number().nullish().optional(),
   
   stock_quantity: z.number({ error: 'Estoque é obrigatório' }).int().min(0, 'Quantidade em estoque não pode ser negativa'),
   min_stock_alert: z.number({ error: 'Alerta mínimo é obrigatório' }).int().min(1, 'Alerta mínimo deve ser de pelo menos 1 unidade'),
   expiry_date: z.union([z.string(), z.date()]).nullable().optional(),
-  is_quick_sale: z.boolean().optional().default(false)
+  is_quick_sale: z.boolean().default(false)
 })
 
 export type ProductFormData = z.infer<typeof productSchema>

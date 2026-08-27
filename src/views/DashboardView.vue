@@ -1,9 +1,12 @@
 <template>
   <div class="dashboard-view">
-    <div class="view-header">
-      <div>
-        <h1 class="page-title"><i class="ri-dashboard-3-line"></i> Dashboard & Indicadores</h1>
-        <p class="page-subtitle">Visão geral do faturamento, vendas, ticket médio e alertas de estoque/validade</p>
+    <!-- Banner de Boas-Vindas Personalizado -->
+    <div class="welcome-banner glass-panel">
+      <div class="welcome-content">
+        <h1 class="welcome-title">
+          {{ greetingMessage }}, <span class="text-brand">{{ authStore.userName }}</span>! ✨
+        </h1>
+        <p class="welcome-subtitle">Pronta para mais um dia de sucesso? Aqui está o resumo da sua loja hoje.</p>
       </div>
 
       <div class="header-actions">
@@ -55,7 +58,7 @@
 
         <div v-if="productStore.expiringProducts.length === 0" class="empty-notice">
           <i class="ri-checkbox-circle-line text-emerald-500"></i>
-          <span>Nenhum cosmético com validade próxima! Seu estoque está em dia.</span>
+          <span>Nenhum produto perto do vencimento! Estoque em dia.</span>
         </div>
 
         <div v-else class="expiring-list">
@@ -80,7 +83,7 @@
 
         <div v-if="productStore.lowStockProducts.length === 0" class="empty-notice">
           <i class="ri-checkbox-circle-line text-emerald-500"></i>
-          <span>Todos os produtos estão com estoque acima do limite mínimo.</span>
+          <span>Estoque saudável! Todos os itens acima do limite mínimo.</span>
         </div>
 
         <div v-else class="low-stock-list">
@@ -106,12 +109,22 @@ import MetricCard from '@/components/common/MetricCard.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { useProductStore } from '@/stores/productStore'
+import { useAuthStore } from '@/stores/authStore'
 import { sales } from '@/services/sales'
 import type { ISale } from '@/types/sale'
 import { formatCurrency, toNumber } from '@/utils/currency'
 import { formatDate } from '@/utils/date'
 
 const productStore = useProductStore()
+const authStore = useAuthStore()
+
+const greetingMessage = computed(() => {
+  const hour = new Date().getHours()
+  if (hour < 12) return 'Bom dia'
+  if (hour < 18) return 'Boa tarde'
+  return 'Boa noite'
+})
+
 const salesList = ref<ISale[]>([])
 const isLoading = ref<boolean>(false)
 
@@ -149,23 +162,33 @@ onMounted(async () => {
 .dashboard-view {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
 }
 
-.view-header {
+/* Welcome Banner */
+.welcome-banner {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding: 1.8rem 2rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, var(--p-brand-50) 0%, #ffffff 100%);
+  border-left: 4px solid var(--p-brand-500);
 }
 
-.page-title {
+.welcome-title {
   font-family: var(--font-title);
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 800;
   color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+  letter-spacing: -0.02em;
+}
+
+.welcome-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
 }
 
 .page-title i {
@@ -233,11 +256,11 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: var(--text-secondary);
-  background: var(--bg-card-soft);
+  color: #064e3b; /* emerald-900 */
+  background: #ecfdf5; /* emerald-50 */
   padding: 0.85rem;
   border-radius: var(--radius-md);
-  border: 1px dashed var(--border-color);
+  border: 1px dashed #6ee7b7; /* emerald-300 */
 }
 
 .expiring-list,

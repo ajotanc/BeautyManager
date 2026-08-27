@@ -1,4 +1,15 @@
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
+
+export interface IFieldError {
+  invalid: boolean
+  message: string
+}
+
+export interface IPricingErrors {
+  costPrice: IFieldError
+  profitMargin: IFieldError
+  sellingPrice: IFieldError
+}
 
 export function useMarkupCalculator(
   initialCost: number | null = null,
@@ -7,115 +18,85 @@ export function useMarkupCalculator(
 ) {
   const costPrice = ref<number | null>(initialCost)
   const profitMargin = ref<number | null>(initialMargin)
+  const manualSellingPrice = ref<number | null>(initialSelling)
 
-  const manualSellingPrice = ref<number | null>(
-    initialSelling
-  )
+  const errors = reactive<IPricingErrors>({
+    costPrice: { invalid: false, message: '' },
+    profitMargin: { invalid: false, message: '' },
+    sellingPrice: { invalid: false, message: '' }
+  })
 
   const sellingPrice = computed<number | null>({
     get() {
-      /*
-       * Se existe preço informado manualmente,
-       * ele tem prioridade.
-       */
       if (manualSellingPrice.value !== null) {
         return manualSellingPrice.value
       }
 
-      /*
-       * Sem custo ou margem não existe cálculo.
-       */
       if (
         costPrice.value === null ||
-        profitMargin.value === null
+        profitMargin.value === null ||
+        costPrice.value <= 0
       ) {
-        return null
-      }
-
-      if (costPrice.value <= 0) {
         return null
       }
 
       return Number(
-        (
-          costPrice.value *
-          (1 + profitMargin.value / 100)
-        ).toFixed(2)
+        (costPrice.value * (1 + profitMargin.value / 100)).toFixed(2)
       )
     },
-
     set(value: number | null) {
-      manualSellingPrice.value = value
-
-      /*
-       * Usuário apagou o preço.
-       */
-      if (value === null) {
-        return
-      }
-
-      /*
-       * Calcula a margem somente se existe custo.
-       */
-      if (
-        costPrice.value === null ||
-        costPrice.value <= 0
-      ) {
-        return
-      }
-
-      const calculatedMargin =
-        ((value - costPrice.value) /
-          costPrice.value) *
-        100
-
-      profitMargin.value =
-        Number(calculatedMargin.toFixed(2))
+      setSellingPrice(value)
     }
   })
 
   const profitAmount = computed<number>(() => {
-    if (
-      costPrice.value === null ||
-      sellingPrice.value === null
-    ) {
+    if (costPrice.value === null || sellingPrice.value === null) {
       return 0
     }
 
     return Number(
-      Math.max(
-        0,
-        sellingPrice.value - costPrice.value
-      ).toFixed(2)
+      Math.max(0, sellingPrice.value - costPrice.value).toFixed(2)
     )
   })
 
-  function setCostPrice(
-    value: number | null
-  ): void {
-    costPrice.value = value
+  function validate(): boolean {
+    const isCostInvalid = costPrice.value === null || costPrice.value < 0
+    errors.costPrice.invalid = isCostInvalid
+    errors.costPrice.message = isCostInvalid ? 'Preço de custo é obrigatório' : ''
 
-    /*
-     * Mudou o custo:
-     * o preço manual deixa de existir.
-     *
-     * Assim o sellingPrice passa a ser calculado
-     * automaticamente pela margem.
-     */
-    manualSellingPrice.value = null
+    const isMarginInvalid = profitMargin.value === null || profitMargin.value < 0
+    errors.profitMargin.invalid = isMarginInvalid
+    errors.profitMargin.message = isMarginInvalid ? 'Margem de lucro é obrigatória' : ''
+
+    const isSellingInvalid = sellingPrice.value === null || sellingPrice.value <= 0
+    errors.sellingPrice.invalid = isSellingInvalid
+    errors.sellingPrice.message = isSellingInvalid ? 'Preço de venda é obrigatório' : ''
+
+    return !errors.costPrice.invalid && !errors.profitMargin.invalid && !errors.sellingPrice.invalid
   }
 
-  function setProfitMargin(
-    value: number | null
-  ): void {
-    profitMargin.value = value
-
-    /*
-     * Mudou a margem:
-     * remove o preço manual para permitir
-     * que o computed faça o cálculo.
-     */
+  function setCostPrice(value: number | null): void {
+    costPrice.value = value
     manualSellingPrice.value = null
+    validate()
+  }
+
+  function setProfitMargin(value: number | null): void {
+    profitMargin.value = value
+    manualSellingPrice.value = null
+    validate()
+  }
+
+  function setSellingPrice(value: number | null): void {
+    manualSellingPrice.value = value
+
+    if (value !== null && costPrice.value !== null && costPrice.value > 0) {
+      const calculatedMargin =
+        ((value - costPrice.value) / costPrice.value) * 100
+      profitMargin.value = Number(calculatedMargin.toFixed(2))
+    }
+
+    validate()
   }
 
   function reset(
@@ -126,15 +107,36 @@ export function useMarkupCalculator(
     costPrice.value = cost
     profitMargin.value = margin
     manualSellingPrice.value = selling
+    errors.costPrice.invalid = false
+    errors.costPrice.message = ''
+    errors.profitMargin.invalid = false
+    errors.profitMargin.message = ''
+    errors.sellingPrice.invalid = false
+    errors.sellingPrice.message = ''
   }
+
+  const isValid = computed<boolean>(() => {
+    return (
+      costPrice.value !== null &&
+      costPrice.value >= 0 &&
+      profitMargin.value !== null &&
+      profitMargin.value >= 0 &&
+      sellingPrice.value !== null &&
+      sellingPrice.value > 0
+    )
+  })
 
   return {
     costPrice,
     profitMargin,
     sellingPrice,
     profitAmount,
+    errors,
+    isValid,
     setCostPrice,
     setProfitMargin,
+    setSellingPrice,
+    validate,
     reset
   }
 }

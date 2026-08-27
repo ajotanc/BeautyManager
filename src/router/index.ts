@@ -10,7 +10,7 @@ const routes: RouteRecordRaw[] = [
   },
   {
     path: '/',
-    redirect: '/checkout'
+    redirect: '/dashboard'
   },
   {
     path: '/checkout',

@@ -19,11 +19,11 @@ import App from './App.vue'
 import router from './router'
 
 /**
- * Custom Preset PrimeVue - Paleta Final Pink:
- * #E11D48 (Crimson Pink)
- * #A80038 (Dark Cherry)
- * #FFE5EC (Blush)
- * #101828 (Dark Navy Text)
+ * Custom Preset PrimeVue - Paleta Hot Pink (Boutique):
+ * #FD0054 (Hot Pink)
+ * #800832 (Burgundy)
+ * #FFB4C7 (Pale Pink)
+ * #05081F (Dark Navy)
  */
 const BeautyManagerPreset = definePreset(Aura, {
   primitive: {
@@ -38,17 +38,17 @@ const BeautyManagerPreset = definePreset(Aura, {
   },
   semantic: {
     primary: {
-      50: '#fff5f8',
-      100: '#ffe5ec',
-      200: '#ffb8cd',
-      300: '#ff8ab1',
-      400: '#ff5d8f',
-      500: '#e11d48',
-      600: '#c4133a',
-      700: '#a80038',
-      800: '#8c002f',
-      900: '#700026',
-      950: '#4a0019'
+      50: '#ffebf0',
+      100: '#ffb4c7',
+      200: '#ffa3bc',
+      300: '#fd6b91',
+      400: '#fc3671',
+      500: '#fd0054',
+      600: '#d90048',
+      700: '#800832',
+      800: '#420419',
+      900: '#05081f',
+      950: '#02040d'
     },
     formField: {
       paddingX: '0.75rem',
@@ -59,7 +59,7 @@ const BeautyManagerPreset = definePreset(Aura, {
         style: 'none',
         color: 'transparent',
         offset: '0',
-        shadow: '0 0 0 1px #ff5d8f, 0 0 0 4px rgba(255, 93, 143, 0.2)'
+        shadow: '0 0 0 1px #fd6b91, 0 0 0 4px rgba(253, 107, 145, 0.2)'
       }
     },
     colorScheme: {

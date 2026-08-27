@@ -137,7 +137,7 @@ async function handleLogin(): Promise<void> {
       life: 3000
     })
 
-    const redirectPath = (route.query.redirect as string) || '/checkout'
+    const redirectPath = (route.query.redirect as string) || '/dashboard'
     router.push(redirectPath)
   } catch (error: unknown) {
     toast.add({

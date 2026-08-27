@@ -7,9 +7,9 @@ export interface IProduct extends Models.Row {
   name: string
   category?: ICategory | null
   brand?: IBrand | null
-  cost_price: number | string
-  profit_margin: number | string
-  selling_price: number | string
+  cost_price: number | string | null
+  profit_margin: number | string | null
+  selling_price: number | string | null
   stock_quantity: number
   min_stock_alert: number
   expiry_date?: string | null

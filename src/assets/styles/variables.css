@@ -8,18 +8,18 @@
    * 5. #101828 (Dark Navy / Tipografia)
    * ========================================================= */
 
-  /* Escala Primária */
-  --p-brand-50: #fff5f8;
-  --p-brand-100: #ffe5ec;
-  --p-brand-200: #ffb8cd;
-  --p-brand-300: #ff8ab1;
-  --p-brand-400: #ff5d8f;
-  --p-brand-500: #e11d48;
-  --p-brand-600: #c4133a;
-  --p-brand-700: #a80038;
-  --p-brand-800: #8c002f;
-  --p-brand-900: #700026;
-  --p-brand-950: #4a0019;
+  /* Brand Hot Pink Palette */
+  --p-brand-50: #ffebf0;
+  --p-brand-100: #ffb4c7;
+  --p-brand-200: #ffa3bc;
+  --p-brand-300: #fd6b91;
+  --p-brand-400: #fc3671;
+  --p-brand-500: #fd0054;
+  --p-brand-600: #d90048;
+  --p-brand-700: #800832;
+  --p-brand-800: #420419;
+  --p-brand-900: #05081f;
+  --p-brand-950: #02040d;
 
   /* Aliases para compatibilidade */
   --p-pink-50: var(--p-brand-50);
@@ -63,7 +63,7 @@
   --bg-primary: #fcf9fa;
   --bg-secondary: #fff5f8;
   --bg-card: rgba(255, 255, 255, 0.95);
-  --bg-card-soft: #ffe5ec;
+  --bg-card-soft: #f8fafc;
   --bg-card-hover: #ffffff;
   --border-color: #ffd1df;
   --border-subtle: #ffebf0;

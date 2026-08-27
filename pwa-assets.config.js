@@ -6,12 +6,12 @@ export default defineConfig({
     maskable: {
       sizes: [512],
       padding: 0.3,
-      resizeOptions: { background: '#ec4899' }
+      resizeOptions: { background: '#ffebf0' }
     },
     apple: {
       sizes: [180],
       padding: 0.3,
-      resizeOptions: { background: '#ec4899' }
+      resizeOptions: { background: '#ffebf0' }
     }
   },
   images: ['public/images/bm.svg']

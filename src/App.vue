@@ -6,7 +6,11 @@
 
     <!-- Tela de Login sem Navbar/Sidebar -->
     <template v-if="isLoginRoute">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="fade-page" mode="out-in">
+          <component :is="Component" />
+        </transition>
+      </router-view>
     </template>
 
     <!-- Layout Principal para Telas Autenticadas -->
@@ -15,7 +19,11 @@
       <div class="app-body">
         <AppSidebar />
         <main class="app-content">
-          <router-view />
+          <router-view v-slot="{ Component }">
+            <transition name="fade-page" mode="out-in">
+              <component :is="Component" />
+            </transition>
+          </router-view>
         </main>
       </div>
     </template>

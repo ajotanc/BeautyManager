@@ -7,43 +7,37 @@
     width="480px"
     @update:visible="(val) => emit('update:visible', val)"
   >
-    <div class="flex flex-col gap-3">
+    <div class="flex flex-col gap-4">
       <!-- Barra de Inserção / Edição Rápida -->
-      <div class="flex flex-col gap-1">
-        <InputGroup>
-          <FloatLabel variant="in">
-            <InputText
-              id="category_input"
-              v-model="categoryName"
-              class="text-sm"
-              fluid
-              :invalid="!!errorMsg"
-              @keyup.enter="saveCategory"
-            />
-            <label for="category_input">{{ selectedCategory.$id ? 'Nome da Categoria' : 'Nova Categoria' }}</label>
-          </FloatLabel>
-          <Button
-            v-if="selectedCategory.$id"
-            icon="ri-close-line"
-            severity="secondary"
-            variant="outlined"
-            title="Cancelar edição"
-            @click="cancelEdit"
-          />
-          <Button
-            :label="selectedCategory.$id ? 'Atualizar' : 'Adicionar'"
-            :icon="selectedCategory.$id ? 'ri-check-line' : 'ri-add-line'"
-            severity="primary"
-            class="font-semibold"
-            :loading="isSubmitting"
-            @click="saveCategory"
-          />
-        </InputGroup>
+      <InputGroup>
+        <InputText
+          id="category_input"
+          v-model="categoryName"
+          :invalid="!!errorMsg"
+          @keyup.enter="saveCategory"
+          placeholder="Nome da Categoria..."
+        />
+        
+        <Button
+          v-if="selectedCategory.$id"
+          icon="ri-close-line"
+          severity="secondary"
+          title="Cancelar edição"
+          @click="cancelEdit"
+        />
+        <Button
+          :label="selectedCategory.$id ? 'Salvar' : 'Adicionar'"
+          :icon="selectedCategory.$id ? 'ri-check-line' : 'ri-add-line'"
+          severity="primary"
+          class="font-semibold px-4"
+          :loading="isSubmitting"
+          @click="saveCategory"
+        />
+      </InputGroup>
 
-        <Message v-if="errorMsg" severity="error" size="small" variant="simple">
-          {{ errorMsg }}
-        </Message>
-      </div>
+      <Message v-if="errorMsg" severity="error" size="small" variant="simple">
+        {{ errorMsg }}
+      </Message>
 
       <!-- Tabela de Categorias -->
       <DataTable
@@ -55,7 +49,7 @@
         class="border rounded-lg overflow-hidden border-(--border-color)"
         empty-message="Nenhuma categoria cadastrada."
       >
-        <Column field="name" header="Nome da Categoria">
+        <Column field="name" header="Nome">
           <template #body="{ data }">
             <span
               class="text-sm"
@@ -94,13 +88,12 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end w-full pt-1">
+      <div class="flex justify-end w-full pt-3 border-t border-(--border-subtle)">
         <Button
-          label="Fechar"
-          icon="ri-close-line"
+          label="Pronto"
+          icon="ri-check-line"
           severity="secondary"
           variant="text"
-          size="small"
           @click="emit('update:visible', false)"
         />
       </div>
@@ -114,10 +107,9 @@ import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputGroup from 'primevue/inputgroup'
-import FloatLabel from 'primevue/floatlabel'
-import Message from 'primevue/message'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
+import Message from 'primevue/message'
 import { useConfirm } from 'primevue/useconfirm'
 import { useProductStore } from '@/stores/productStore'
 import { CategoryService } from '@/services/categories'
@@ -149,7 +141,7 @@ const isSubmitting = ref<boolean>(false)
 const errorMsg = ref<string>('')
 
 function editCategory(category: ICategory): void {
-  selectedCategory.value = { ...category }
+  selectedCategory.value = category
   categoryName.value = category.name
   errorMsg.value = ''
 }
@@ -203,41 +195,38 @@ async function saveCategory(): Promise<void> {
   }
 }
 
-function confirmDelete(category: ICategory): void {
+function confirmDelete(cat: ICategory): void {
   confirm.require({
-    message: `Deseja realmente excluir a categoria "${category.name}"?`,
     header: 'Excluir Categoria',
-    rejectProps: {
-      label: 'Não',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sim',
-      severity: 'danger'
-    },
+    message: `Tem certeza que deseja excluir "${cat.name}"? Esta ação não pode ser desfeita.`,
+    icon: 'ri-alert-line',
+    acceptLabel: 'Excluir',
+    acceptClass: 'p-button-danger',
+    rejectLabel: 'Cancelar',
     accept: async () => {
       try {
-        await CategoryService.delete(category.$id)
-        productStore.categories = productStore.categories.filter((c) => c.$id !== category.$id)
-        if (selectedCategory.value.$id === category.$id) {
+        await CategoryService.delete(cat.$id)
+        productStore.categories = productStore.categories.filter((c) => c.$id !== cat.$id)
+        toast.add({ severity: 'success', summary: 'Excluída', detail: 'Categoria removida com sucesso.', life: 3000 })
+        if (selectedCategory.value.$id === cat.$id) {
           cancelEdit()
         }
-        toast.add({
-          severity: 'success',
-          summary: 'Sucesso',
-          detail: 'Categoria excluída com sucesso!',
-          life: 3000
-        })
       } catch (error: unknown) {
-        toast.add({
-          severity: 'error',
-          summary: 'Erro ao excluir',
-          detail: parseErrorMessage(error),
-          life: 3000
-        })
+        toast.add({ severity: 'error', summary: 'Erro', detail: parseErrorMessage(error), life: 3000 })
       }
     }
   })
 }
 </script>
+
+<style scoped>
+:deep(.p-datatable .p-datatable-thead > tr > th) {
+  background-color: var(--bg-primary, #ffffff);
+  padding: 0.75rem 1.25rem;
+  z-index: 10;
+}
+
+:deep(.p-datatable .p-datatable-tbody > tr > td) {
+  padding: 0.75rem 1.25rem;
+}
+</style>

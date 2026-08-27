@@ -24,8 +24,8 @@
     <!-- Lista de Itens do Carrinho -->
     <div v-if="posStore.cart.length === 0" class="cart-empty">
       <i class="ri-shopping-bag-3-line empty-icon"></i>
-      <h4 class="empty-title">Carrinho Vazio</h4>
-      <p class="empty-desc">Escaneie um código de barras ou selecione produtos no catálogo para iniciar a venda.</p>
+      <h4 class="empty-title">Pronto para a próxima venda!</h4>
+      <p class="empty-desc">Passe o produto no leitor ou escolha no catálogo ao lado para começar.</p>
     </div>
 
     <div v-else class="cart-items-list">
