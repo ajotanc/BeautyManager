@@ -68,7 +68,7 @@
             <div>
               <FloatLabel variant="in">
                 <AutoComplete id="customer_name" v-model="posStore.customerName" :suggestions="customerSuggestions"
-                  option-label="name" size="small" fluid placeholder="Nome da cliente cadastrada..."
+                  option-label="name" size="small" fluid
                   @complete="handleCustomerSearch" @item-select="onCustomerSelect">
                   <template #option="{ option }">
                     <div class="flex items-center justify-between w-full py-0.5 gap-2">
@@ -84,14 +84,13 @@
                     </div>
                   </template>
                 </AutoComplete>
-                <label for="customer_name">Nome da Cliente (Busca rápida)</label>
+                <label for="customer_name">Nome</label>
               </FloatLabel>
             </div>
             <div>
               <FloatLabel variant="in">
-                <InputText id="customer_phone" v-model="posStore.customerPhone" size="small" fluid
-                  placeholder="(00) 00000-0000" />
-                <label for="customer_phone">WhatsApp (com DDD)</label>
+                <InputText id="customer_phone" v-model="posStore.customerPhone" size="small" fluid />
+                <label for="customer_phone">WhatsApp</label>
               </FloatLabel>
             </div>
           </div>
@@ -126,7 +125,7 @@ import AutoComplete from 'primevue/autocomplete'
 import Checkbox from 'primevue/checkbox'
 import FloatLabel from 'primevue/floatlabel'
 import Fluid from 'primevue/fluid'
-import type { PaymentMethod, ISale } from '@/types/sale'
+import { PAYMENT_METHOD_OPTIONS, type PaymentMethod, type ISale } from '@/types/sale'
 import type { ICustomer } from '@/types/customer'
 import { usePosStore } from '@/stores/posStore'
 import { useCustomerStore } from '@/stores/customerStore'
@@ -177,12 +176,7 @@ function onCustomerSelect(event: { value: ICustomer }): void {
   }
 }
 
-const paymentMethods: { label: string; value: PaymentMethod; icon: string }[] = [
-  { label: 'Dinheiro', value: 'cash', icon: 'ri-money-dollar-circle-line' },
-  { label: 'PIX', value: 'pix', icon: 'ri-qr-code-line' },
-  { label: 'Cartão Crédito', value: 'credit', icon: 'ri-bank-card-line' },
-  { label: 'Cartão Débito', value: 'debit', icon: 'ri-wallet-3-line' }
-]
+const paymentMethods = PAYMENT_METHOD_OPTIONS
 
 const quickBills = [10, 20, 50, 100, 200]
 

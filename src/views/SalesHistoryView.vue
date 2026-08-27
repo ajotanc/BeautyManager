@@ -39,7 +39,7 @@
 
         <Column field="payment_method" header="Pagamento" sortable style="min-width: 140px">
           <template #body="{ data }">
-            <span class="pay-badge">{{ translatePayment(data.payment_method) }}</span>
+            <span class="pay-badge">{{ formatPaymentMethod(data.payment_method) }}</span>
           </template>
         </Column>
 
@@ -80,7 +80,7 @@
         <div class="details-meta-box">
           <div><strong>Data / Hora:</strong> <span>{{ formatDateTime(selectedSale.$createdAt) }}</span></div>
           <div><strong>Cliente:</strong> {{ selectedSale.customer_name || 'Consumidor Final' }}</div>
-          <div><strong>Forma de Pagamento:</strong> {{ translatePayment(selectedSale.payment_method) }}</div>
+          <div><strong>Forma de Pagamento:</strong> {{ formatPaymentMethod(selectedSale.payment_method) }}</div>
         </div>
 
         <div class="items-table-sub">
@@ -109,8 +109,7 @@
     </Dialog>
 
     <!-- Dialog de Envio WhatsApp -->
-    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="selectedSale"
-      :settings="settingsStore.settings" />
+    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="selectedSale" />
 
     <!-- Área de Impressão Térmica Oculta -->
     <ThermalReceipt :sale="selectedSale" :settings="settingsStore.settings" />
@@ -131,7 +130,7 @@ import { sales } from '@/services/sales'
 import { useAuthStore } from '@/stores/authStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useThermalPrinter } from '@/composables/useThermalPrinter'
-import type { ISale, PaymentMethod } from '@/types/sale'
+import { formatPaymentMethod, type ISale } from '@/types/sale'
 import { formatCurrency } from '@/utils/currency'
 import { formatDateTime } from '@/utils/date'
 import { exportToExcel } from '@/utils/exportExcel'
@@ -195,23 +194,13 @@ function confirmCancelSale(sale: ISale): void {
   })
 }
 
-function translatePayment(method: PaymentMethod): string {
-  const map: Record<PaymentMethod, string> = {
-    pix: 'PIX',
-    credit: 'Cartão Crédito',
-    debit: 'Cartão Débito',
-    cash: 'Dinheiro'
-  }
-  return map[method] || method
-}
-
 function handleExportExcel(): void {
   const exportData = salesList.value.map((s) => ({
     'Código': s.$id.slice(-6).toUpperCase(),
     'Data / Hora': formatDateTime(s.$createdAt),
     'Cliente': s.customer_name || 'Consumidor Final',
     'Telefone': s.customer_phone || '-',
-    'Pagamento': translatePayment(s.payment_method),
+    'Pagamento': formatPaymentMethod(s.payment_method),
     'Desconto (R$)': s.discount_amount || 0,
     'Total (R$)': s.total_amount,
     'Status': s.status === 'completed' ? 'Concluída' : 'Cancelada'

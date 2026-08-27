@@ -1,4 +1,4 @@
-import type { ISale } from '@/types/sale'
+import { formatPaymentMethod, type ISale } from '@/types/sale'
 import type { ISettings } from '@/types/storeSettings'
 import { formatCurrency } from './currency'
 import { formatDateTime } from './date'
@@ -16,7 +16,7 @@ export function generateSaleReceiptText(sale: ISale, settings?: ISettings | null
   if (sale.customer_name) {
     text += `Cliente: ${sale.customer_name}\n`
   }
-  text += `Pagamento: ${sale.payment_method}\n`
+  text += `Pagamento: ${formatPaymentMethod(sale.payment_method)}\n`
   text += `--------------------------------\n`
 
   if (sale.items && sale.items.length > 0) {

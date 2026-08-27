@@ -158,11 +158,28 @@ async function handleLogin(): Promise<void> {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: radial-gradient(circle at top, var(--p-brand-100), var(--p-brand-50), #ffffff);
+  background: radial-gradient(circle at top, var(--p-brand-200), var(--p-brand-50), #ffffff);
+  position: relative;
   padding: 1.5rem;
+  overflow: hidden;
+}
+
+/* Dramatic bright glow */
+.login-page::before {
+  content: "";
+  position: absolute;
+  top: -10%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60vw;
+  height: 60vh;
+  background: radial-gradient(circle, rgba(255, 20, 147, 0.15) 0%, transparent 70%);
+  z-index: 0;
 }
 
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 440px;
   padding: 2.5rem 2.2rem;
@@ -188,10 +205,11 @@ async function handleLogin(): Promise<void> {
   height: 58px;
   border-radius: var(--radius-lg);
   background: var(--grad-primary);
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-md);
+  box-shadow: var(--shadow-glow);
   overflow: hidden;
 }
 
@@ -245,10 +263,10 @@ async function handleLogin(): Promise<void> {
   display: flex;
   align-items: center;
   gap: 0.45rem;
-  font-size: 0.75rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--p-brand-50);
+  color: var(--text-muted);
+  background: transparent;
   padding: 0.4rem 0.85rem;
   border-radius: var(--radius-full);
   border: 1px solid var(--border-color);

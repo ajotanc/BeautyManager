@@ -12,7 +12,7 @@
         <div class="field-item">
           <FloatLabel variant="in">
             <InputText id="whatsapp_dest_phone" v-model="phoneInput" size="small" fluid />
-            <label for="whatsapp_dest_phone">WhatsApp da Cliente (DDD + Número)</label>
+            <label for="whatsapp_dest_phone">WhatsApp</label>
           </FloatLabel>
         </div>
 
@@ -51,7 +51,10 @@ interface Props {
   sale: ISale | null
 }
 
-const props = defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  visible: false,
+  sale: null
+})
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
 }>()

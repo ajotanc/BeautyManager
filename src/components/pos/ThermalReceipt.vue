@@ -90,7 +90,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import QrcodeVue from 'qrcode.vue'
-import type { ISale, ICartItem, IReceiptItem, PaymentMethod } from '@/types/sale'
+import { formatPaymentMethod, type ISale, type ICartItem, type IReceiptItem } from '@/types/sale'
 import type { ISettings } from '@/types/storeSettings'
 import { formatCurrency, toNumber } from '@/utils/currency'
 import { dayjs, formatDateTime, nowIso } from '@/utils/date'
@@ -173,16 +173,9 @@ const finalTotalAmount = computed<number>(() => {
   return subtotalAmount.value - discountAmount.value
 })
 
-const paymentMethodLabels: Record<PaymentMethod, string> = {
-  pix: 'PIX',
-  credit: 'Cartão de Crédito',
-  debit: 'Cartão de Débito',
-  cash: 'Dinheiro'
-}
-
 const paymentMethodLabel = computed<string>(() => {
   if (props.sale?.payment_method) {
-    return paymentMethodLabels[props.sale.payment_method] || props.sale.payment_method
+    return formatPaymentMethod(props.sale.payment_method)
   }
   return 'PIX / Dinheiro'
 })

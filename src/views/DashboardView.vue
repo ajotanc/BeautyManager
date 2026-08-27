@@ -14,45 +14,33 @@
 
     <!-- Cards de Métricas Principais -->
     <div class="metrics-row">
-      <div class="metric-card glass-panel">
-        <div class="icon-wrap bg-rose">
-          <i class="ri-money-dollar-circle-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Faturamento Total</span>
-          <span class="c-val text-brand">{{ formatCurrency(totalRevenue) }}</span>
-        </div>
-      </div>
+      <MetricCard
+        label="Faturamento Total"
+        :value="formatCurrency(totalRevenue)"
+        icon="ri-money-dollar-circle-line"
+        color="rose"
+      />
 
-      <div class="metric-card glass-panel">
-        <div class="icon-wrap bg-gold">
-          <i class="ri-shopping-cart-2-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Vendas Concluídas</span>
-          <span class="c-val">{{ completedSalesCount }}</span>
-        </div>
-      </div>
+      <MetricCard
+        label="Vendas Concluídas"
+        :value="completedSalesCount"
+        icon="ri-shopping-bag-3-line"
+        color="gold"
+      />
 
-      <div class="metric-card glass-panel">
-        <div class="icon-wrap bg-emerald">
-          <i class="ri-line-chart-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Ticket Médio</span>
-          <span class="c-val text-emerald">{{ formatCurrency(averageTicket) }}</span>
-        </div>
-      </div>
+      <MetricCard
+        label="Ticket Médio"
+        :value="formatCurrency(averageTicket)"
+        icon="ri-line-chart-line"
+        color="emerald"
+      />
 
-      <div class="metric-card glass-panel">
-        <div class="icon-wrap bg-amber">
-          <i class="ri-alert-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Alerta Estoque Baixo</span>
-          <span class="c-val text-amber">{{ productStore.lowStockProducts.length }} itens</span>
-        </div>
-      </div>
+      <MetricCard
+        label="Estoque Baixo"
+        :value="`${productStore.lowStockProducts.length} itens`"
+        icon="ri-alert-line"
+        color="amber"
+      />
     </div>
 
     <!-- Alertas Especiais & Destaques de Cosméticos -->
@@ -114,6 +102,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import MetricCard from '@/components/common/MetricCard.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import { useProductStore } from '@/stores/productStore'
@@ -194,63 +183,6 @@ onMounted(async () => {
   gap: 1.15rem;
 }
 
-.metric-card {
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icon-wrap {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-
-.bg-rose {
-  background: var(--p-brand-100);
-  color: var(--p-brand-600);
-}
-
-.bg-gold {
-  background: var(--p-gold-100);
-  color: var(--p-gold-700);
-}
-
-.bg-emerald {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.bg-amber {
-  background: #fffbeb;
-  color: #d97706;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.c-label {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.c-val {
-  font-family: var(--font-title);
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
 .text-brand {
   color: var(--p-brand-600);
 }
@@ -270,10 +202,10 @@ onMounted(async () => {
 }
 
 .section-card {
-  padding: 1.25rem;
+  padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.25rem;
 }
 
 .card-heading {
@@ -301,11 +233,11 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #065f46;
-  background: #ecfdf5;
+  color: var(--text-secondary);
+  background: var(--bg-card-soft);
   padding: 0.85rem;
   border-radius: var(--radius-md);
-  border: 1px solid #a7f3d0;
+  border: 1px dashed var(--border-color);
 }
 
 .expiring-list,
@@ -330,7 +262,7 @@ onMounted(async () => {
 .expiring-item:hover,
 .low-stock-item:hover {
   border-color: var(--p-brand-300);
-  box-shadow: var(--shadow-xs);
+  box-shadow: var(--shadow-sm);
 }
 
 .item-left {

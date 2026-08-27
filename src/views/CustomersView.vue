@@ -14,47 +14,35 @@
 
     <!-- Cards de Métricas no Estilo Oficial do Dashboard -->
     <div class="metrics-row">
-      <div
-        class="metric-card glass-panel cursor-pointer transition-all hover:border-(--p-brand-400)"
-        :class="{ 'ring-2 ring-(--p-brand-500)': activeFilter === 'all' }"
+      <MetricCard
+        label="Total de Clientes"
+        :value="customerStore.totalCustomers"
+        icon="ri-team-line"
+        color="rose"
+        is-clickable
+        :is-active="activeFilter === 'all'"
         @click="activeFilter = 'all'"
-      >
-        <div class="icon-wrap bg-rose">
-          <i class="ri-team-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Total de Clientes</span>
-          <span class="c-val text-brand">{{ customerStore.totalCustomers }}</span>
-        </div>
-      </div>
+      />
 
-      <div
-        class="metric-card glass-panel cursor-pointer transition-all hover:border-purple-400"
-        :class="{ 'ring-2 ring-purple-500 bg-purple-50/40': activeFilter === 'month' }"
+      <MetricCard
+        label="Aniversariantes do Mês"
+        :value="customerStore.birthdaysThisMonth.length"
+        icon="ri-cake-2-line"
+        color="purple"
+        is-clickable
+        :is-active="activeFilter === 'month'"
         @click="toggleFilter('month')"
-      >
-        <div class="icon-wrap bg-purple">
-          <i class="ri-cake-2-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Aniversariantes do Mês</span>
-          <span class="c-val text-purple">{{ customerStore.birthdaysThisMonth.length }}</span>
-        </div>
-      </div>
+      />
 
-      <div
-        class="metric-card glass-panel cursor-pointer transition-all hover:border-emerald-400"
-        :class="{ 'ring-2 ring-emerald-500 bg-emerald-50/40': activeFilter === 'today' }"
+      <MetricCard
+        label="Aniversariantes de Hoje"
+        :value="customerStore.birthdaysToday.length"
+        icon="ri-gift-line"
+        color="emerald"
+        is-clickable
+        :is-active="activeFilter === 'today'"
         @click="toggleFilter('today')"
-      >
-        <div class="icon-wrap bg-emerald">
-          <i class="ri-gift-line"></i>
-        </div>
-        <div class="card-info">
-          <span class="c-label">Aniversariantes de Hoje</span>
-          <span class="c-val text-emerald">{{ customerStore.birthdaysToday.length }}</span>
-        </div>
-      </div>
+      />
     </div>
 
     <!-- Tabela de Clientes -->
@@ -118,7 +106,7 @@
         </Column>
 
         <!-- WhatsApp / Telefone -->
-        <Column field="phone" header="WhatsApp / Telefone" sortable style="min-width: 170px">
+        <Column field="phone" header="WhatsApp" sortable style="min-width: 170px">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-(--text-primary)">{{ data.phone }}</span>
@@ -218,7 +206,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
+import MetricCard from '@/components/common/MetricCard.vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -421,69 +410,14 @@ function sendBirthdayWishes(customer: ICustomer): void {
 .metrics-row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1.15rem;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 @media (max-width: 768px) {
   .metrics-row {
     grid-template-columns: 1fr;
   }
-}
-
-.metric-card {
-  padding: 1.25rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.icon-wrap {
-  width: 50px;
-  height: 50px;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  flex-shrink: 0;
-}
-
-.bg-rose {
-  background: var(--p-brand-100);
-  color: var(--p-brand-600);
-}
-
-.bg-purple {
-  background: #f3e8ff;
-  color: #9333ea;
-}
-
-.bg-emerald {
-  background: #ecfdf5;
-  color: #059669;
-}
-
-.card-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.c-label {
-  font-size: 0.76rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-}
-
-.c-val {
-  font-family: var(--font-title);
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.text-brand {
-  color: var(--p-brand-600);
 }
 
 .text-purple {

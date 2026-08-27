@@ -1,13 +1,14 @@
 <template>
-  <Dialog
+  <AppDialog
     :visible="visible"
-    modal
-    header="Fechamento de Caixa Diário"
-    :style="{ width: '520px', maxWidth: '95vw' }"
+    title="Fechamento de Caixa Diário"
+    subtitle="Confira as movimentações e realize o balanço final da gaveta"
+    icon="ri-lock-line"
+    width="520px"
     @update:visible="(val) => emit('update:visible', val)"
   >
     <Fluid>
-      <form @submit.prevent="handleClose" class="close-register-form">
+      <form id="close-register-form" @submit.prevent="handleClose" class="flex flex-col gap-4">
         <div v-if="cashRegisterStore.currentRegister" class="register-summary-box">
           <div class="summary-line">
             <span>Saldo Inicial (Abertura):</span>
@@ -61,33 +62,37 @@
             <label for="close_notes">Observações Finais do Turno</label>
           </FloatLabel>
         </div>
-
-        <div class="form-actions">
-          <Button
-            label="Cancelar"
-            icon="ri-close-line"
-            severity="secondary"
-            variant="text"
-            size="small"
-            @click="emit('update:visible', false)"
-          />
-          <Button
-            type="submit"
-            label="Fechar Caixa"
-            icon="ri-lock-line"
-            severity="danger"
-            size="small"
-            :loading="isSubmitting"
-          />
-        </div>
       </form>
     </Fluid>
-  </Dialog>
+
+    <!-- Footer do Diálogo -->
+    <template #footer>
+      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
+        <Button
+          label="Cancelar"
+          icon="ri-close-line"
+          severity="secondary"
+          variant="text"
+          size="small"
+          @click="emit('update:visible', false)"
+        />
+        <Button
+          type="button"
+          label="Fechar Caixa"
+          icon="ri-lock-line"
+          severity="danger"
+          size="small"
+          :loading="isSubmitting"
+          @click="triggerSubmit"
+        />
+      </div>
+    </template>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, reactive } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
@@ -138,6 +143,13 @@ const diffClass = computed<string>(() => {
 
 function clearErrors(): void {
   Object.keys(errors).forEach((key) => delete errors[key])
+}
+
+function triggerSubmit(): void {
+  const form = document.getElementById('close-register-form') as HTMLFormElement | null
+  if (form) {
+    form.requestSubmit()
+  }
 }
 
 async function handleClose(): Promise<void> {

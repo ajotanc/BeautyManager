@@ -1,18 +1,14 @@
 <template>
-  <Dialog
+  <AppDialog
     :visible="visible"
-    modal
-    header="Abertura de Caixa Diário"
-    :style="{ width: '480px', maxWidth: '95vw' }"
+    title="Abertura de Caixa Diário"
+    subtitle="Informe o valor em dinheiro presente na gaveta para iniciar as operações do dia"
+    icon="ri-lock-unlock-line"
+    width="480px"
     @update:visible="(val) => emit('update:visible', val)"
   >
     <Fluid>
-      <form @submit.prevent="handleOpen" class="open-register-form">
-        <div class="intro-alert">
-          <i class="ri-information-line"></i>
-          <span>Informe o valor em dinheiro presente na gaveta para iniciar as operações do dia.</span>
-        </div>
-
+      <form id="open-register-form" @submit.prevent="handleOpen" class="flex flex-col gap-4">
         <div class="field-item">
           <FloatLabel variant="in">
             <InputNumber
@@ -42,33 +38,37 @@
             <label for="open_notes">Observações (Opcional)</label>
           </FloatLabel>
         </div>
-
-        <div class="form-actions">
-          <Button
-            label="Cancelar"
-            icon="ri-close-line"
-            severity="secondary"
-            variant="text"
-            size="small"
-            @click="emit('update:visible', false)"
-          />
-          <Button
-            type="submit"
-            label="Abrir Caixa"
-            icon="ri-check-line"
-            severity="primary"
-            size="small"
-            :loading="isSubmitting"
-          />
-        </div>
       </form>
     </Fluid>
-  </Dialog>
+
+    <!-- Footer do Diálogo -->
+    <template #footer>
+      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
+        <Button
+          label="Cancelar"
+          icon="ri-close-line"
+          severity="secondary"
+          variant="text"
+          size="small"
+          @click="emit('update:visible', false)"
+        />
+        <Button
+          type="button"
+          label="Abrir Caixa"
+          icon="ri-check-line"
+          severity="primary"
+          size="small"
+          :loading="isSubmitting"
+          @click="triggerSubmit"
+        />
+      </div>
+    </template>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
@@ -107,6 +107,13 @@ const errors = reactive<Record<string, string>>({})
 
 function clearErrors(): void {
   Object.keys(errors).forEach((key) => delete errors[key])
+}
+
+function triggerSubmit(): void {
+  const form = document.getElementById('open-register-form') as HTMLFormElement | null
+  if (form) {
+    form.requestSubmit()
+  }
 }
 
 async function handleOpen(): Promise<void> {

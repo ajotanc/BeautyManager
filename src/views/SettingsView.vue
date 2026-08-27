@@ -12,12 +12,14 @@
           icon="ri-printer-line"
           severity="secondary"
           variant="outlined"
+          size="small"
           @click="handleTestPrint"
         />
         <Button
           label="Salvar Alterações"
           icon="ri-check-line"
           severity="primary"
+          size="small"
           :loading="isSaving"
           @click="handleSaveSettings"
         />

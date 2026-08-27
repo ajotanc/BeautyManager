@@ -38,7 +38,7 @@
       <!-- Informações Principais -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div class="info-box p-3 rounded-md border border-[var(--border-color)] bg-[var(--bg-card)]">
-          <span class="text-xs text-[var(--text-secondary)] block mb-1">WhatsApp / Telefone</span>
+          <span class="text-xs text-[var(--text-secondary)] block mb-1">WhatsApp</span>
           <div class="flex items-center justify-between">
             <strong class="text-sm text-[var(--text-primary)]">{{ customer.phone }}</strong>
             <Button

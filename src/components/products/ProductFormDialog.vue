@@ -2,10 +2,18 @@
   <AppDialog
     :visible="visible"
     :title="isEditing ? 'Editar Produto' : 'Novo Produto'"
-    :subtitle="isEditing ? 'Atualize as informações, preços e estoque do item' : 'Cadastre preços (markup), estoque e especificações'"
+    :subtitle="
+      isEditing
+        ? 'Atualize as informações, preços e estoque do item'
+        : 'Cadastre preços (markup), estoque e especificações'
+    "
     icon="ri-box-3-line"
     width="680px"
-    :contentStyle="{ maxHeight: '80vh', overflowY: 'auto', padding: '1.25rem' }"
+    :contentStyle="{
+      maxHeight: '80vh',
+      overflowY: 'auto',
+      padding: '1.25rem'
+    }"
     @update:visible="(val) => emit('update:visible', val)"
   >
     <Fluid v-if="visible">
@@ -20,17 +28,36 @@
       >
         <!-- Linha 1: Nome do Produto e Código de Barras -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField name="name" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="name"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <FloatLabel variant="in">
-              <InputText id="prod_name" v-model="$field.value" fluid :invalid="$field?.invalid" />
+              <InputText
+                id="prod_name"
+                v-model="$field.value"
+                fluid
+                :invalid="$field?.invalid"
+              />
               <label for="prod_name">Nome do Produto *</label>
             </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
 
-          <FormField name="barcode" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="barcode"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <InputGroup>
               <FloatLabel variant="in" class="flex-1">
                 <InputText
@@ -41,6 +68,7 @@
                 />
                 <label for="prod_barcode">Cód. Barras *</label>
               </FloatLabel>
+
               <Button
                 type="button"
                 icon="ri-flashlight-line"
@@ -50,7 +78,13 @@
                 @click="generateRandomBarcode($field)"
               />
             </InputGroup>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
@@ -58,7 +92,11 @@
 
         <!-- Linha 2: Categoria e Marca -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField name="category" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="category"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <InputGroup>
               <FloatLabel variant="in" class="flex-1">
                 <Select
@@ -72,6 +110,7 @@
                 />
                 <label for="prod_category">Categoria</label>
               </FloatLabel>
+
               <Button
                 type="button"
                 icon="ri-add-line"
@@ -81,12 +120,22 @@
                 @click="emit('open-category-manage')"
               />
             </InputGroup>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
 
-          <FormField name="brand" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="brand"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <InputGroup>
               <FloatLabel variant="in" class="flex-1">
                 <Select
@@ -100,6 +149,7 @@
                 />
                 <label for="prod_brand">Marca / Fabricante</label>
               </FloatLabel>
+
               <Button
                 type="button"
                 icon="ri-add-line"
@@ -109,94 +159,127 @@
                 @click="emit('open-brand-manage')"
               />
             </InputGroup>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
         </div>
 
-        <!-- Bloco de Precificação Dinâmica (Markup) -->
+        <!-- ====================================================== -->
+        <!-- PRECIFICAÇÃO -->
+        <!-- ====================================================== -->
         <div class="markup-card">
           <div class="markup-header">
             <span class="markup-header-title">
-              <i class="ri-money-dollar-circle-line text-primary"></i> Precificação Inteligente (Markup)
+              <i class="ri-money-dollar-circle-line text-primary"></i>
+
+              Precificação Inteligente (Markup)
             </span>
+
             <span class="markup-header-sub">
-              Altere custo, margem ou preço final e o cálculo é sincronizado automaticamente
+              Altere custo, margem ou preço final e o cálculo é
+              sincronizado automaticamente
             </span>
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+
+            <!-- PREÇO DE CUSTO -->
             <FormField name="cost_price" v-slot="$field" class="flex flex-col gap-1">
               <FloatLabel variant="in">
                 <InputNumber
                   id="prod_cost_price"
-                  v-model="$field.value"
+                  v-model="costPrice"
                   mode="currency"
                   currency="BRL"
                   locale="pt-BR"
                   fluid
-                  :min="0"
+                  :allow-empty="true"
                   :invalid="$field?.invalid"
-                  @update:model-value="(val: number | null) => onCostChange(val, $field)"
+                  @update:model-value="onCostChange"
                 />
-                <label for="prod_cost_price">Preço de Custo (R$) *</label>
+                <label for="prod_cost_price">
+                  Preço de Custo (R$) *
+                </label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
                 {{ $field.error?.message }}
               </Message>
             </FormField>
 
+            <!-- MARGEM -->
             <FormField name="profit_margin" v-slot="$field" class="flex flex-col gap-1">
               <FloatLabel variant="in">
                 <InputNumber
                   id="prod_profit_margin"
-                  v-model="$field.value"
+                  v-model="profitMargin"
                   suffix="%"
                   locale="pt-BR"
                   fluid
-                  :min="0"
                   :max-fraction-digits="2"
+                  :allow-empty="true"
                   :invalid="$field?.invalid"
-                  @update:model-value="(val: number | null) => onMarginChange(val, $field)"
+                  @update:model-value="onMarginChange"
                 />
-                <label for="prod_profit_margin">Margem de Lucro (%) *</label>
+                <label for="prod_profit_margin">
+                  Margem de Lucro (%) *
+                </label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
                 {{ $field.error?.message }}
               </Message>
             </FormField>
 
+            <!-- PREÇO DE VENDA -->
             <FormField name="selling_price" v-slot="$field" class="flex flex-col gap-1">
               <FloatLabel variant="in">
                 <InputNumber
                   id="prod_selling_price"
-                  v-model="$field.value"
+                  v-model="sellingPrice"
                   mode="currency"
                   currency="BRL"
                   locale="pt-BR"
                   fluid
-                  :min="0"
+                  :allow-empty="true"
                   :invalid="$field?.invalid"
-                  @update:model-value="(val: number | null) => onSellingChange(val, $field)"
+                  @update:model-value="onSellingChange"
                 />
-                <label for="prod_selling_price">Preço de Venda (R$) *</label>
+                <label for="prod_selling_price">
+                  Preço de Venda (R$) *
+                </label>
               </FloatLabel>
               <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
                 {{ $field.error?.message }}
               </Message>
             </FormField>
+
           </div>
 
+          <!-- LUCRO -->
           <div class="markup-profit-row">
-            <span class="font-medium text-surface-600 dark:text-surface-400">Lucro Bruto Estimado por Unidade:</span>
-            <strong class="text-emerald-600 text-base font-bold">{{ formatCurrency(profitAmount) }}</strong>
+            <span class="font-medium text-surface-600 dark:text-surface-400">
+              Lucro Bruto Estimado por Unidade:
+            </span>
+
+            <strong class="text-emerald-600 text-base font-bold">
+              {{ formatCurrency(profitAmount) }}
+            </strong>
           </div>
         </div>
 
         <!-- Linha 3: Estoque Inicial, Alerta Mínimo e Validade -->
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <FormField name="stock_quantity" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="stock_quantity"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <FloatLabel variant="in">
               <InputNumber
                 id="prod_stock"
@@ -205,14 +288,27 @@
                 :min="0"
                 :invalid="$field?.invalid"
               />
-              <label for="prod_stock">Estoque Inicial *</label>
+
+              <label for="prod_stock">
+                Estoque Inicial *
+              </label>
             </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
 
-          <FormField name="min_stock_alert" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="min_stock_alert"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <FloatLabel variant="in">
               <InputNumber
                 id="prod_min_alert"
@@ -221,14 +317,27 @@
                 :min="1"
                 :invalid="$field?.invalid"
               />
-              <label for="prod_min_alert">Alerta Mínimo *</label>
+
+              <label for="prod_min_alert">
+                Alerta Mínimo *
+              </label>
             </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
 
-          <FormField name="expiry_date" v-slot="$field" class="flex flex-col gap-1">
+          <FormField
+            name="expiry_date"
+            v-slot="$field"
+            class="flex flex-col gap-1"
+          >
             <FloatLabel variant="in">
               <DatePicker
                 id="prod_expiry"
@@ -238,25 +347,47 @@
                 show-icon
                 :invalid="$field?.invalid"
               />
-              <label for="prod_expiry">Data de Validade</label>
+
+              <label for="prod_expiry">
+                Data de Validade
+              </label>
             </FloatLabel>
-            <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
+
+            <Message
+              v-if="$field?.invalid"
+              severity="error"
+              size="small"
+              variant="simple"
+            >
               {{ $field.error?.message }}
             </Message>
           </FormField>
         </div>
 
-        <!-- Opção de Venda Rápida -->
-        <FormField name="is_quick_sale" v-slot="$field" class="quick-sale-card">
-          <Checkbox v-model="$field.value" :binary="true" input-id="quick-sale-check" />
-          <label for="quick-sale-check" class="quick-sale-label">
-            Exibir na grade de "Venda Rápida" (ex: sacolas de presente, laços, itens sem código de barras)
+        <!-- Venda rápida -->
+        <FormField
+          name="is_quick_sale"
+          v-slot="$field"
+          class="quick-sale-card"
+        >
+          <Checkbox
+            v-model="$field.value"
+            :binary="true"
+            input-id="quick-sale-check"
+          />
+
+          <label
+            for="quick-sale-check"
+            class="quick-sale-label"
+          >
+            Exibir na grade de "Venda Rápida"
+            (ex: sacolas de presente, laços, itens sem código de barras)
           </label>
         </FormField>
       </Form>
     </Fluid>
 
-    <!-- Footer Fixo do Diálogo -->
+    <!-- FOOTER -->
     <template #footer>
       <div class="flex items-center justify-end gap-2.5 w-full pt-2">
         <Button
@@ -266,9 +397,14 @@
           variant="text"
           @click="emit('update:visible', false)"
         />
+
         <Button
           type="button"
-          :label="isEditing ? 'Atualizar Produto' : 'Salvar Produto'"
+          :label="
+            isEditing
+              ? 'Atualizar Produto'
+              : 'Salvar Produto'
+          "
           icon="ri-check-line"
           severity="primary"
           :loading="isSubmitting"
@@ -281,7 +417,9 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
+
 import AppDialog from '@/components/common/AppDialog.vue'
+
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
@@ -292,13 +430,27 @@ import InputGroup from 'primevue/inputgroup'
 import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import Fluid from 'primevue/fluid'
-import { Form, FormField, type FormSubmitEvent } from '@primevue/forms'
+
+import {
+  Form,
+  FormField,
+  type FormSubmitEvent
+} from '@primevue/forms'
+
 import { zodResolver } from '@primevue/forms/resolvers/zod'
+
 import { productSchema } from '@/schemas/productSchema'
 import { useProductStore } from '@/stores/productStore'
 import { useMarkupCalculator } from '@/composables/useMarkupCalculator'
+
 import type { IProduct } from '@/types/product'
-import { formatCurrency, toNumber, toDecimalString } from '@/utils/currency'
+
+import {
+  formatCurrency,
+  toNumber,
+  toDecimalString
+} from '@/utils/currency'
+
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { dayjs } from '@/utils/date'
@@ -311,12 +463,17 @@ interface Props {
 interface IFormFieldSlot<T> {
   value: T
   invalid?: boolean
-  error?: { message?: string }
+  error?: {
+    message?: string
+  }
 }
 
-const props = withDefaults(defineProps<Props>(), {
-  productToEdit: null
-})
+const props = withDefaults(
+  defineProps<Props>(),
+  {
+    productToEdit: null
+  }
+)
 
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
@@ -327,29 +484,37 @@ const emit = defineEmits<{
 
 const productStore = useProductStore()
 const toast = useToast()
-const isSubmitting = ref<boolean>(false)
 
-const isEditing = computed<boolean>(() => !!props.productToEdit?.$id)
+const isSubmitting = ref(false)
 const formRef = ref()
+
+const isEditing = computed(() => {
+  return !!props.productToEdit?.$id
+})
+
 const resolver = zodResolver(productSchema)
 
 const {
+  costPrice,
   profitMargin,
   sellingPrice,
   profitAmount,
   setCostPrice,
   setProfitMargin,
   reset: resetMarkup
-} = useMarkupCalculator(0, 50, 0)
+} = useMarkupCalculator(null, null, null)
 
 const initialValues = ref<IProduct>({
   barcode: '',
   name: '',
   category: null,
   brand: null,
+
+  // Os valores de markup NÃO são controlados pelo FormField.
   cost_price: 0,
-  profit_margin: 50,
+  profit_margin: 0,
   selling_price: 0,
+
   stock_quantity: 0,
   min_stock_alert: 5,
   expiry_date: null,
@@ -359,32 +524,49 @@ const initialValues = ref<IProduct>({
 watch(
   () => [props.productToEdit, props.visible],
   () => {
-    if (!props.visible) return
+    if (!props.visible) {
+      return
+    }
+
     const prod = props.productToEdit
-    if (prod && prod.$id) {
+
+    if (prod?.$id) {
       const cost = toNumber(prod.cost_price)
       const margin = toNumber(prod.profit_margin)
       const sell = toNumber(prod.selling_price)
-      resetMarkup(cost, margin, sell)
+
+      resetMarkup(
+        cost > 0 ? cost : null,
+        margin > 0 ? margin : null,
+        sell > 0 ? sell : null
+      )
 
       initialValues.value = {
         ...prod,
         cost_price: cost,
         profit_margin: margin,
         selling_price: sell,
+
         category: prod.category || null,
         brand: prod.brand || null
       }
     } else {
-      resetMarkup(0, 50, 0)
+      resetMarkup(
+        null,
+        null,
+        null
+      )
+
       initialValues.value = {
         barcode: '',
         name: '',
         category: null,
         brand: null,
+
         cost_price: 0,
-        profit_margin: 50,
+        profit_margin: 0,
         selling_price: 0,
+
         stock_quantity: 0,
         min_stock_alert: 5,
         expiry_date: null,
@@ -392,91 +574,180 @@ watch(
       } as IProduct
     }
   },
-  { immediate: true }
+  {
+    immediate: true
+  }
 )
 
-function onCostChange(val: number | null, fieldState: IFormFieldSlot<number>): void {
-  const cost = val ?? 0
-  fieldState.value = cost
-  setCostPrice(cost)
-  formRef.value?.setFieldValue('selling_price', sellingPrice.value)
+watch(costPrice, (val) => {
+  if (formRef.value) formRef.value.setFieldValue('cost_price', val ?? 0)
+})
+watch(profitMargin, (val) => {
+  if (formRef.value) formRef.value.setFieldValue('profit_margin', val ?? 0)
+})
+watch(sellingPrice, (val) => {
+  if (formRef.value) formRef.value.setFieldValue('selling_price', val ?? 0)
+})
+
+function onCostChange(
+  value: number | null
+): void {
+  setCostPrice(value)
+
+  /*
+   * Quando o usuário apagar o custo,
+   * não queremos que um cálculo antigo volte.
+   */
+  if (value === null) {
+    sellingPrice.value = null
+    return
+  }
+
+  /*
+   * Se existe margem, o preço de venda é recalculado
+   * automaticamente pelo composable.
+   */
 }
 
-function onMarginChange(val: number | null, fieldState: IFormFieldSlot<number>): void {
-  const margin = val ?? 0
-  fieldState.value = margin
-  setProfitMargin(margin)
-  formRef.value?.setFieldValue('selling_price', sellingPrice.value)
+function onMarginChange(
+  value: number | null
+): void {
+  setProfitMargin(value)
+
+  /*
+   * Apagou a margem?
+   * O preço de venda também fica vazio porque não existe
+   * informação suficiente para calcular o preço.
+   */
+  if (value === null) {
+    sellingPrice.value = null
+  }
 }
 
-function onSellingChange(val: number | null, fieldState: IFormFieldSlot<number>): void {
-  const sell = val ?? 0
-  fieldState.value = sell
-  sellingPrice.value = sell
-  formRef.value?.setFieldValue('profit_margin', profitMargin.value)
+function onSellingChange(
+  value: number | null
+): void {
+  sellingPrice.value = value
+
+  /*
+   * O setter do sellingPrice já calcula a margem
+   * quando existe custo.
+   */
 }
 
-function generateRandomBarcode(fieldState: IFormFieldSlot<string>): void {
-  const randomSuffix = Math.floor(10000000 + Math.random() * 90000000)
+function generateRandomBarcode(
+  fieldState: IFormFieldSlot<string>
+): void {
+  const randomSuffix = Math.floor(
+    10000000 + Math.random() * 90000000
+  )
+
   const code = `789${randomSuffix}`
+
   fieldState.value = code
+
   initialValues.value.barcode = code
 }
 
-async function handleSubmit(event: FormSubmitEvent): Promise<void> {
+async function handleSubmit(
+  event: FormSubmitEvent
+): Promise<void> {
+
   if (!event.valid) {
     toast.add({
       severity: 'warn',
       summary: 'Campos Obrigatórios',
-      detail: 'Por favor, revise os campos destacados no formulário.',
+      detail:
+        'Por favor, revise os campos destacados no formulário.',
       life: 3000
     })
+
     return
   }
 
   isSubmitting.value = true
+
   try {
     const values = event.values as IProduct
 
+    /*
+     * Como os campos de preço não pertencem ao FormField,
+     * usamos diretamente os estados do composable.
+     */
+
     const payload: Partial<IProduct> = {
       $id: props.productToEdit?.$id,
+
       name: values.name.trim(),
       barcode: values.barcode.trim(),
+
       category: values.category || null,
       brand: values.brand || null,
-      cost_price: toDecimalString(values.cost_price),
-      profit_margin: toDecimalString(values.profit_margin),
-      selling_price: toDecimalString(values.selling_price),
-      stock_quantity: Number(values.stock_quantity),
-      min_stock_alert: Number(values.min_stock_alert),
-      expiry_date: values.expiry_date ? dayjs(values.expiry_date).toISOString() : null,
-      is_quick_sale: Boolean(values.is_quick_sale)
+
+      cost_price: toDecimalString(
+        costPrice.value ?? 0
+      ),
+
+      profit_margin: toDecimalString(
+        profitMargin.value ?? 0
+      ),
+
+      selling_price: toDecimalString(
+        sellingPrice.value ?? 0
+      ),
+
+      stock_quantity: Number(
+        values.stock_quantity
+      ),
+
+      min_stock_alert: Number(
+        values.min_stock_alert
+      ),
+
+      expiry_date: values.expiry_date
+        ? dayjs(values.expiry_date).toISOString()
+        : null,
+
+      is_quick_sale: Boolean(
+        values.is_quick_sale
+      )
     }
 
-    const result = await productStore.saveProduct(payload)
+    const result =
+      await productStore.saveProduct(payload)
+
     toast.add({
       severity: 'success',
-      summary: isEditing.value ? 'Produto Atualizado' : 'Produto Cadastrado',
+      summary: isEditing.value
+        ? 'Produto Atualizado'
+        : 'Produto Cadastrado',
       detail: result.name,
       life: 3000
     })
 
     emit('saved', result)
     emit('update:visible', false)
+
   } catch (error: unknown) {
+
     toast.add({
       severity: 'error',
       summary: 'Erro ao salvar produto',
       detail: parseErrorMessage(error),
       life: 4000
     })
+
   } finally {
     isSubmitting.value = false
   }
 }
 
 function triggerFormSubmit(): void {
-  const formEl = document.getElementById('product-form-element') as HTMLFormElement | null
+  const formEl =
+    document.getElementById(
+      'product-form-element'
+    ) as HTMLFormElement | null
+
   if (formEl) {
     formEl.requestSubmit()
   } else {
@@ -556,4 +827,3 @@ function triggerFormSubmit(): void {
   color: var(--p-brand-600) !important;
 }
 </style>
-

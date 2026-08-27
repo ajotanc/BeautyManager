@@ -1,85 +1,105 @@
 <template>
-  <Dialog
+  <AppDialog
     :visible="visible"
-    modal
-    header="Movimentação de Caixa (Sangria / Suprimento)"
-    :style="{ width: '500px' }"
+    title="Movimentação de Caixa"
+    subtitle="Registre sangrias (retiradas) ou suprimentos (entradas) de dinheiro"
+    icon="ri-exchange-dollar-line"
+    width="500px"
     @update:visible="(val) => emit('update:visible', val)"
   >
-    <form @submit.prevent="handleSubmit" class="movement-form">
-      <div class="field-item">
-        <label class="field-label">Tipo de Movimentação *</label>
-        <div class="type-grid">
-          <button
-            type="button"
-            class="type-btn out-type"
-            :class="{ 'is-active': movementType === 'OUT' }"
-            @click="movementType = 'OUT'"
-          >
-            <i class="ri-indeterminate-circle-line"></i>
-            <span>Sangria (Retirada)</span>
-          </button>
-          <button
-            type="button"
-            class="type-btn in-type"
-            :class="{ 'is-active': movementType === 'IN' }"
-            @click="movementType = 'IN'"
-          >
-            <i class="ri-add-circle-line"></i>
-            <span>Suprimento (Entrada)</span>
-          </button>
+    <Fluid>
+      <form id="cash-movement-form" @submit.prevent="handleSubmit" class="flex flex-col gap-4">
+        <!-- Tipo de Movimentação -->
+        <div class="flex flex-col gap-1.5">
+          <label class="text-xs font-bold text-(--text-secondary) uppercase tracking-wider">Tipo de Movimentação *</label>
+          <div class="grid grid-cols-2 gap-3">
+            <button
+              type="button"
+              class="type-btn out-type"
+              :class="{ 'is-active': movementType === 'OUT' }"
+              @click="movementType = 'OUT'"
+            >
+              <i class="ri-indeterminate-circle-line"></i>
+              <span>Sangria (Retirada)</span>
+            </button>
+            <button
+              type="button"
+              class="type-btn in-type"
+              :class="{ 'is-active': movementType === 'IN' }"
+              @click="movementType = 'IN'"
+            >
+              <i class="ri-add-circle-line"></i>
+              <span>Suprimento (Entrada)</span>
+            </button>
+          </div>
         </div>
-      </div>
 
-      <div class="field-item">
-        <label class="field-label">Valor (R$) *</label>
-        <InputNumber
-          v-model="amount"
-          mode="currency"
-          currency="BRL"
-          locale="pt-BR"
-          class="w-full text-lg font-bold"
-          :min="0.01"
-          required
-        />
-      </div>
+        <!-- Valor -->
+        <div class="flex flex-col gap-1">
+          <FloatLabel variant="in">
+            <InputNumber
+              id="movement_amount"
+              v-model="amount"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              fluid
+              class="w-full text-lg font-bold"
+              :min="0.01"
+              required
+            />
+            <label for="movement_amount">Valor (R$) *</label>
+          </FloatLabel>
+        </div>
 
-      <div class="field-item">
-        <label class="field-label">Motivo / Justificativa *</label>
-        <InputText
-          v-model="reason"
-          placeholder="Ex: Pagamento Fornecedor de Laços, Troco Adicional..."
-          class="w-full"
-          required
-        />
-      </div>
+        <!-- Motivo / Justificativa -->
+        <div class="flex flex-col gap-1">
+          <FloatLabel variant="in">
+            <InputText
+              id="movement_reason"
+              v-model="reason"
+              fluid
+              required
+            />
+            <label for="movement_reason">Motivo / Justificativa *</label>
+          </FloatLabel>
+        </div>
+      </form>
+    </Fluid>
 
-      <div class="form-actions">
+    <!-- Footer do Diálogo -->
+    <template #footer>
+      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
         <Button
           label="Cancelar"
           icon="ri-close-line"
           severity="secondary"
           variant="text"
+          size="small"
           @click="emit('update:visible', false)"
         />
         <Button
-          type="submit"
+          type="button"
           label="Confirmar Movimentação"
           icon="ri-check-line"
           severity="primary"
+          size="small"
           :loading="isSubmitting"
+          @click="triggerSubmit"
         />
       </div>
-    </form>
-  </Dialog>
+    </template>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
+import FloatLabel from 'primevue/floatlabel'
+import Fluid from 'primevue/fluid'
 import { useCashRegisterStore } from '@/stores/cashRegisterStore'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
@@ -102,6 +122,13 @@ const movementType = ref<'IN' | 'OUT'>('OUT')
 const amount = ref<number>(50)
 const reason = ref<string>('')
 const isSubmitting = ref<boolean>(false)
+
+function triggerSubmit(): void {
+  const form = document.getElementById('cash-movement-form') as HTMLFormElement | null
+  if (form) {
+    form.requestSubmit()
+  }
+}
 
 async function handleSubmit(): Promise<void> {
   const justification = reason.value.trim()
@@ -137,37 +164,13 @@ async function handleSubmit(): Promise<void> {
 </script>
 
 <style scoped>
-.movement-form {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.field-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.field-label {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.type-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-}
-
 .type-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.4rem;
+  gap: 0.5rem;
   padding: 0.75rem;
-  border-radius: 8px;
+  border-radius: var(--radius-md, 10px);
   border: 1px solid var(--border-color);
   background: white;
   font-weight: 700;
@@ -187,12 +190,5 @@ async function handleSubmit(): Promise<void> {
   border-color: #10b981;
   color: #065f46;
 }
-
-.form-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  padding-top: 0.5rem;
-  border-top: 1px solid var(--border-color);
-}
 </style>
+

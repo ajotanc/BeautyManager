@@ -276,7 +276,6 @@ const filteredProducts = computed(() => {
 }
 
 .product-card:hover {
-  transform: translateY(-2px);
   border-color: var(--p-brand-400);
   box-shadow: var(--shadow-md);
 }

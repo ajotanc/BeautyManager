@@ -13,16 +13,17 @@ import 'primeicons/primeicons.css'
 import '@/assets/styles/main.css'
 import '@/assets/styles/print.css'
 
+import { ptBRLocale } from '@/locales/pt-br'
+
 import App from './App.vue'
 import router from './router'
 
 /**
- * Custom Preset PrimeVue - Paleta Oficial:
- * #D7263D (Crimson / Ruby Dark)
- * #FF4D6D (Vibrant Coral Rose / Primary)
- * #FF8FA3 (Soft Rose / Focus & Accent)
- * #FFF0F3 (Blush White / Clean Surface)
- * #2B2D42 (Dark Slate Navy / Charcoal Text)
+ * Custom Preset PrimeVue - Paleta Final Pink:
+ * #E11D48 (Crimson Pink)
+ * #A80038 (Dark Cherry)
+ * #FFE5EC (Blush)
+ * #101828 (Dark Navy Text)
  */
 const BeautyManagerPreset = definePreset(Aura, {
   primitive: {
@@ -30,52 +31,52 @@ const BeautyManagerPreset = definePreset(Aura, {
       none: '0',
       xs: '4px',
       sm: '6px',
-      md: '10px',
-      lg: '14px',
-      xl: '20px'
+      md: '8px',
+      lg: '12px',
+      xl: '16px'
     }
   },
   semantic: {
     primary: {
-      50: '#fff0f3',
-      100: '#ffe3e8',
-      200: '#ffccd5',
-      300: '#ffa6b7',
-      400: '#ff8fa3',
-      500: '#ff4d6d',
-      600: '#e63956',
-      700: '#d7263d',
-      800: '#b01a2e',
-      900: '#871322',
-      950: '#4f0611'
+      50: '#fff5f8',
+      100: '#ffe5ec',
+      200: '#ffb8cd',
+      300: '#ff8ab1',
+      400: '#ff5d8f',
+      500: '#e11d48',
+      600: '#c4133a',
+      700: '#a80038',
+      800: '#8c002f',
+      900: '#700026',
+      950: '#4a0019'
     },
     formField: {
       paddingX: '0.75rem',
       paddingY: '0.55rem',
       borderRadius: '{border.radius.md}',
       focusRing: {
-        width: '1px',
-        style: 'solid',
-        color: '#ff8fa3',
+        width: '0',
+        style: 'none',
+        color: 'transparent',
         offset: '0',
-        shadow: '0 0 0 3px rgba(255, 77, 109, 0.15)'
+        shadow: '0 0 0 1px #ff5d8f, 0 0 0 4px rgba(255, 93, 143, 0.2)'
       }
     },
     colorScheme: {
       light: {
         surface: {
           0: '#ffffff',
-          50: '#f8fafc',
-          100: '#f1f5f9',
-          200: '#e2e8f0',
-          300: '#cbd5e1',
-          400: '#94a3b8',
-          500: '#64748b',
-          600: '#475569',
-          700: '#334155',
-          800: '#2b2d42',
-          900: '#1e293b',
-          950: '#0f172a'
+          50: '#f9fafb',
+          100: '#f3f4f6',
+          200: '#e5e7eb',
+          300: '#d1d5db',
+          400: '#9ca3af',
+          500: '#6b7280',
+          600: '#4b5563',
+          700: '#374151',
+          800: '#1f2937',
+          900: '#111827',
+          950: '#030712'
         }
       }
     }
@@ -92,7 +93,7 @@ const BeautyManagerPreset = definePreset(Aura, {
     dialog: {
       root: {
         borderRadius: '{border.radius.xl}',
-        shadow: '0 20px 45px -10px rgba(43, 45, 66, 0.18)'
+        shadow: '0 20px 40px -10px rgba(168, 0, 56, 0.18)'
       },
       header: {
         padding: '1.25rem 1.5rem'
@@ -104,7 +105,7 @@ const BeautyManagerPreset = definePreset(Aura, {
     card: {
       root: {
         borderRadius: '{border.radius.lg}',
-        shadow: '0 4px 16px rgba(43, 45, 66, 0.05)'
+        shadow: '0 10px 25px rgba(168, 0, 56, 0.12)'
       }
     },
     datatable: {
@@ -114,7 +115,6 @@ const BeautyManagerPreset = definePreset(Aura, {
     }
   }
 })
-
 
 const app = createApp(App)
 const pinia = createPinia()
@@ -129,6 +129,7 @@ app.use(PrimeVue, {
       cssLayer: false
     }
   },
+  locale: ptBRLocale,
   ripple: true
 })
 app.use(ToastService)

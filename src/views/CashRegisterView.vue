@@ -34,14 +34,14 @@
           <span class="m-val">{{ formatCurrency(cashRegisterStore.currentRegister.opening_balance) }}</span>
         </div>
 
-        <div class="metric-box">
+        <div class="metric-box highlight-box-green">
           <span class="m-label">Total Entradas (+ Dinheiro)</span>
-          <span class="m-val text-emerald-600">+ {{ formatCurrency(cashRegisterStore.currentRegister.total_in) }}</span>
+          <span class="m-val grand-val-green">+ {{ formatCurrency(cashRegisterStore.currentRegister.total_in) }}</span>
         </div>
 
-        <div class="metric-box">
+        <div class="metric-box highlight-box-red">
           <span class="m-label">Total Saídas (- Sangrias)</span>
-          <span class="m-val text-rose-600">- {{ formatCurrency(cashRegisterStore.currentRegister.total_out) }}</span>
+          <span class="m-val grand-val-red">- {{ formatCurrency(cashRegisterStore.currentRegister.total_out) }}</span>
         </div>
 
         <div class="metric-box highlight-box">
@@ -252,8 +252,28 @@ onMounted(async () => {
   border-color: var(--p-brand-300);
 }
 
+.highlight-box-green {
+  background: linear-gradient(135deg, #ecfdf5 0%, #ffffff 100%);
+  border-color: #34d399;
+}
+
+.highlight-box-red {
+  background: linear-gradient(135deg, #fff1f2 0%, #ffffff 100%);
+  border-color: #fb7185;
+}
+
 .grand-val {
   color: var(--p-brand-600);
+  font-size: 1.5rem;
+}
+
+.grand-val-green {
+  color: #059669;
+  font-size: 1.5rem;
+}
+
+.grand-val-red {
+  color: #e11d48;
   font-size: 1.5rem;
 }
 

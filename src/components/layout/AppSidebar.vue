@@ -80,8 +80,8 @@ const authStore = useAuthStore()
 .app-sidebar {
   width: 256px;
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-right: 1px solid var(--border-color);
   display: flex;
   flex-direction: column;
@@ -104,10 +104,11 @@ const authStore = useAuthStore()
 }
 
 .group-label {
-  font-size: 0.68rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--p-gold-700);
   padding: 0 0.75rem 0.35rem 0.75rem;
 }
 
@@ -126,24 +127,27 @@ const authStore = useAuthStore()
 
 .nav-item i {
   font-size: 1.15rem;
-  color: var(--p-brand-600);
-  transition: transform 0.2s ease;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
 }
 
 .nav-item:hover {
   background: var(--p-brand-50);
-  color: var(--p-brand-900);
+  color: var(--p-brand-700);
   transform: translateX(3px);
 }
 
 .nav-item:hover i {
+  color: var(--p-brand-600);
   transform: scale(1.1);
 }
 
 .nav-item.is-active {
   background: var(--grad-primary);
   color: #ffffff;
-  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+  box-shadow: var(--shadow-md);
+  border: none;
 }
 
 .nav-item.is-active i {
@@ -152,11 +156,19 @@ const authStore = useAuthStore()
 
 .badge-shortcut {
   margin-left: auto;
-  font-size: 0.68rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  background: rgba(255, 255, 255, 0.22);
-  padding: 0.1rem 0.4rem;
+  background: var(--border-subtle);
+  color: var(--text-muted);
+  padding: 0.15rem 0.4rem;
   border-radius: var(--radius-xs);
+  border: 1px solid var(--border-color);
+}
+
+.nav-item.is-active .badge-shortcut {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.4);
 }
 
 .sidebar-footer {

@@ -1,13 +1,13 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
   <defs>
     <linearGradient id="favBg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FF758F" />
-      <stop offset="50%" stop-color="#FF4D6D" />
-      <stop offset="100%" stop-color="#D7263D" />
+      <stop offset="0%" stop-color="#FF5D8F" />
+      <stop offset="50%" stop-color="#E11D48" />
+      <stop offset="100%" stop-color="#A80038" />
     </linearGradient>
     <linearGradient id="favCore" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#FFF0F3" />
-      <stop offset="100%" stop-color="#FF8FA3" />
+      <stop offset="0%" stop-color="#FFE5EC" />
+      <stop offset="100%" stop-color="#FF5D8F" />
     </linearGradient>
   </defs>
 

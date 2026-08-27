@@ -11,14 +11,17 @@
       <!-- Barra de Inserção / Edição Rápida -->
       <div class="flex flex-col gap-1">
         <InputGroup>
-          <InputText
-            id="brand_input"
-            v-model="brandName"
-            :placeholder="selectedBrand.$id ? 'Nome da marca...' : 'Nova marca...'"
-            class="text-sm"
-            :invalid="!!errorMsg"
-            @keyup.enter="saveBrand"
-          />
+          <FloatLabel variant="in">
+            <InputText
+              id="brand_input"
+              v-model="brandName"
+              class="text-sm"
+              fluid
+              :invalid="!!errorMsg"
+              @keyup.enter="saveBrand"
+            />
+            <label for="brand_input">{{ selectedBrand.$id ? 'Nome da Marca' : 'Nova Marca' }}</label>
+          </FloatLabel>
           <Button
             v-if="selectedBrand.$id"
             icon="ri-close-line"
@@ -49,14 +52,14 @@
         scrollHeight="260px"
         size="small"
         data-key="$id"
-        class="border rounded-lg overflow-hidden border-[var(--border-color)]"
+        class="border rounded-lg overflow-hidden border-(--border-color)"
         empty-message="Nenhuma marca cadastrada."
       >
         <Column field="name" header="Nome da Marca">
           <template #body="{ data }">
             <span
               class="text-sm"
-              :class="selectedBrand.$id === data.$id ? 'font-bold text-[var(--p-brand-600)]' : 'font-medium text-[var(--text-primary)]'"
+              :class="selectedBrand.$id === data.$id ? 'font-bold text-(--p-brand-600)' : 'font-medium text-(--text-primary)'"
             >
               {{ data.name }}
             </span>
@@ -111,6 +114,7 @@ import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputGroup from 'primevue/inputgroup'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'

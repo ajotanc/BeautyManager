@@ -97,8 +97,8 @@ async function handleLogout(): Promise<void> {
   justify-content: space-between;
   padding: 0.75rem 1.5rem;
   background: var(--bg-card);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border-color);
   position: sticky;
   top: 0;
@@ -122,11 +122,11 @@ async function handleLogout(): Promise<void> {
   width: 38px;
   height: 38px;
   border-radius: var(--radius-md);
-  background: var(--grad-primary);
+  background: var(--p-brand-50);
+  border: 1px solid var(--p-brand-100);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: var(--shadow-sm);
   overflow: hidden;
 }
 

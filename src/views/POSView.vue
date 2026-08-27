@@ -69,8 +69,7 @@
     <!-- Modais do PDV -->
     <PosPaymentDialog v-model:visible="showPaymentDialog" @sale-completed="onSaleCompleted" />
 
-    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="lastSale"
-      :settings="settingsStore.settings" />
+    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="lastSale" />
 
     <OpenRegisterDialog v-model:visible="showOpenRegisterDialog" @opened="onRegisterOpened" />
 

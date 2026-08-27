@@ -11,14 +11,17 @@
       <!-- Barra de Inserção / Edição Rápida -->
       <div class="flex flex-col gap-1">
         <InputGroup>
-          <InputText
-            id="category_input"
-            v-model="categoryName"
-            :placeholder="selectedCategory.$id ? 'Nome da categoria...' : 'Nova categoria...'"
-            class="text-sm"
-            :invalid="!!errorMsg"
-            @keyup.enter="saveCategory"
-          />
+          <FloatLabel variant="in">
+            <InputText
+              id="category_input"
+              v-model="categoryName"
+              class="text-sm"
+              fluid
+              :invalid="!!errorMsg"
+              @keyup.enter="saveCategory"
+            />
+            <label for="category_input">{{ selectedCategory.$id ? 'Nome da Categoria' : 'Nova Categoria' }}</label>
+          </FloatLabel>
           <Button
             v-if="selectedCategory.$id"
             icon="ri-close-line"
@@ -49,14 +52,14 @@
         scrollHeight="260px"
         size="small"
         data-key="$id"
-        class="border rounded-lg overflow-hidden border-[var(--border-color)]"
+        class="border rounded-lg overflow-hidden border-(--border-color)"
         empty-message="Nenhuma categoria cadastrada."
       >
         <Column field="name" header="Nome da Categoria">
           <template #body="{ data }">
             <span
               class="text-sm"
-              :class="selectedCategory.$id === data.$id ? 'font-bold text-[var(--p-brand-600)]' : 'font-medium text-[var(--text-primary)]'"
+              :class="selectedCategory.$id === data.$id ? 'font-bold text-(--p-brand-600)' : 'font-medium text-(--text-primary)'"
             >
               {{ data.name }}
             </span>
@@ -111,6 +114,7 @@ import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputGroup from 'primevue/inputgroup'
+import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
