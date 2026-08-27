@@ -1,17 +1,13 @@
 <template>
-  <Dialog :visible="visible" modal :style="{ width: '640px', maxWidth: '95vw' }" :dismissable-mask="true"
-    @update:visible="(val) => emit('update:visible', val)" class="barcode-print-modal">
-    <template #header>
-      <div class="dialog-custom-header">
-        <div class="header-icon-box">
-          <i class="ri-barcode-box-line"></i>
-        </div>
-        <div class="header-text">
-          <h3 class="header-title">Impressão de Etiquetas</h3>
-          <p class="header-subtitle">Padrão A4 • 96 etiquetas por folha (31 x 17 mm)</p>
-        </div>
-      </div>
-    </template>
+  <AppDialog
+    :visible="visible"
+    title="Impressão de Etiquetas"
+    subtitle="Padrão A4 • 96 etiquetas por folha (31 x 17 mm)"
+    icon="ri-barcode-box-line"
+    width="640px"
+    @update:visible="(val) => emit('update:visible', val)"
+    class="barcode-print-modal"
+  >
 
     <Fluid>
       <div class="labels-dialog-content">
@@ -113,12 +109,12 @@
           class="print-action-btn" @click="handlePrint" />
       </div>
     </template>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Tag from 'primevue/tag'

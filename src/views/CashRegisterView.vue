@@ -7,36 +7,20 @@
       </div>
 
       <div class="header-actions">
-        <Button
-          v-if="!cashRegisterStore.isRegisterOpen"
-          label="Abrir Caixa"
-          icon="ri-lock-unlock-line"
-          severity="primary"
-          size="small"
-          @click="showOpenDialog = true"
-        />
+        <Button v-if="!cashRegisterStore.isRegisterOpen" label="Abrir Caixa" icon="ri-lock-unlock-line"
+          severity="primary" size="small" @click="showOpenDialog = true" />
         <template v-else>
-          <Button
-            label="Movimentação (Sangria/Suprimento)"
-            icon="ri-exchange-line"
-            severity="secondary"
-            variant="outlined"
-            size="small"
-            @click="showMovementDialog = true"
-          />
-          <Button
-            label="Fechar Caixa"
-            icon="ri-lock-line"
-            severity="danger"
-            size="small"
-            @click="showCloseDialog = true"
-          />
+          <Button label="Movimentação (Sangria/Suprimento)" icon="ri-exchange-line" severity="secondary"
+            variant="outlined" size="small" @click="showMovementDialog = true" />
+          <Button label="Fechar Caixa" icon="ri-lock-line" severity="danger" size="small"
+            @click="showCloseDialog = true" />
         </template>
       </div>
     </div>
 
     <!-- Painel do Caixa Atual (Aberto) -->
-    <div v-if="cashRegisterStore.isRegisterOpen && cashRegisterStore.currentRegister" class="current-register-card glass-panel">
+    <div v-if="cashRegisterStore.isRegisterOpen && cashRegisterStore.currentRegister"
+      class="current-register-card glass-panel">
       <div class="card-status-header">
         <div class="status-left">
           <Tag severity="success" value="Caixa Aberto" icon="ri-checkbox-circle-line" />
@@ -78,13 +62,9 @@
         <i class="ri-lock-line lock-icon"></i>
       </div>
       <h3 class="notice-title">Nenhum Caixa Aberto no Momento</h3>
-      <p class="notice-desc">Clique no botão abaixo para abrir o caixa e começar a registrar as movimentações do dia.</p>
-      <Button
-        label="Abrir Caixa Agora"
-        icon="ri-lock-unlock-line"
-        severity="primary"
-        @click="showOpenDialog = true"
-      />
+      <p class="notice-desc">Clique no botão abaixo para abrir o caixa e começar a registrar as movimentações do dia.
+      </p>
+      <Button label="Abrir Caixa Agora" icon="ri-lock-unlock-line" severity="primary" @click="showOpenDialog = true" />
     </div>
 
     <!-- Histórico de Caixas Anteriores -->
@@ -93,15 +73,9 @@
         <h3 class="history-title"><i class="ri-calendar-line"></i> Histórico de Fechamentos Anteriores</h3>
       </div>
 
-      <DataTable
-        :value="cashRegisterStore.history"
-        paginator
-        :rows="8"
-        :rows-per-page-options="[8, 16, 24]"
-        :loading="cashRegisterStore.isLoading"
-        responsive-layout="scroll"
-        empty-message="Nenhum histórico de fechamento anterior."
-      >
+      <DataTable :value="cashRegisterStore.history" paginator :rows="8" :rows-per-page-options="[8, 16, 24]"
+        :loading="cashRegisterStore.isLoading" responsive-layout="scroll"
+        empty-message="Nenhum histórico de fechamento anterior.">
         <Column field="opened_at" header="Abertura" sortable style="min-width: 150px">
           <template #body="{ data }">
             <span class="text-sm">{{ formatDateTime(data.opened_at) }}</span>
@@ -140,7 +114,8 @@
 
         <Column field="status" header="Status" style="min-width: 110px">
           <template #body="{ data }">
-            <Tag :severity="data.status === 'Open' ? 'success' : 'secondary'" :value="data.status === 'Open' ? 'Aberto' : 'Fechado'" />
+            <Tag :severity="data.status === 'open' ? 'success' : 'secondary'"
+              :value="data.status === 'open' ? 'Aberto' : 'Fechado'" />
           </template>
         </Column>
       </DataTable>

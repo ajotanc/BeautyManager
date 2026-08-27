@@ -1,9 +1,10 @@
 <template>
-  <Dialog
+  <AppDialog
     :visible="visible"
-    modal
-    :header="isEditing ? 'Editar Produto / Cosmético' : 'Novo Produto / Cosmético'"
-    :style="{ width: '680px', maxWidth: '95vw' }"
+    :title="isEditing ? 'Editar Produto' : 'Novo Produto'"
+    :subtitle="isEditing ? 'Atualize as informações, preços e estoque do item' : 'Cadastre preços (markup), estoque e especificações'"
+    icon="ri-box-3-line"
+    width="680px"
     :contentStyle="{ maxHeight: '80vh', overflowY: 'auto', padding: '1.25rem' }"
     @update:visible="(val) => emit('update:visible', val)"
   >
@@ -275,12 +276,12 @@
         />
       </div>
     </template>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
@@ -328,7 +329,7 @@ const productStore = useProductStore()
 const toast = useToast()
 const isSubmitting = ref<boolean>(false)
 
-const isEditing = computed<boolean>(() => props.productToEdit !== null)
+const isEditing = computed<boolean>(() => !!props.productToEdit?.$id)
 const formRef = ref()
 const resolver = zodResolver(productSchema)
 
@@ -360,7 +361,7 @@ watch(
   () => {
     if (!props.visible) return
     const prod = props.productToEdit
-    if (prod) {
+    if (prod && prod.$id) {
       const cost = toNumber(prod.cost_price)
       const margin = toNumber(prod.profit_margin)
       const sell = toNumber(prod.selling_price)
@@ -437,8 +438,8 @@ async function handleSubmit(event: FormSubmitEvent): Promise<void> {
   try {
     const values = event.values as IProduct
 
-    const payload: IProduct = {
-      ...values,
+    const payload: Partial<IProduct> = {
+      $id: props.productToEdit?.$id,
       name: values.name.trim(),
       barcode: values.barcode.trim(),
       category: values.category || null,
@@ -452,14 +453,13 @@ async function handleSubmit(event: FormSubmitEvent): Promise<void> {
       is_quick_sale: Boolean(values.is_quick_sale)
     }
 
-    let result: IProduct
-    if (isEditing.value && props.productToEdit) {
-      result = await productStore.updateProduct(props.productToEdit.$id, payload)
-      toast.add({ severity: 'success', summary: 'Produto Atualizado', detail: result.name, life: 3000 })
-    } else {
-      result = await productStore.createProduct(payload)
-      toast.add({ severity: 'success', summary: 'Produto Cadastrado', detail: result.name, life: 3000 })
-    }
+    const result = await productStore.saveProduct(payload)
+    toast.add({
+      severity: 'success',
+      summary: isEditing.value ? 'Produto Atualizado' : 'Produto Cadastrado',
+      detail: result.name,
+      life: 3000
+    })
 
     emit('saved', result)
     emit('update:visible', false)

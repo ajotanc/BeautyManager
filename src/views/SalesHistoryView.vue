@@ -3,41 +3,22 @@
     <div class="view-header">
       <div>
         <h1 class="page-title"><i class="ri-file-list-3-line"></i> Histórico de Vendas</h1>
-        <p class="page-subtitle">Consulte todas as vendas realizadas, reimprima cupons e envie comprovantes via WhatsApp</p>
+        <p class="page-subtitle">Consulte todas as vendas realizadas, reimprima cupons e envie comprovantes via WhatsApp
+        </p>
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Exportar Excel"
-          icon="ri-file-excel-2-line"
-          severity="success"
-          variant="outlined"
-          size="small"
-          :disabled="salesList.length === 0"
-          @click="handleExportExcel"
-        />
-        <Button
-          label="Atualizar"
-          icon="ri-refresh-line"
-          severity="secondary"
-          size="small"
-          :loading="isLoading"
-          @click="fetchSales"
-        />
+        <Button label="Exportar Excel" icon="ri-file-excel-2-line" severity="success" variant="outlined" size="small"
+          :disabled="salesList.length === 0" @click="handleExportExcel" />
+        <Button label="Atualizar" icon="ri-refresh-line" severity="secondary" size="small" :loading="isLoading"
+          @click="fetchSales" />
       </div>
     </div>
 
     <!-- Tabela de Vendas -->
     <div class="table-container glass-panel">
-      <DataTable
-        :value="salesList"
-        paginator
-        :rows="12"
-        :rows-per-page-options="[12, 24, 48]"
-        :loading="isLoading"
-        responsive-layout="scroll"
-        empty-message="Nenhuma venda registrada."
-      >
+      <DataTable :value="salesList" paginator :rows="12" :rows-per-page-options="[12, 24, 48]" :loading="isLoading"
+        responsive-layout="scroll" empty-message="Nenhuma venda registrada.">
         <Column field="$createdAt" header="Data / Hora" sortable style="min-width: 160px">
           <template #body="{ data }">
             <span class="text-sm">{{ formatDateTime(data.$createdAt) }}</span>
@@ -70,54 +51,23 @@
 
         <Column field="status" header="Status" sortable style="min-width: 120px">
           <template #body="{ data }">
-            <Tag
-              :severity="data.status === 'Completed' ? 'success' : 'danger'"
-              :value="data.status === 'Completed' ? 'Concluída' : 'Cancelada'"
-            />
+            <Tag :severity="data.status === 'completed' ? 'success' : 'danger'"
+              :value="data.status === 'completed' ? 'Concluída' : 'Cancelada'" />
           </template>
         </Column>
 
         <Column header="Ações" style="min-width: 170px" body-class="text-right">
           <template #body="{ data }">
             <div class="actions-row">
-              <Button
-                icon="ri-eye-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Ver Itens"
-                @click="openSaleDetails(data)"
-              />
-              <Button
-                icon="ri-printer-line"
-                severity="primary"
-                variant="text"
-                rounded
-                size="small"
-                title="Reimprimir Cupom"
-                @click="handleReprint(data)"
-              />
-              <Button
-                v-if="data.customer_phone"
-                icon="ri-whatsapp-line"
-                severity="success"
-                variant="text"
-                rounded
-                size="small"
-                title="Enviar no WhatsApp"
-                @click="openWhatsapp(data)"
-              />
-              <Button
-                v-if="data.status === 'Completed' && authStore.isAdmin"
-                icon="ri-close-circle-line"
-                severity="danger"
-                variant="text"
-                rounded
-                size="small"
-                title="Cancelar Venda e Estornar Estoque"
-                @click="confirmCancelSale(data)"
-              />
+              <Button icon="ri-eye-line" severity="secondary" variant="text" rounded size="small" title="Ver Itens"
+                @click="openSaleDetails(data)" />
+              <Button icon="ri-printer-line" severity="primary" variant="text" rounded size="small"
+                title="Reimprimir Cupom" @click="handleReprint(data)" />
+              <Button v-if="data.customer_phone" icon="ri-whatsapp-line" severity="success" variant="text" rounded
+                size="small" title="Enviar no WhatsApp" @click="openWhatsapp(data)" />
+              <Button v-if="data.status === 'completed' && authStore.isAdmin" icon="ri-close-circle-line"
+                severity="danger" variant="text" rounded size="small" title="Cancelar Venda e Estornar Estoque"
+                @click="confirmCancelSale(data)" />
             </div>
           </template>
         </Column>
@@ -138,7 +88,7 @@
           <div v-if="selectedSale.items && selectedSale.items.length > 0" class="items-sub-list">
             <div v-for="item in selectedSale.items" :key="item.$id" class="sub-item-line">
               <div>
-                <span class="font-bold">{{ getSaleItemName(item) }}</span>
+                <span class="font-bold">{{ item.product.name }}</span>
                 <div class="text-xs text-muted">{{ item.quantity }}x a {{ formatCurrency(item.unit_price) }}</div>
               </div>
               <strong class="text-brand font-bold">{{ formatCurrency(item.subtotal) }}</strong>
@@ -153,21 +103,14 @@
       </div>
       <template #footer>
         <Button label="Fechar" severity="secondary" variant="text" @click="showDetailsDialog = false" />
-        <Button
-          label="Reimprimir Cupom"
-          icon="ri-printer-line"
-          severity="primary"
-          @click="handleReprint(selectedSale)"
-        />
+        <Button label="Reimprimir Cupom" icon="ri-printer-line" severity="primary"
+          @click="handleReprint(selectedSale)" />
       </template>
     </Dialog>
 
     <!-- Dialog de Envio WhatsApp -->
-    <PosWhatsappReceiptDialog
-      v-model:visible="showWhatsappDialog"
-      :sale="selectedSale"
-      :settings="settingsStore.settings"
-    />
+    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="selectedSale"
+      :settings="settingsStore.settings" />
 
     <!-- Área de Impressão Térmica Oculta -->
     <ThermalReceipt :sale="selectedSale" :settings="settingsStore.settings" />
@@ -175,7 +118,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
@@ -187,9 +130,8 @@ import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 import { sales } from '@/services/sales'
 import { useAuthStore } from '@/stores/authStore'
 import { useSettingsStore } from '@/stores/settingsStore'
-import { useProductStore } from '@/stores/productStore'
 import { useThermalPrinter } from '@/composables/useThermalPrinter'
-import type { ISale, ISaleItem, PaymentMethod } from '@/types/sale'
+import type { ISale, PaymentMethod } from '@/types/sale'
 import { formatCurrency } from '@/utils/currency'
 import { formatDateTime } from '@/utils/date'
 import { exportToExcel } from '@/utils/exportExcel'
@@ -198,7 +140,6 @@ import { useToast } from 'primevue/usetoast'
 
 const authStore = useAuthStore()
 const settingsStore = useSettingsStore()
-const productStore = useProductStore()
 const confirm = useConfirm()
 const toast = useToast()
 const { printReceipt } = useThermalPrinter()
@@ -219,21 +160,14 @@ async function fetchSales(): Promise<void> {
 }
 
 async function openSaleDetails(sale: ISale): Promise<void> {
-  try {
-    selectedSale.value = await sales.getSaleWithItems(sale.$id)
-    showDetailsDialog.value = true
-  } catch {
     selectedSale.value = sale
     showDetailsDialog.value = true
-  }
 }
 
 async function handleReprint(sale: ISale | null): Promise<void> {
   if (!sale) return
-  if (!sale.items) {
-    sale = await sales.getSaleWithItems(sale.$id)
-  }
   selectedSale.value = sale
+  await nextTick()
   await printReceipt()
 }
 
@@ -251,7 +185,7 @@ function confirmCancelSale(sale: ISale): void {
     rejectLabel: 'Não',
     accept: async () => {
       try {
-        await sales.cancelSale(sale.$id)
+        await sales.cancelSale(sale)
         toast.add({ severity: 'warn', summary: 'Venda Cancelada', detail: 'Estoque estornado com sucesso.', life: 3000 })
         await fetchSales()
       } catch {
@@ -263,20 +197,12 @@ function confirmCancelSale(sale: ISale): void {
 
 function translatePayment(method: PaymentMethod): string {
   const map: Record<PaymentMethod, string> = {
-    Pix: 'PIX',
-    Credit: 'Cartão Crédito',
-    Debit: 'Cartão Débito',
-    Cash: 'Dinheiro'
+    pix: 'PIX',
+    credit: 'Cartão Crédito',
+    debit: 'Cartão Débito',
+    cash: 'Dinheiro'
   }
   return map[method] || method
-}
-
-function getSaleItemName(item: ISaleItem): string {
-  if (typeof item.product === 'object' && item.product) {
-    return item.product.name
-  }
-  const found = productStore.products.find((p) => p.$id === item.product)
-  return found ? found.name : 'Produto'
 }
 
 function handleExportExcel(): void {
@@ -288,7 +214,7 @@ function handleExportExcel(): void {
     'Pagamento': translatePayment(s.payment_method),
     'Desconto (R$)': s.discount_amount || 0,
     'Total (R$)': s.total_amount,
-    'Status': s.status === 'Completed' ? 'Concluída' : 'Cancelada'
+    'Status': s.status === 'completed' ? 'Concluída' : 'Cancelada'
   }))
   exportToExcel(exportData, 'Historico_Vendas_Beauty_Manager')
   toast.add({ severity: 'success', summary: 'Exportado!', detail: 'Arquivo Excel gerado com sucesso.', life: 3000 })

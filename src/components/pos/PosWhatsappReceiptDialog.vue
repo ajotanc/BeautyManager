@@ -1,13 +1,14 @@
 <template>
-  <Dialog :visible="visible" modal header="Enviar Comprovante no WhatsApp" :style="{ width: '480px', maxWidth: '95vw' }"
-    @update:visible="(val) => emit('update:visible', val)">
+  <AppDialog
+    :visible="visible"
+    title="Comprovante no WhatsApp"
+    subtitle="Envie o comprovante digital da compra diretamente para o WhatsApp"
+    icon="ri-whatsapp-line"
+    width="480px"
+    @update:visible="(val) => emit('update:visible', val)"
+  >
     <Fluid>
       <div class="whatsapp-dialog-content">
-        <div class="whatsapp-banner">
-          <i class="ri-whatsapp-line"></i>
-          <span>Envie o comprovante digital da compra diretamente para o WhatsApp da sua cliente.</span>
-        </div>
-
         <div class="field-item">
           <FloatLabel variant="in">
             <InputText id="whatsapp_dest_phone" v-model="phoneInput" size="small" fluid />
@@ -31,24 +32,23 @@
           @click="openWhatsApp" />
       </div>
     </template>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import FloatLabel from 'primevue/floatlabel'
 import Fluid from 'primevue/fluid'
 import type { ISale } from '@/types/sale'
-import type { ISettings } from '@/types/storeSettings'
-import { formatCurrency } from '@/utils/currency'
+import { generateSaleReceiptText } from '@/utils/receipt'
+import { useSettingsStore } from '@/stores/settingsStore'
 
 interface Props {
   visible: boolean
   sale: ISale | null
-  settings: Partial<ISettings> | null
 }
 
 const props = defineProps<Props>()
@@ -56,13 +56,14 @@ const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
 }>()
 
+const settingsStore = useSettingsStore()
 const phoneInput = ref<string>('')
 
 watch(
   () => props.sale,
-  (newSale) => {
-    if (newSale?.customer_phone) {
-      phoneInput.value = newSale.customer_phone.replace(/\D/g, '')
+  (s) => {
+    if (s && s.customer_phone) {
+      phoneInput.value = s.customer_phone
     } else {
       phoneInput.value = ''
     }
@@ -70,41 +71,22 @@ watch(
   { immediate: true }
 )
 
-const cleanPhone = computed(() => phoneInput.value.replace(/\D/g, ''))
-const isValidPhone = computed(() => cleanPhone.value.length >= 10)
+const formattedMessage = computed<string>(() => {
+  if (!props.sale) return ''
+  return generateSaleReceiptText(props.sale, settingsStore.settings)
+})
 
-const formattedMessage = computed(() => {
-  const storeName = props.settings?.store_name || 'Beauty Manager'
-  const customer = props.sale?.customer_name ? `Olá, *${props.sale.customer_name}*! ` : 'Olá! '
-  const total = formatCurrency(props.sale?.total_amount || 0)
-
-  let text = `🌸 *${storeName}*\n\n`
-  text += `${customer}Muito obrigada pela sua compra conosco! ✨\n\n`
-  text += `🛒 *Resumo do seu Pedido:*\n`
-
-  if (props.sale?.items) {
-    props.sale.items.forEach((item) => {
-      const pName = typeof item.product === 'object' && item.product && 'name' in item.product
-        ? item.product.name
-        : 'Produto'
-      text += `• ${item.quantity}x ${pName} - ${formatCurrency(item.subtotal)}\n`
-    })
-  }
-
-  text += `\n💰 *Total:* ${total}\n`
-  text += `💳 *Forma de Pagamento:* ${props.sale?.payment_method || 'Confirmado'}\n\n`
-  text += `Dúvidas ou novidades? Fale com a gente por aqui! Tenha um dia maravilhoso! 💖`
-
-  return text
+const isValidPhone = computed<boolean>(() => {
+  const clean = phoneInput.value.replace(/\D/g, '')
+  return clean.length >= 10 && clean.length <= 11
 })
 
 function openWhatsApp(): void {
-  const phone = cleanPhone.value
-  const fullPhone = phone.startsWith('55') ? phone : `55${phone}`
-  const encoded = encodeURIComponent(formattedMessage.value)
-  const url = `https://wa.me/${fullPhone}?text=${encoded}`
-  window.open(url, '_blank')
-  emit('update:visible', false)
+  if (!isValidPhone.value) return
+  const clean = phoneInput.value.replace(/\D/g, '')
+  const fullPhone = `55${clean}`
+  const encodedText = encodeURIComponent(formattedMessage.value)
+  window.open(`https://wa.me/${fullPhone}?text=${encodedText}`, '_blank')
 }
 </script>
 
@@ -112,52 +94,41 @@ function openWhatsApp(): void {
 .whatsapp-dialog-content {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 1.15rem;
+  padding-top: 0.25rem;
 }
 
-.intro-box {
+.field-item {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
-  background: #ecfdf5;
-  border: 1px solid #a7f3d0;
-  border-radius: 8px;
-  color: #065f46;
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.intro-box i {
-  font-size: 1.5rem;
-  color: #10b981;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .field-label {
-  font-size: 0.82rem;
+  font-size: 0.8rem;
   font-weight: 700;
-  color: var(--text-primary);
-  display: block;
-  margin-bottom: 0.3rem;
-}
-
-.field-hint {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  margin-top: 0.2rem;
-  display: block;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
 }
 
 .message-preview {
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
+  background: var(--bg-card-soft);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
   padding: 0.85rem;
-  font-family: var(--font-sans);
-  font-size: 0.82rem;
-  white-space: pre-line;
+  font-size: 0.78rem;
+  color: var(--text-primary);
+  white-space: pre-wrap;
   max-height: 180px;
   overflow-y: auto;
-  color: #334155;
+  line-height: 1.4;
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  width: 100%;
 }
 </style>

@@ -8,80 +8,35 @@
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Exportar Excel"
-          icon="ri-file-excel-2-line"
-          severity="success"
-          variant="outlined"
-          size="small"
-          @click="handleExportExcel"
-        />
-        <Button
-          label="Categorias"
-          icon="ri-folder-3-line"
-          severity="secondary"
-          variant="outlined"
-          size="small"
-          @click="showCategoryDialog = true"
-        />
-        <Button
-          label="Marcas"
-          icon="ri-bookmark-3-line"
-          severity="secondary"
-          variant="outlined"
-          size="small"
-          @click="showBrandDialog = true"
-        />
-        <Button
-          label="Novo Produto"
-          icon="ri-add-line"
-          severity="primary"
-          size="small"
-          @click="openNewProduct"
-        />
+        <Button label="Exportar Excel" icon="ri-file-excel-2-line" severity="success" variant="outlined" size="small"
+          @click="handleExportExcel" />
+        <Button label="Categorias" icon="ri-folder-3-line" severity="secondary" variant="outlined" size="small"
+          @click="showCategoryDialog = true" />
+        <Button label="Marcas" icon="ri-bookmark-3-line" severity="secondary" variant="outlined" size="small"
+          @click="showBrandDialog = true" />
+        <Button label="Novo Produto" icon="ri-add-line" severity="primary" size="small" @click="newProduct" />
       </div>
     </div>
 
     <!-- Tabela de Produtos -->
     <div class="table-container glass-panel">
-      <DataTable
-        v-model:filters="filters"
-        :value="productStore.products"
-        paginator
-        :rows="12"
-        :rows-per-page-options="[12, 24, 48]"
-        data-key="$id"
-        :loading="productStore.isLoading"
-        filter-display="row"
-        :global-filter-fields="['name', 'barcode']"
-        responsive-layout="scroll"
-        empty-message="Nenhum produto cadastrado."
-      >
+      <DataTable v-model:filters="filters" :value="productStore.products" paginator :rows="12"
+        :rows-per-page-options="[12, 24, 48]" data-key="$id" :loading="productStore.isLoading" filter-display="row"
+        :global-filter-fields="['name', 'barcode']" responsive-layout="scroll"
+        empty-message="Nenhum produto cadastrado.">
         <template #header>
           <div class="table-header-bar">
             <IconField>
               <InputIcon class="ri-search-line" />
-              <InputText
-                v-model="filters['global'].value"
-                placeholder="Buscar por nome ou código de barras..."
-                size="small"
-                class="global-search-input"
-              />
+              <InputText v-model="filters['global'].value" placeholder="Buscar por nome ou código de barras..."
+                size="small" class="global-search-input" />
             </IconField>
 
             <div class="stock-alerts-summary">
-              <Tag
-                v-if="productStore.lowStockProducts.length > 0"
-                severity="warn"
-                :value="`${productStore.lowStockProducts.length} estoque baixo`"
-                icon="ri-alert-line"
-              />
-              <Tag
-                v-if="productStore.expiringProducts.length > 0"
-                severity="danger"
-                :value="`${productStore.expiringProducts.length} vencendo logo`"
-                icon="ri-time-line"
-              />
+              <Tag v-if="productStore.lowStockProducts.length > 0" severity="warn"
+                :value="`${productStore.lowStockProducts.length} estoque baixo`" icon="ri-alert-line" />
+              <Tag v-if="productStore.expiringProducts.length > 0" severity="danger"
+                :value="`${productStore.expiringProducts.length} vencendo logo`" icon="ri-time-line" />
             </div>
           </div>
         </template>
@@ -99,7 +54,7 @@
             <div class="product-name-cell">
               <span class="name-text">{{ data.name }}</span>
               <div class="meta-tags">
-                <span class="cat-brand-tag">{{ getProductCategoryName(data) }} • {{ getProductBrandName(data) }}</span>
+                <span class="cat-brand-tag">{{ data.category.name }} • {{ data.brand.name }}</span>
                 <Tag v-if="data.is_quick_sale" severity="info" value="Venda Rápida" class="mini-tag" />
               </div>
             </div>
@@ -131,14 +86,11 @@
         <Column field="stock_quantity" header="Estoque" sortable style="min-width: 110px">
           <template #body="{ data }">
             <div class="stock-badge-wrapper">
-              <span
-                class="stock-num font-semibold"
-                :class="{
-                  'stock-empty': data.stock_quantity === 0,
-                  'stock-low': data.stock_quantity > 0 && data.stock_quantity <= data.min_stock_alert,
-                  'stock-ok': data.stock_quantity > data.min_stock_alert
-                }"
-              >
+              <span class="stock-num font-semibold" :class="{
+                'stock-empty': data.stock_quantity === 0,
+                'stock-low': data.stock_quantity > 0 && data.stock_quantity <= data.min_stock_alert,
+                'stock-ok': data.stock_quantity > data.min_stock_alert
+              }">
                 {{ data.stock_quantity }} un.
               </span>
             </div>
@@ -149,14 +101,10 @@
         <Column field="expiry_date" header="Validade" sortable style="min-width: 120px">
           <template #body="{ data }">
             <span v-if="!data.expiry_date" class="text-muted">-</span>
-            <span
-              v-else
-              class="text-sm"
-              :class="{
-                'text-danger font-bold': isExpired(data.expiry_date),
-                'text-warning font-bold': isExpiringSoon(data.expiry_date, 60)
-              }"
-            >
+            <span v-else class="text-sm" :class="{
+              'text-danger font-bold': isExpired(data.expiry_date),
+              'text-warning font-bold': isExpiringSoon(data.expiry_date, 60)
+            }">
               {{ formatDate(data.expiry_date) }}
             </span>
           </template>
@@ -166,42 +114,14 @@
         <Column header="Ações" style="min-width: 160px" body-class="text-right">
           <template #body="{ data }">
             <div class="actions-row">
-              <Button
-                icon="ri-archive-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Ajuste / Entrada de Estoque"
-                @click="openStockAdjustment(data)"
-              />
-              <Button
-                icon="ri-printer-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Imprimir Etiquetas"
-                @click="openBarcodePrint(data)"
-              />
-              <Button
-                icon="ri-pencil-line"
-                severity="primary"
-                variant="text"
-                rounded
-                size="small"
-                title="Editar Produto"
-                @click="openEditProduct(data)"
-              />
-              <Button
-                icon="ri-delete-bin-line"
-                severity="danger"
-                variant="text"
-                rounded
-                size="small"
-                title="Excluir Produto"
-                @click="confirmDelete(data)"
-              />
+              <Button icon="ri-archive-line" severity="secondary" variant="text" rounded size="small"
+                title="Ajuste / Entrada de Estoque" @click="openStockAdjustment(data)" />
+              <Button icon="ri-printer-line" severity="secondary" variant="text" rounded size="small"
+                title="Imprimir Etiquetas" @click="openBarcodePrint(data)" />
+              <Button icon="ri-pencil-line" severity="primary" variant="text" rounded size="small"
+                title="Editar Produto" @click="editProduct(data)" />
+              <Button icon="ri-delete-bin-line" severity="danger" variant="text" rounded size="small"
+                title="Excluir Produto" @click="confirmDelete(data)" />
             </div>
           </template>
         </Column>
@@ -209,12 +129,8 @@
     </div>
 
     <!-- Modais de Produtos -->
-    <ProductFormDialog
-      v-model:visible="showProductDialog"
-      :product-to-edit="selectedProduct"
-      @open-category-manage="showCategoryDialog = true"
-      @open-brand-manage="showBrandDialog = true"
-    />
+    <ProductFormDialog v-model:visible="showProductDialog" :product-to-edit="selectedProduct"
+      @open-category-manage="showCategoryDialog = true" @open-brand-manage="showBrandDialog = true" />
 
     <CategoryManageDialog v-model:visible="showCategoryDialog" />
     <BrandManageDialog v-model:visible="showBrandDialog" />
@@ -249,6 +165,9 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { FilterMatchMode } from '@primevue/core/api'
 
+import { ProductService } from '@/services/products'
+import { parseErrorMessage } from '@/types/errors'
+
 const productStore = useProductStore()
 const confirm = useConfirm()
 const toast = useToast()
@@ -262,55 +181,49 @@ const showCategoryDialog = ref<boolean>(false)
 const showBrandDialog = ref<boolean>(false)
 const showStockDialog = ref<boolean>(false)
 const showBarcodePrintDialog = ref<boolean>(false)
-const selectedProduct = ref<IProduct | null>(null)
+const selectedProduct = ref<IProduct>({} as IProduct)
 
-function getProductCategoryName(prod: IProduct): string {
-  if (prod.category && typeof prod.category === 'object' && 'name' in prod.category) {
-    return (prod.category as { name: string }).name || 'Sem categoria'
-  }
-  return 'Sem categoria'
-}
-
-function getProductBrandName(prod: IProduct): string {
-  if (prod.brand && typeof prod.brand === 'object' && 'name' in prod.brand) {
-    return (prod.brand as { name: string }).name || 'Sem marca'
-  }
-  return 'Sem marca'
-}
-
-function openNewProduct(): void {
-  selectedProduct.value = null
+function newProduct(): void {
+  selectedProduct.value = {} as IProduct
   showProductDialog.value = true
 }
 
-function openEditProduct(prod: IProduct): void {
-  selectedProduct.value = prod
+function editProduct(product: IProduct): void {
+  selectedProduct.value = product;
   showProductDialog.value = true
 }
 
-function openStockAdjustment(prod: IProduct): void {
-  selectedProduct.value = prod
+function openStockAdjustment(product: IProduct): void {
+  selectedProduct.value = product;
   showStockDialog.value = true
 }
 
-function openBarcodePrint(prod: IProduct): void {
-  selectedProduct.value = prod
+function openBarcodePrint(product: IProduct): void {
+  selectedProduct.value = product;
   showBarcodePrintDialog.value = true
 }
 
-function confirmDelete(prod: IProduct): void {
+function confirmDelete(product: IProduct): void {
   confirm.require({
-    message: `Deseja realmente excluir o produto "${prod.name}"?`,
-    header: 'Confirmar Exclusão',
-    icon: 'ri-alert-line',
-    acceptLabel: 'Excluir',
-    rejectLabel: 'Cancelar',
+    message: `Você tem certeza que deseja excluir o produto "${product.name}"?`,
+    header: 'Excluir Produto',
+    icon: 'ri-error-warning-line text-rose-500',
+    rejectProps: {
+      label: 'Não',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Sim',
+      severity: 'danger'
+    },
     accept: async () => {
       try {
-        await productStore.deleteProduct(prod.$id)
-        toast.add({ severity: 'info', summary: 'Produto Excluído', detail: prod.name, life: 3000 })
-      } catch {
-        toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao excluir o produto.', life: 3000 })
+        await ProductService.delete(product.$id)
+        productStore.products = productStore.products.filter((item) => item.$id !== product.$id)
+        toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Produto excluído com sucesso!', life: 3000 })
+      } catch (error: unknown) {
+        toast.add({ severity: 'error', summary: 'Erro', detail: parseErrorMessage(error), life: 3000 })
       }
     }
   })
@@ -320,8 +233,8 @@ function handleExportExcel(): void {
   const exportData = productStore.products.map((p) => ({
     'Código de Barras': p.barcode,
     'Nome do Produto': p.name,
-    'Categoria': getProductCategoryName(p),
-    'Marca': getProductBrandName(p),
+    'Categoria': p.category?.name,
+    'Marca': p.brand?.name,
     'Preço Custo (R$)': p.cost_price,
     'Margem (%)': p.profit_margin,
     'Preço Venda (R$)': p.selling_price,

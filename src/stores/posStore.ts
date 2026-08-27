@@ -1,19 +1,20 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
-import type { ICartItem, PaymentMethod, ISale } from '@/types/sale'
+import type { ICartItem, PaymentMethod, ISale, ISaleItem } from '@/types/sale'
 import type { IProduct } from '@/types/product'
 import { sales } from '@/services/sales'
 import { products } from '@/services/products'
 import { useAuthStore } from './authStore'
 import { useCashRegisterStore } from './cashRegisterStore'
-import { toNumber } from '@/utils/currency'
+import { useProductStore } from './productStore'
+import { toDecimalString, toNumber } from '@/utils/currency'
 
 export const usePosStore = defineStore('pos', () => {
   const cart = ref<ICartItem[]>([])
   const discount = ref<number>(0)
   const customerName = ref<string>('')
   const customerPhone = ref<string>('')
-  const selectedPaymentMethod = ref<PaymentMethod>('Cash')
+  const selectedPaymentMethod = ref<PaymentMethod>('cash')
   const amountPaid = ref<number>(0)
   const lastCompletedSale = ref<ISale | null>(null)
   const isProcessingSale = ref<boolean>(false)
@@ -29,7 +30,7 @@ export const usePosStore = defineStore('pos', () => {
   })
 
   const changeAmount = computed<number>(() => {
-    if (selectedPaymentMethod.value !== 'Cash') return 0
+    if (selectedPaymentMethod.value !== 'cash') return 0
     const diff = amountPaid.value - totalAmount.value
     return Math.max(0, Number(diff.toFixed(2)))
   })
@@ -107,6 +108,7 @@ export const usePosStore = defineStore('pos', () => {
 
     const authStore = useAuthStore()
     const cashRegisterStore = useCashRegisterStore()
+    const productStore = useProductStore()
 
     if (!cashRegisterStore.isRegisterOpen) {
       throw new Error('O Caixa Diário está fechado. Abra o caixa antes de realizar vendas.')
@@ -117,24 +119,29 @@ export const usePosStore = defineStore('pos', () => {
       const saleItems = cart.value.map((item) => ({
         product: item.product,
         quantity: item.quantity,
-        unit_price: item.unit_price,
-        subtotal: item.subtotal
-      }))
+        unit_price: toDecimalString(item.unit_price),
+        subtotal: toDecimalString(item.subtotal)
+      } as ISaleItem))
 
       const createdSale = await sales.createSale({
-        total_amount: totalAmount.value,
-        discount_amount: discount.value,
+        total_amount: toDecimalString(totalAmount.value),
+        discount_amount: toDecimalString(discount.value),
         payment_method: selectedPaymentMethod.value,
         customer_name: customerName.value.trim() || null,
         customer_phone: customerPhone.value.trim() || null,
-        status: 'Completed',
+        status: 'completed',
         user_id: authStore.currentUser?.$id || 'anonymous',
         items: saleItems
-      })
+      } as ISale)
 
       // Se o pagamento for em dinheiro, atualiza o total_in do caixa
-      if (selectedPaymentMethod.value === 'Cash' && cashRegisterStore.currentRegister) {
+      if (selectedPaymentMethod.value === 'cash' && cashRegisterStore.currentRegister) {
         await cashRegisterStore.addCashSale(totalAmount.value)
+      }
+
+      // Atualiza o estoque local no productStore imediatamente sem fazer requisição de rede
+      for (const item of cart.value) {
+        productStore.decrementStock(item.product.$id, item.quantity)
       }
 
       lastCompletedSale.value = createdSale

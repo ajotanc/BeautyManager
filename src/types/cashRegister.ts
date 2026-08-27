@@ -1,6 +1,6 @@
 import type { Models } from 'appwrite'
 
-export type CashRegisterStatus = 'Open' | 'Closed'
+export type CashRegisterStatus = 'open' | 'closed'
 
 export interface ICashRegister extends Models.Row {
   opened_at: string

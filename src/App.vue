@@ -71,22 +71,49 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
     return
   }
 
-  // F3 - Dashboard (Apenas Admin)
+  // F3 - Histórico de Vendas
   if (event.key === 'F3') {
     event.preventDefault()
-    if (authStore.isAdmin && route.name !== 'dashboard') {
-      router.push({ name: 'dashboard' })
+    if (route.name !== 'sales') {
+      router.push({ name: 'sales' })
     }
     return
   }
 
-  // F4 - Produtos (quando fora do Checkout)
+  // F4 - Dashboard (Apenas Admin e fora do Checkout)
   if (event.key === 'F4') {
     if (route.name !== 'checkout') {
       event.preventDefault()
-      if (authStore.isAdmin) {
-        router.push({ name: 'products' })
+      if (authStore.isAdmin && route.name !== 'dashboard') {
+        router.push({ name: 'dashboard' })
       }
+    }
+    return
+  }
+
+  // F5 - Produtos (Apenas Admin)
+  if (event.key === 'F5') {
+    event.preventDefault()
+    if (authStore.isAdmin && route.name !== 'products') {
+      router.push({ name: 'products' })
+    }
+    return
+  }
+
+  // F6 - Clientes (Apenas Admin)
+  if (event.key === 'F6') {
+    event.preventDefault()
+    if (authStore.isAdmin && route.name !== 'customers') {
+      router.push({ name: 'customers' })
+    }
+    return
+  }
+
+  // F7 - Controle de Estoque (Apenas Admin)
+  if (event.key === 'F7') {
+    event.preventDefault()
+    if (authStore.isAdmin && route.name !== 'inventory') {
+      router.push({ name: 'inventory' })
     }
     return
   }

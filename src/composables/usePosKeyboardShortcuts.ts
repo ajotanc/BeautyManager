@@ -15,8 +15,8 @@ export function usePosKeyboardShortcuts(handlers: PosShortcutHandlers) {
       return
     }
 
-    // F4 - Finalizar Venda (Abrir Modal de Pagamento)
-    if (event.key === 'F4') {
+    // F4 / F12 - Finalizar Venda (Abrir Modal de Pagamento)
+    if (event.key === 'F4' || event.key === 'F12') {
       event.preventDefault()
       handlers.onCheckout?.()
       return

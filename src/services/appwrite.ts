@@ -8,6 +8,7 @@ export const TABLES = {
   CATEGORIES: 'categories',
   BRANDS: 'brands',
   PRODUCTS: 'products',
+  CUSTOMERS: 'customers',
   INVENTORY_TRANSACTIONS: 'inventory_transactions',
   SALES: 'sales',
   SALE_ITEMS: 'sale_items',
@@ -15,13 +16,11 @@ export const TABLES = {
   STORE_SETTINGS: 'settings'
 } as const
 
-// Inicialização oficial do Appwrite Client
 export const client = new Client()
 client
   .setEndpoint(APPWRITE_ENDPOINT)
   .setProject(APPWRITE_PROJECT_ID)
 
 export const account = new Account(client)
-
-// Instância oficial TablesDB do SDK Appwrite 1.8.x
 export const databases = new TablesDB(client)
+export const tables = databases

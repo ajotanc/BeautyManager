@@ -1,90 +1,123 @@
 <template>
-  <Dialog
+  <AppDialog
     :visible="visible"
-    modal
-    header="Gerenciar Marcas & Fabricantes"
-    :style="{ width: '480px', maxWidth: '95vw' }"
-    :contentStyle="{ padding: '1.25rem' }"
+    title="Gerenciar Marcas"
+    subtitle="Cadastre, edite ou remova as marcas dos produtos"
+    icon="ri-bookmark-3-line"
+    width="480px"
     @update:visible="(val) => emit('update:visible', val)"
   >
-    <Fluid>
-      <div class="flex flex-col gap-4">
-        <!-- Formulário de Criação -->
-        <div class="flex flex-col gap-1">
-          <InputGroup>
-            <FloatLabel variant="in" class="flex-1">
-              <InputText
-                id="new_brand_name"
-                v-model="newBrandName"
-                fluid
-                :invalid="!!errorMsg"
-                @keyup.enter="handleAdd"
-              />
-              <label for="new_brand_name">Nome</label>
-            </FloatLabel>
-            <Button
-              label="Adicionar"
-              icon="ri-add-line"
-              severity="primary"
-              :loading="isAdding"
-              @click="handleAdd"
-            />
-          </InputGroup>
-          <Message v-if="errorMsg" severity="error" size="small" variant="simple">
-            {{ errorMsg }}
-          </Message>
-        </div>
+    <div class="flex flex-col gap-3">
+      <!-- Barra de Inserção / Edição Rápida -->
+      <div class="flex flex-col gap-1">
+        <InputGroup>
+          <InputText
+            id="brand_input"
+            v-model="brandName"
+            :placeholder="selectedBrand.$id ? 'Nome da marca...' : 'Nova marca...'"
+            class="text-sm"
+            :invalid="!!errorMsg"
+            @keyup.enter="saveBrand"
+          />
+          <Button
+            v-if="selectedBrand.$id"
+            icon="ri-close-line"
+            severity="secondary"
+            variant="outlined"
+            title="Cancelar edição"
+            @click="cancelEdit"
+          />
+          <Button
+            :label="selectedBrand.$id ? 'Atualizar' : 'Adicionar'"
+            :icon="selectedBrand.$id ? 'ri-check-line' : 'ri-add-line'"
+            severity="primary"
+            class="font-semibold"
+            :loading="isSubmitting"
+            @click="saveBrand"
+          />
+        </InputGroup>
 
-        <!-- Lista de Marcas -->
-        <div class="list-container">
-          <div v-if="productStore.brands.length === 0" class="empty-list">
-            Nenhuma marca cadastrada.
-          </div>
-          <div
-            v-for="brand in productStore.brands"
-            :key="brand.$id"
-            class="list-item-row"
-          >
-            <span class="item-title">{{ brand.name }}</span>
-            <Button
-              icon="ri-delete-bin-line"
-              severity="danger"
-              variant="text"
-              rounded
-              size="small"
-              title="Excluir marca"
-              @click="handleDelete(brand.$id, brand.name)"
-            />
-          </div>
-        </div>
+        <Message v-if="errorMsg" severity="error" size="small" variant="simple">
+          {{ errorMsg }}
+        </Message>
       </div>
-    </Fluid>
+
+      <!-- Tabela de Marcas -->
+      <DataTable
+        :value="productStore.brands"
+        scrollable
+        scrollHeight="260px"
+        size="small"
+        data-key="$id"
+        class="border rounded-lg overflow-hidden border-[var(--border-color)]"
+        empty-message="Nenhuma marca cadastrada."
+      >
+        <Column field="name" header="Nome da Marca">
+          <template #body="{ data }">
+            <span
+              class="text-sm"
+              :class="selectedBrand.$id === data.$id ? 'font-bold text-[var(--p-brand-600)]' : 'font-medium text-[var(--text-primary)]'"
+            >
+              {{ data.name }}
+            </span>
+          </template>
+        </Column>
+
+        <Column header="Ações" style="width: 88px" bodyClass="text-right">
+          <template #body="{ data }">
+            <div class="flex items-center justify-end gap-1">
+              <Button
+                icon="ri-pencil-line"
+                severity="secondary"
+                variant="text"
+                rounded
+                size="small"
+                title="Editar"
+                @click="editBrand(data)"
+              />
+              <Button
+                icon="ri-delete-bin-line"
+                severity="danger"
+                variant="text"
+                rounded
+                size="small"
+                title="Excluir"
+                @click="confirmDelete(data)"
+              />
+            </div>
+          </template>
+        </Column>
+      </DataTable>
+    </div>
 
     <template #footer>
-      <div class="flex justify-end w-full pt-2">
+      <div class="flex justify-end w-full pt-1">
         <Button
           label="Fechar"
           icon="ri-close-line"
           severity="secondary"
           variant="text"
+          size="small"
           @click="emit('update:visible', false)"
         />
       </div>
     </template>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
 import InputGroup from 'primevue/inputgroup'
-import FloatLabel from 'primevue/floatlabel'
 import Message from 'primevue/message'
-import Fluid from 'primevue/fluid'
+import DataTable from 'primevue/datatable'
+import Column from 'primevue/column'
+import { useConfirm } from 'primevue/useconfirm'
 import { useProductStore } from '@/stores/productStore'
-import { brands } from '@/services/brands'
+import { BrandService } from '@/services/brands'
+import type { IBrand } from '@/types/brand'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { z } from 'zod'
@@ -104,115 +137,103 @@ const emit = defineEmits<{
 
 const productStore = useProductStore()
 const toast = useToast()
+const confirm = useConfirm()
 
-const newBrandName = ref<string>('')
-const isAdding = ref<boolean>(false)
+const selectedBrand = ref<IBrand>({} as IBrand)
+const brandName = ref<string>('')
+const isSubmitting = ref<boolean>(false)
 const errorMsg = ref<string>('')
 
-async function handleAdd(): Promise<void> {
+function editBrand(brand: IBrand): void {
+  selectedBrand.value = { ...brand }
+  brandName.value = brand.name
   errorMsg.value = ''
-  const validation = brandSchema.safeParse({ name: newBrandName.value })
+}
+
+function cancelEdit(): void {
+  selectedBrand.value = {} as IBrand
+  brandName.value = ''
+  errorMsg.value = ''
+}
+
+async function saveBrand(): Promise<void> {
+  errorMsg.value = ''
+  const validation = brandSchema.safeParse({ name: brandName.value })
   if (!validation.success) {
     errorMsg.value = validation.error.issues[0]?.message || 'Nome inválido'
     return
   }
 
-  isAdding.value = true
+  isSubmitting.value = true
   try {
-    const created = await brands.create({ name: newBrandName.value.trim() })
-    productStore.brands.push(created)
+    const response = await BrandService.upsert(selectedBrand.value.$id, {
+      name: validation.data.name
+    })
+
+    const index = productStore.brands.findIndex((item) => item.$id === response.$id)
+    if (index !== -1) {
+      productStore.brands[index] = response
+    } else {
+      productStore.brands.push(response)
+    }
+
     productStore.brands.sort((a, b) => a.name.localeCompare(b.name))
-    newBrandName.value = ''
-    toast.add({ severity: 'success', summary: 'Marca Criada', detail: created.name, life: 3000 })
+
+    toast.add({
+      severity: 'success',
+      summary: 'Sucesso',
+      detail: selectedBrand.value.$id ? 'Marca atualizada.' : 'Marca cadastrada.',
+      life: 3000
+    })
+
+    cancelEdit()
   } catch (error: unknown) {
     toast.add({
       severity: 'error',
-      summary: 'Erro ao criar marca',
+      summary: 'Erro ao salvar',
       detail: parseErrorMessage(error),
       life: 3000
     })
   } finally {
-    isAdding.value = false
+    isSubmitting.value = false
   }
 }
 
-async function handleDelete(id: string, name: string): Promise<void> {
-  try {
-    await brands.delete(id)
-    productStore.brands = productStore.brands.filter((b) => b.$id !== id)
-    toast.add({ severity: 'info', summary: 'Marca Removida', detail: name, life: 3000 })
-  } catch (error: unknown) {
-    toast.add({
-      severity: 'error',
-      summary: 'Erro ao excluir marca',
-      detail: parseErrorMessage(error),
-      life: 3000
-    })
-  }
+function confirmDelete(brand: IBrand): void {
+  confirm.require({
+    message: `Deseja realmente excluir a marca "${brand.name}"?`,
+    header: 'Excluir Marca',
+    rejectProps: {
+      label: 'Não',
+      severity: 'secondary',
+      outlined: true
+    },
+    acceptProps: {
+      label: 'Sim',
+      severity: 'danger'
+    },
+    accept: async () => {
+      try {
+        await BrandService.delete(brand.$id)
+        productStore.brands = productStore.brands.filter((b) => b.$id !== brand.$id)
+        if (selectedBrand.value.$id === brand.$id) {
+          cancelEdit()
+        }
+        toast.add({
+          severity: 'success',
+          summary: 'Sucesso',
+          detail: 'Marca excluída com sucesso!',
+          life: 3000
+        })
+      } catch (error: unknown) {
+        toast.add({
+          severity: 'error',
+          summary: 'Erro ao excluir',
+          detail: parseErrorMessage(error),
+          life: 3000
+        })
+      }
+    }
+  })
 }
 </script>
-
-<style scoped>
-.manage-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-  padding: 0.25rem 0;
-}
-
-.add-section {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.add-box {
-  display: flex;
-  gap: 0.5rem;
-  align-items: stretch;
-}
-
-.add-action-btn {
-  height: 42px !important;
-  white-space: nowrap !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  padding: 0 1.15rem !important;
-  font-weight: 700 !important;
-}
-
-.list-container {
-  max-height: 260px;
-  overflow-y: auto;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-sm);
-  background: #ffffff;
-}
-
-.empty-list {
-  padding: 1.5rem;
-  text-align: center;
-  color: var(--text-muted);
-  font-size: 0.85rem;
-  font-style: italic;
-}
-
-.list-item-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.5rem 0.85rem;
-  border-bottom: 1px solid var(--border-subtle);
-}
-
-.list-item-row:last-child {
-  border-bottom: none;
-}
-
-.item-title {
-  font-weight: 600;
-  font-size: 0.88rem;
-  color: var(--text-primary);
-}
-</style>

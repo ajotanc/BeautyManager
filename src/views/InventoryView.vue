@@ -7,44 +7,22 @@
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Exportar Excel"
-          icon="ri-file-excel-2-line"
-          severity="success"
-          variant="outlined"
-          size="small"
-          :disabled="transactions.length === 0"
-          @click="handleExportExcel"
-        />
-        <Button
-          label="Atualizar"
-          icon="ri-refresh-line"
-          severity="secondary"
-          size="small"
-          :loading="isLoading"
-          @click="fetchTransactions"
-        />
+        <Button label="Exportar Excel" icon="ri-file-excel-2-line" severity="success" variant="outlined" size="small"
+          :disabled="transactions.length === 0" @click="handleExportExcel" />
+        <Button label="Atualizar" icon="ri-refresh-line" severity="secondary" size="small" :loading="isLoading"
+          @click="fetchTransactions" />
       </div>
     </div>
 
     <!-- Tabela de Movimentações -->
     <div class="table-wrapper glass-panel">
-      <DataTable
-        :value="transactions"
-        paginator
-        :rows="15"
-        :rows-per-page-options="[15, 30, 50]"
-        :loading="isLoading"
-        responsive-layout="scroll"
-        empty-message="Nenhuma movimentação registrada."
-      >
+      <DataTable :value="transactions" paginator :rows="15" :rows-per-page-options="[15, 30, 50]" :loading="isLoading"
+        responsive-layout="scroll" empty-message="Nenhuma movimentação registrada.">
         <Column field="transaction_type" header="Tipo" sortable style="min-width: 130px">
           <template #body="{ data }">
-            <Tag
-              :severity="data.transaction_type === 'IN' ? 'success' : 'danger'"
+            <Tag :severity="data.transaction_type === 'IN' ? 'success' : 'danger'"
               :value="data.transaction_type === 'IN' ? 'ENTRADA (+)' : 'SAÍDA (-)'"
-              :icon="data.transaction_type === 'IN' ? 'ri-arrow-down-line' : 'ri-arrow-up-line'"
-            />
+              :icon="data.transaction_type === 'IN' ? 'ri-arrow-down-line' : 'ri-arrow-up-line'" />
           </template>
         </Column>
 
@@ -115,11 +93,11 @@ function getProductName(productId: string | { name?: string; $id?: string }): st
 
 function translateReason(reason: InventoryReason): string {
   const map: Record<InventoryReason, string> = {
-    Purchase: 'Compra / Reposição',
-    Sale: 'Venda no PDV',
-    Adjustment: 'Ajuste de Balanço',
-    Damage: 'Avaria / Perda / Vencido',
-    Devolution: 'Devolução / Estorno'
+    purchase: 'Compra / Reposição',
+    sale: 'Venda no PDV',
+    adjustment: 'Ajuste de Balanço',
+    damage: 'Avaria / Perda / Vencido',
+    devolution: 'Devolução / Estorno'
   }
   return map[reason] || reason
 }

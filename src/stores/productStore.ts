@@ -42,24 +42,41 @@ export const useProductStore = defineStore('products', () => {
     }
   }
 
-  async function createProduct(dto: IProduct): Promise<IProduct> {
-    const created = await products.create(dto)
-    productList.value.unshift(created)
-    return created
-  }
-
-  async function updateProduct(id: string, dto: IProduct): Promise<IProduct> {
-    const updated = await products.update(id, dto)
-    const index = productList.value.findIndex((p) => p.$id === id)
+  async function saveProduct(dto: Partial<IProduct>): Promise<IProduct> {
+    const saved = await products.upsert(dto.$id, dto)
+    const index = productList.value.findIndex((p) => p.$id === saved.$id)
     if (index !== -1) {
-      productList.value[index] = updated
+      productList.value[index] = saved
+    } else {
+      productList.value.unshift(saved)
     }
-    return updated
+    return saved
   }
 
   async function deleteProduct(id: string): Promise<void> {
     await products.delete(id)
     productList.value = productList.value.filter((p) => p.$id !== id)
+  }
+
+  function updateStock(productId: string, newQuantity: number): void {
+    const prod = productList.value.find((p) => p.$id === productId)
+    if (prod) {
+      prod.stock_quantity = newQuantity
+    }
+  }
+
+  function decrementStock(productId: string, quantity: number): void {
+    const prod = productList.value.find((p) => p.$id === productId)
+    if (prod) {
+      prod.stock_quantity = Math.max(0, prod.stock_quantity - quantity)
+    }
+  }
+
+  function incrementStock(productId: string, quantity: number): void {
+    const prod = productList.value.find((p) => p.$id === productId)
+    if (prod) {
+      prod.stock_quantity += quantity
+    }
   }
 
   return {
@@ -71,8 +88,10 @@ export const useProductStore = defineStore('products', () => {
     quickSaleProducts,
     isLoading,
     fetchAll,
-    createProduct,
-    updateProduct,
-    deleteProduct
+    saveProduct,
+    deleteProduct,
+    updateStock,
+    decrementStock,
+    incrementStock
   }
 })

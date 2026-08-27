@@ -1,10 +1,7 @@
 <template>
   <Teleport to="body">
-    <div
-      id="thermal-receipt-print-area"
-      class="paper-content thermal-receipt print-only"
-      :style="{ width: settings?.receipt_width === '80mm' ? '320px' : '260px' }"
-    >
+    <div id="thermal-receipt-print-area" class="paper-content thermal-receipt print-only"
+      :style="{ width: settings?.receipt_width === '80mm' ? '320px' : '260px' }">
       <!-- Cabeçalho -->
       <div class="text-center">
         <div class="store-name">{{ settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS' }}</div>
@@ -177,10 +174,10 @@ const finalTotalAmount = computed<number>(() => {
 })
 
 const paymentMethodLabels: Record<PaymentMethod, string> = {
-  Pix: 'PIX',
-  Credit: 'Cartão de Crédito',
-  Debit: 'Cartão de Débito',
-  Cash: 'Dinheiro'
+  pix: 'PIX',
+  credit: 'Cartão de Crédito',
+  debit: 'Cartão de Débito',
+  cash: 'Dinheiro'
 }
 
 const paymentMethodLabel = computed<string>(() => {
@@ -218,6 +215,7 @@ const qrLabel = computed(() => {
 
 <style scoped>
 @media screen {
+
   #thermal-receipt-print-area,
   .print-only {
     display: none !important;

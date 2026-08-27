@@ -1,12 +1,7 @@
 <template>
-  <Dialog
-    :visible="visible"
-    modal
-    header="Finalizar Venda & Pagamento"
-    :style="{ width: '580px', maxWidth: '95vw' }"
-    :closable="!posStore.isProcessingSale"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+  <AppDialog :visible="visible" title="Finalizar Venda & Pagamento"
+    subtitle="Selecione a forma de pagamento, troco e cliente" icon="ri-bank-card-line" width="580px"
+    :closable="!posStore.isProcessingSale" @update:visible="(val) => emit('update:visible', val)">
     <Fluid>
       <div class="payment-dialog-content">
         <!-- Total a Pagar em Destaque -->
@@ -22,14 +17,9 @@
         <div class="field-group">
           <label class="field-label">Forma de Pagamento</label>
           <div class="payment-methods-grid">
-            <button
-              v-for="method in paymentMethods"
-              :key="method.value"
-              type="button"
-              class="method-btn"
+            <button v-for="method in paymentMethods" :key="method.value" type="button" class="method-btn"
               :class="{ 'is-selected': posStore.selectedPaymentMethod === method.value }"
-              @click="selectPaymentMethod(method.value)"
-            >
+              @click="selectPaymentMethod(method.value)">
               <i :class="method.icon"></i>
               <span>{{ method.label }}</span>
             </button>
@@ -37,18 +27,12 @@
         </div>
 
         <!-- Pagamento em Dinheiro com Cédulas Rápidas e Troco -->
-        <div v-if="posStore.selectedPaymentMethod === 'Cash'" class="cash-section">
+        <div v-if="posStore.selectedPaymentMethod === 'cash'" class="cash-section">
           <span class="section-title"><i class="ri-money-dollar-circle-line"></i> Valor Recebido em Dinheiro</span>
 
           <!-- Botões de Cédulas Rápidas -->
           <div class="bills-quick-grid">
-            <button
-              v-for="bill in quickBills"
-              :key="bill"
-              type="button"
-              class="bill-btn"
-              @click="setQuickBill(bill)"
-            >
+            <button v-for="bill in quickBills" :key="bill" type="button" class="bill-btn" @click="setQuickBill(bill)">
               R$ {{ bill }}
             </button>
             <button type="button" class="bill-btn exact-bill" @click="setExactAmount">
@@ -60,17 +44,8 @@
           <div class="cash-inputs-row">
             <div class="input-col">
               <FloatLabel variant="in">
-                <InputNumber
-                  id="amount_paid"
-                  v-model="posStore.amountPaid"
-                  mode="currency"
-                  currency="BRL"
-                  locale="pt-BR"
-                  size="small"
-                  fluid
-                  :min="0"
-                  class="font-bold"
-                />
+                <InputNumber id="amount_paid" v-model="posStore.amountPaid" mode="currency" currency="BRL"
+                  locale="pt-BR" size="small" fluid :min="0" class="font-bold" />
                 <label for="amount_paid">Valor Entregue pelo Cliente</label>
               </FloatLabel>
             </div>
@@ -82,19 +57,40 @@
           </div>
         </div>
 
-        <!-- Dados Opcionais da Cliente (para WhatsApp) -->
+        <!-- Dados da Cliente (Busca Rápida de Clientes Cadastrados ou Digitação Livre) -->
         <div class="customer-section">
-          <span class="section-title"><i class="ri-user-3-line"></i> Dados da Cliente (Opcional para Recibo Digital)</span>
+          <div class="flex items-center justify-between mb-2">
+            <span class="section-title m-0"><i class="ri-user-3-line"></i> Identificação da Cliente</span>
+            <span class="text-xs text-(--text-secondary)">Opcional para recibo</span>
+          </div>
+
           <div class="customer-grid">
             <div>
               <FloatLabel variant="in">
-                <InputText id="customer_name" v-model="posStore.customerName" size="small" fluid />
-                <label for="customer_name">Nome da Cliente</label>
+                <AutoComplete id="customer_name" v-model="posStore.customerName" :suggestions="customerSuggestions"
+                  option-label="name" size="small" fluid placeholder="Nome da cliente cadastrada..."
+                  @complete="handleCustomerSearch" @item-select="onCustomerSelect">
+                  <template #option="{ option }">
+                    <div class="flex items-center justify-between w-full py-0.5 gap-2">
+                      <div class="flex flex-col">
+                        <span class="font-bold text-xs text-(--text-primary)">{{ option.name }}</span>
+                        <span v-if="option.phone" class="text-[11px] text-(--text-secondary)">{{ option.phone
+                          }}</span>
+                      </div>
+                      <span v-if="option.birth_date"
+                        class="text-[10px] text-(--p-brand-600) font-semibold flex items-center gap-1">
+                        <i class="ri-cake-2-line"></i> {{ option.birth_date }}
+                      </span>
+                    </div>
+                  </template>
+                </AutoComplete>
+                <label for="customer_name">Nome da Cliente (Busca rápida)</label>
               </FloatLabel>
             </div>
             <div>
               <FloatLabel variant="in">
-                <InputText id="customer_phone" v-model="posStore.customerPhone" size="small" fluid />
+                <InputText id="customer_phone" v-model="posStore.customerPhone" size="small" fluid
+                  placeholder="(00) 00000-0000" />
                 <label for="customer_phone">WhatsApp (com DDD)</label>
               </FloatLabel>
             </div>
@@ -111,47 +107,36 @@
 
     <template #footer>
       <div class="dialog-actions">
-        <Button
-          label="Cancelar (Esc)"
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          :disabled="posStore.isProcessingSale"
-          @click="emit('update:visible', false)"
-        />
-        <Button
-          label="Concluir Venda (Enter)"
-          icon="ri-check-line"
-          severity="primary"
-          size="small"
-          :loading="posStore.isProcessingSale"
-          class="confirm-sale-btn"
-          @click="handleConfirmSale"
-        />
+        <Button label="Cancelar (Esc)" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          :disabled="posStore.isProcessingSale" @click="emit('update:visible', false)" />
+        <Button label="Concluir Venda (Enter)" icon="ri-check-line" severity="primary" size="small"
+          :loading="posStore.isProcessingSale" class="confirm-sale-btn" @click="handleConfirmSale" />
       </div>
     </template>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-import Dialog from 'primevue/dialog'
+import { ref, watch } from 'vue'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import InputText from 'primevue/inputtext'
+import AutoComplete from 'primevue/autocomplete'
 import Checkbox from 'primevue/checkbox'
 import FloatLabel from 'primevue/floatlabel'
 import Fluid from 'primevue/fluid'
 import type { PaymentMethod, ISale } from '@/types/sale'
+import type { ICustomer } from '@/types/customer'
 import { usePosStore } from '@/stores/posStore'
+import { useCustomerStore } from '@/stores/customerStore'
 import { formatCurrency } from '@/utils/currency'
 
 interface Props {
   visible: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
@@ -159,20 +144,51 @@ const emit = defineEmits<{
 }>()
 
 const posStore = usePosStore()
+const customerStore = useCustomerStore()
 const autoPrintReceipt = ref<boolean>(true)
+const customerSuggestions = ref<ICustomer[]>([])
+
+watch(
+  () => props.visible,
+  (val) => {
+    if (val && customerStore.customerList.length === 0) {
+      customerStore.fetchAll()
+    }
+  }
+)
+
+function handleCustomerSearch(event: { query: string }): void {
+  const q = event.query?.toLowerCase()?.trim() || ''
+  if (!q) {
+    customerSuggestions.value = customerStore.customerList.slice(0, 6)
+  } else {
+    customerSuggestions.value = customerStore.customerList
+      .filter((c) => c.name.toLowerCase().includes(q) || (c.phone && c.phone.includes(q)))
+      .slice(0, 6)
+  }
+}
+
+function onCustomerSelect(event: { value: ICustomer }): void {
+  if (event.value && typeof event.value === 'object') {
+    posStore.customerName = event.value.name
+    if (event.value.phone) {
+      posStore.customerPhone = event.value.phone
+    }
+  }
+}
 
 const paymentMethods: { label: string; value: PaymentMethod; icon: string }[] = [
-  { label: 'Dinheiro', value: 'Cash', icon: 'ri-money-dollar-circle-line' },
-  { label: 'PIX', value: 'Pix', icon: 'ri-qr-code-line' },
-  { label: 'Cartão Crédito', value: 'Credit', icon: 'ri-bank-card-line' },
-  { label: 'Cartão Débito', value: 'Debit', icon: 'ri-wallet-3-line' }
+  { label: 'Dinheiro', value: 'cash', icon: 'ri-money-dollar-circle-line' },
+  { label: 'PIX', value: 'pix', icon: 'ri-qr-code-line' },
+  { label: 'Cartão Crédito', value: 'credit', icon: 'ri-bank-card-line' },
+  { label: 'Cartão Débito', value: 'debit', icon: 'ri-wallet-3-line' }
 ]
 
 const quickBills = [10, 20, 50, 100, 200]
 
 function selectPaymentMethod(method: PaymentMethod): void {
   posStore.selectedPaymentMethod = method
-  if (method === 'Cash' && posStore.amountPaid === 0) {
+  if (method === 'cash' && posStore.amountPaid === 0) {
     posStore.amountPaid = posStore.totalAmount
   }
 }

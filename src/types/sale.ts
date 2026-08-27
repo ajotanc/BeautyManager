@@ -1,11 +1,11 @@
 import type { Models } from 'appwrite'
 import type { IProduct } from './product'
 
-export type PaymentMethod = 'Pix' | 'Credit' | 'Debit' | 'Cash'
-export type SaleStatus = 'Completed' | 'Canceled'
+export type PaymentMethod = 'pix' | 'credit' | 'debit' | 'cash'
+export type SaleStatus = 'completed' | 'canceled'
 
 export interface ISaleItem extends Models.Row {
-  product: IProduct | string
+  product: IProduct
   quantity: number
   unit_price: number | string
   subtotal: number | string
@@ -20,17 +20,6 @@ export interface ISale extends Models.Row {
   status: SaleStatus
   user_id: string
   items?: ISaleItem[]
-}
-
-export interface ISaleItemInput {
-  product: IProduct
-  quantity: number
-  unit_price: number
-  subtotal: number
-}
-
-export type CreateSaleInput = Omit<ISale, keyof Models.Row | 'items'> & {
-  items?: ISaleItemInput[]
 }
 
 export interface ICartItem {
@@ -48,3 +37,4 @@ export interface IReceiptItem {
   unitPrice: number
   subtotal: number
 }
+

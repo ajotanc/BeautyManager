@@ -1,23 +1,7 @@
 <template>
-  <Dialog
-    :visible="visible"
-    modal
-    :style="{ width: '520px', maxWidth: '95vw' }"
-    :dismissable-mask="true"
-    @update:visible="(val) => emit('update:visible', val)"
-    class="stock-adjustment-modal"
-  >
-    <template #header>
-      <div class="dialog-custom-header">
-        <div class="header-icon-box" :class="transactionType === 'IN' ? 'in-icon' : 'out-icon'">
-          <i :class="transactionType === 'IN' ? 'ri-inbox-archive-line' : 'ri-inbox-unarchive-line'"></i>
-        </div>
-        <div class="header-text">
-          <h3 class="header-title">Movimentação de Estoque</h3>
-          <p class="header-subtitle">Entrada de compras ou saída por avaria/ajuste</p>
-        </div>
-      </div>
-    </template>
+  <AppDialog :visible="visible" title="Movimentação de Estoque" subtitle="Entrada de compras ou saída por avaria/ajuste"
+    :icon="transactionType === 'IN' ? 'ri-inbox-archive-line' : 'ri-inbox-unarchive-line'" width="520px"
+    @update:visible="(val) => emit('update:visible', val)" class="stock-adjustment-modal">
 
     <Fluid>
       <form @submit.prevent="handleSubmit" class="stock-adj-content">
@@ -45,12 +29,8 @@
         <div class="field-section">
           <label class="section-label">Tipo de Movimentação *</label>
           <div class="type-selector-grid">
-            <button
-              type="button"
-              class="type-card in-card"
-              :class="{ 'is-active': transactionType === 'IN' }"
-              @click="transactionType = 'IN'"
-            >
+            <button type="button" class="type-card in-card" :class="{ 'is-active': transactionType === 'IN' }"
+              @click="transactionType = 'IN'">
               <div class="type-card-icon">
                 <i class="ri-arrow-down-circle-fill"></i>
               </div>
@@ -63,12 +43,8 @@
               </div>
             </button>
 
-            <button
-              type="button"
-              class="type-card out-card"
-              :class="{ 'is-active': transactionType === 'OUT' }"
-              @click="transactionType = 'OUT'"
-            >
+            <button type="button" class="type-card out-card" :class="{ 'is-active': transactionType === 'OUT' }"
+              @click="transactionType = 'OUT'">
               <div class="type-card-icon">
                 <i class="ri-arrow-up-circle-fill"></i>
               </div>
@@ -88,36 +64,19 @@
           <div class="quantity-header">
             <label class="section-label">Quantidade a Movimentar *</label>
             <div class="quick-qty-pills">
-              <button
-                v-for="amt in [1, 5, 10, 20]"
-                :key="amt"
-                type="button"
-                class="qty-pill"
-                :class="{ 'is-active': quantity === amt }"
-                @click="quantity = amt"
-              >
+              <button v-for="amt in [1, 5, 10, 20]" :key="amt" type="button" class="qty-pill"
+                :class="{ 'is-active': quantity === amt }" @click="quantity = amt">
                 +{{ amt }}
               </button>
             </div>
           </div>
 
           <div class="stepper-field">
-            <InputNumber
-              id="adj_quantity"
-              v-model="quantity"
-              :min="1"
-              :max="transactionType === 'OUT' ? (product?.stock_quantity || 1) : 99999"
-              show-buttons
-              button-layout="horizontal"
-              size="small"
-              decrement-button-class="stepper-btn"
-              increment-button-class="stepper-btn"
-              increment-button-icon="ri-add-line"
-              decrement-button-icon="ri-subtract-line"
-              class="custom-stepper"
-              :invalid="!!errors.quantity"
-              required
-            />
+            <InputNumber id="adj_quantity" v-model="quantity" :min="1"
+              :max="transactionType === 'OUT' ? (product?.stock_quantity || 1) : 99999" show-buttons
+              button-layout="horizontal" size="small" decrement-button-class="stepper-btn"
+              increment-button-class="stepper-btn" increment-button-icon="ri-add-line"
+              decrement-button-icon="ri-subtract-line" class="custom-stepper" :invalid="!!errors.quantity" required />
           </div>
           <Message v-if="errors.quantity" severity="error" size="small" variant="simple">
             {{ errors.quantity }}
@@ -127,18 +86,8 @@
         <!-- Motivo do Ajuste -->
         <div class="field-section">
           <label class="section-label">Motivo do Ajuste *</label>
-          <Select
-            id="adj_reason"
-            v-model="reason"
-            :options="reasonOptions"
-            option-label="label"
-            option-value="value"
-            size="small"
-            fluid
-            class="custom-select"
-            :invalid="!!errors.reason"
-            required
-          />
+          <Select id="adj_reason" v-model="reason" :options="reasonOptions" option-label="label" option-value="value"
+            size="small" fluid class="custom-select" :invalid="!!errors.reason" required />
           <Message v-if="errors.reason" severity="error" size="small" variant="simple">
             {{ errors.reason }}
           </Message>
@@ -172,31 +121,21 @@
 
         <!-- Ações do Rodapé -->
         <div class="form-actions">
-          <Button
-            label="Cancelar"
-            severity="secondary"
-            variant="outlined"
-            size="small"
-            @click="emit('update:visible', false)"
-          />
-          <Button
-            type="submit"
-            :label="transactionType === 'IN' ? 'Confirmar Entrada' : 'Confirmar Saída'"
+          <Button label="Cancelar" severity="secondary" variant="outlined" size="small"
+            @click="emit('update:visible', false)" />
+          <Button type="submit" :label="transactionType === 'IN' ? 'Confirmar Entrada' : 'Confirmar Saída'"
             :icon="transactionType === 'IN' ? 'ri-arrow-down-line' : 'ri-arrow-up-line'"
-            :severity="transactionType === 'IN' ? 'success' : 'danger'"
-            size="small"
-            class="submit-action-btn"
-            :loading="isSubmitting"
-          />
+            :severity="transactionType === 'IN' ? 'success' : 'danger'" size="small" class="submit-action-btn"
+            :loading="isSubmitting" />
         </div>
       </form>
     </Fluid>
-  </Dialog>
+  </AppDialog>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, watch, reactive } from 'vue'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
 import Select from 'primevue/select'
@@ -212,7 +151,7 @@ import { z } from 'zod'
 const stockAdjustmentSchema = z.object({
   quantity: z.number().int().min(1, 'A quantidade mínima para movimentação é 1'),
   transaction_type: z.enum(['IN', 'OUT']),
-  reason: z.enum(['Purchase', 'Sale', 'Adjustment', 'Damage', 'Devolution'])
+  reason: z.enum(['purchase', 'sale', 'adjustment', 'damage', 'devolution'])
 })
 
 interface Props {
@@ -230,7 +169,7 @@ const toast = useToast()
 
 const transactionType = ref<InventoryTransactionType>('IN')
 const quantity = ref<number>(1)
-const reason = ref<InventoryReason>('Purchase')
+const reason = ref<InventoryReason>('purchase')
 const isSubmitting = ref<boolean>(false)
 const errors = reactive<Record<string, string>>({})
 
@@ -240,7 +179,7 @@ watch(
     if (isVisible) {
       quantity.value = 1
       transactionType.value = 'IN'
-      reason.value = 'Purchase'
+      reason.value = 'purchase'
       clearErrors()
     }
   }
@@ -248,22 +187,22 @@ watch(
 
 watch(transactionType, (newType) => {
   if (newType === 'IN') {
-    reason.value = 'Purchase'
+    reason.value = 'purchase'
   } else {
-    reason.value = 'Damage'
+    reason.value = 'damage'
   }
 })
 
 const inReasonOptions = [
-  { label: 'Compra / Reposição de Fornecedor', value: 'Purchase' },
-  { label: 'Ajuste de Balanço / Contagem Física (+)', value: 'Adjustment' },
-  { label: 'Devolução de Cliente', value: 'Devolution' }
+  { label: 'Compra / Reposição de Fornecedor', value: 'purchase' },
+  { label: 'Ajuste de Balanço / Contagem Física (+)', value: 'adjustment' },
+  { label: 'Devolução de Cliente', value: 'devolution' }
 ]
 
 const outReasonOptions = [
-  { label: 'Avaria / Perda / Produto Danificado', value: 'Damage' },
-  { label: 'Ajuste de Balanço / Contagem Física (-)', value: 'Adjustment' },
-  { label: 'Uso Interno / Demonstração Loja', value: 'Damage' }
+  { label: 'Avaria / Perda / Produto Danificado', value: 'damage' },
+  { label: 'Ajuste de Balanço / Contagem Física (-)', value: 'adjustment' },
+  { label: 'Uso Interno / Demonstração Loja', value: 'damage' }
 ]
 
 const reasonOptions = computed(() => {
@@ -306,7 +245,7 @@ async function handleSubmit(): Promise<void> {
   isSubmitting.value = true
   try {
     await inventory.recordTransaction({
-      product: props.product.$id,
+      product: props.product,
       transaction_type: validation.data.transaction_type,
       quantity: validation.data.quantity,
       reason: validation.data.reason

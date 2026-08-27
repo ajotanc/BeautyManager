@@ -19,7 +19,8 @@
 
         <router-link to="/sales" class="nav-item" active-class="is-active">
           <i class="ri-file-list-3-line"></i>
-          <span>Histórico de Vendas</span>
+          <span>Vendas</span>
+          <span class="badge-shortcut">F3</span>
         </router-link>
       </div>
 
@@ -30,18 +31,25 @@
         <router-link to="/dashboard" class="nav-item" active-class="is-active">
           <i class="ri-dashboard-3-line"></i>
           <span>Dashboard</span>
-          <span class="badge-shortcut">F3</span>
+          <span class="badge-shortcut">F4</span>
         </router-link>
 
         <router-link to="/products" class="nav-item" active-class="is-active">
           <i class="ri-price-tag-3-line"></i>
           <span>Produtos</span>
-          <span class="badge-shortcut">F4</span>
+          <span class="badge-shortcut">F5</span>
+        </router-link>
+
+        <router-link to="/customers" class="nav-item" active-class="is-active">
+          <i class="ri-user-heart-line"></i>
+          <span>Clientes</span>
+          <span class="badge-shortcut">F6</span>
         </router-link>
 
         <router-link to="/inventory" class="nav-item" active-class="is-active">
           <i class="ri-archive-line"></i>
-          <span>Controle de Estoque</span>
+          <span>Estoque</span>
+          <span class="badge-shortcut">F7</span>
         </router-link>
 
         <router-link to="/settings" class="nav-item" active-class="is-active">
@@ -70,7 +78,7 @@ const authStore = useAuthStore()
 
 <style scoped>
 .app-sidebar {
-  width: 255px;
+  width: 256px;
   background: var(--bg-card);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);

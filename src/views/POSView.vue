@@ -11,12 +11,8 @@
           <p class="banner-desc">É necessário abrir o caixa e informar o fundo de troco antes de iniciar as vendas.</p>
         </div>
       </div>
-      <Button
-        label="Abrir Caixa Agora"
-        icon="ri-lock-unlock-line"
-        severity="primary"
-        @click="showOpenRegisterDialog = true"
-      />
+      <Button label="Abrir Caixa Agora" icon="ri-lock-unlock-line" severity="primary"
+        @click="showOpenRegisterDialog = true" />
     </div>
 
     <!-- Layout Principal do PDV -->
@@ -31,27 +27,20 @@
           </div>
 
           <IconField class="w-full">
-            <InputIcon class="ri-barcode-line"/>
-            <AutoComplete
-              input-id="pos-barcode-scanner-input"
-              v-model="searchQuery"
-              :suggestions="productSuggestions"
-              option-label="name"
-              placeholder="Escaneie o código de barras ou digite o nome do produto..."
-              size="small"
-              fluid
-              autofocus
-              @complete="handleSearchComplete"
-              @item-select="onProductSelect"
-              @keydown.enter.prevent="handleBarcodeSubmit"
-            >
+            <InputIcon class="ri-barcode-line" />
+            <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="productSuggestions"
+              option-label="name" placeholder="Escaneie o código de barras ou digite o nome do produto..." size="small"
+              fluid autofocus @complete="handleSearchComplete" @item-select="onProductSelect"
+              @keydown.enter.prevent="handleBarcodeSubmit">
               <template #option="{ option }">
                 <div class="flex items-center justify-between w-full py-1 gap-4">
                   <div class="flex flex-col">
                     <span class="font-bold text-sm text-surface-900">{{ option.name }}</span>
-                    <span class="text-xs text-surface-500">{{ option.barcode }} • Estoque: {{ option.stock_quantity }} un.</span>
+                    <span class="text-xs text-surface-500">{{ option.barcode }} • Estoque: {{ option.stock_quantity }}
+                      un.</span>
                   </div>
-                  <strong class="text-primary font-bold text-sm whitespace-nowrap">{{ formatCurrency(option.selling_price) }}</strong>
+                  <strong class="text-primary font-bold text-sm whitespace-nowrap">{{
+                    formatCurrency(option.selling_price) }}</strong>
                 </div>
               </template>
             </AutoComplete>
@@ -80,11 +69,8 @@
     <!-- Modais do PDV -->
     <PosPaymentDialog v-model:visible="showPaymentDialog" @sale-completed="onSaleCompleted" />
 
-    <PosWhatsappReceiptDialog
-      v-model:visible="showWhatsappDialog"
-      :sale="lastSale"
-      :settings="settingsStore.settings"
-    />
+    <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="lastSale"
+      :settings="settingsStore.settings" />
 
     <OpenRegisterDialog v-model:visible="showOpenRegisterDialog" @opened="onRegisterOpened" />
 
@@ -295,6 +281,7 @@ async function onSaleCompleted(sale: ISale, shouldPrint: boolean): Promise<void>
 
   // Impressão Térmica Automática
   if (shouldPrint) {
+    await nextTick()
     await printReceipt()
   }
 

@@ -7,14 +7,8 @@
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Atualizar Indicadores"
-          icon="ri-refresh-line"
-          severity="primary"
-          size="small"
-          :loading="isLoading"
-          @click="loadDashboardData"
-        />
+        <Button label="Atualizar Indicadores" icon="ri-refresh-line" severity="primary" size="small"
+          :loading="isLoading" @click="loadDashboardData" />
       </div>
     </div>
 
@@ -67,10 +61,8 @@
       <div class="section-card glass-panel">
         <div class="card-heading">
           <span class="heading-title"><i class="ri-time-line"></i> Cosméticos Próximos do Vencimento</span>
-          <Tag
-            :severity="productStore.expiringProducts.length > 0 ? 'danger' : 'success'"
-            :value="`${productStore.expiringProducts.length} itens`"
-          />
+          <Tag :severity="productStore.expiringProducts.length > 0 ? 'danger' : 'success'"
+            :value="`${productStore.expiringProducts.length} itens`" />
         </div>
 
         <div v-if="productStore.expiringProducts.length === 0" class="empty-notice">
@@ -94,10 +86,8 @@
       <div class="section-card glass-panel">
         <div class="card-heading">
           <span class="heading-title"><i class="ri-alert-line"></i> Reposição Urgente (Estoque Baixo)</span>
-          <Tag
-            :severity="productStore.lowStockProducts.length > 0 ? 'warn' : 'success'"
-            :value="`${productStore.lowStockProducts.length} itens`"
-          />
+          <Tag :severity="productStore.lowStockProducts.length > 0 ? 'warn' : 'success'"
+            :value="`${productStore.lowStockProducts.length} itens`" />
         </div>
 
         <div v-if="productStore.lowStockProducts.length === 0" class="empty-notice">
@@ -149,7 +139,7 @@ async function loadDashboardData(): Promise<void> {
   }
 }
 
-const completedSales = computed(() => salesList.value.filter((s) => s.status === 'Completed'))
+const completedSales = computed(() => salesList.value.filter((s) => s.status === 'completed'))
 const completedSalesCount = computed(() => completedSales.value.length)
 
 const totalRevenue = computed(() => {

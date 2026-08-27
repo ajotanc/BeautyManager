@@ -9,7 +9,7 @@ export const useCashRegisterStore = defineStore('cashRegister', () => {
   const history = ref<ICashRegister[]>([])
   const isLoading = ref<boolean>(false)
 
-  const isRegisterOpen = computed<boolean>(() => currentRegister.value?.status === 'Open')
+  const isRegisterOpen = computed<boolean>(() => currentRegister.value?.status === 'open')
 
   const currentExpectedBalance = computed<number>(() => {
     if (!currentRegister.value) return 0
