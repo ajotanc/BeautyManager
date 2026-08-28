@@ -4,19 +4,19 @@
     :closable="!posStore.isProcessingSale" @update:visible="(val) => emit('update:visible', val)">
     <Fluid>
       <div class="payment-dialog-content">
-        <!-- Total a Pagar em Destaque -->
+        <!-- Banner de Total a Pagar -->
         <div class="total-banner">
           <span class="total-label">TOTAL A PAGAR</span>
           <span class="total-value">{{ formatCurrency(posStore.totalAmount) }}</span>
-          <div v-if="posStore.discount > 0" class="discount-badge">
+          <span v-if="posStore.discount > 0" class="discount-badge">
             Desconto: {{ formatCurrency(posStore.discount) }}
-          </div>
+          </span>
         </div>
 
-        <!-- Seleção da Forma de Pagamento -->
-        <div class="field-group">
+        <!-- Seleção de Forma de Pagamento -->
+        <div class="payment-method-selector">
           <label class="field-label">Forma de Pagamento</label>
-          <div class="payment-methods-grid">
+          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
             <button v-for="method in paymentMethods" :key="method.value" type="button" class="method-btn"
               :class="{ 'is-selected': posStore.selectedPaymentMethod === method.value }"
               @click="selectPaymentMethod(method.value)">
@@ -30,8 +30,8 @@
         <div v-if="posStore.selectedPaymentMethod === 'cash'" class="cash-section">
           <span class="section-title"><i class="ri-money-dollar-circle-line"></i> Valor Recebido em Dinheiro</span>
 
-          <!-- Botões de Cédulas Rápidas -->
-          <div class="bills-quick-grid">
+          <!-- Botões de Cédulas Rápidas: 2 no Mobile, 3 no Desktop via Tailwind -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
             <button v-for="bill in quickBills" :key="bill" type="button" class="bill-btn" @click="setQuickBill(bill)">
               R$ {{ bill }}
             </button>
@@ -41,7 +41,7 @@
             </button>
           </div>
 
-          <div class="cash-inputs-row">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
             <div class="input-col">
               <FloatLabel variant="in">
                 <InputNumber id="amount_paid" v-model="posStore.amountPaid" mode="currency" currency="BRL"
@@ -50,9 +50,12 @@
               </FloatLabel>
             </div>
 
-            <div class="change-box" :class="{ 'has-change': posStore.changeAmount > 0 }">
-              <span class="change-label">Troco a Devolver</span>
-              <span class="change-val">{{ formatCurrency(posStore.changeAmount) }}</span>
+            <div class="input-col">
+              <FloatLabel variant="in">
+                <InputNumber id="change_amount" :model-value="posStore.changeAmount" mode="currency" currency="BRL"
+                  locale="pt-BR" size="small" fluid readonly class="font-bold change-input" :class="{ 'has-positive-change': posStore.changeAmount > 0 }" />
+                <label for="change_amount">Troco a Devolver</label>
+              </FloatLabel>
             </div>
           </div>
         </div>
@@ -64,7 +67,7 @@
             <span class="text-xs text-(--text-secondary)">Opcional para recibo</span>
           </div>
 
-          <div class="customer-grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div class="autocomplete-container relative">
               <FloatLabel variant="in">
                 <AutoComplete id="customer_name" v-model="posStore.customerName" :suggestions="customerSuggestions"
@@ -242,19 +245,20 @@ async function handleConfirmSale(): Promise<void> {
   display: flex;
   flex-direction: column;
   gap: 0.85rem;
-  padding: 0.25rem 0;
+  padding: 0.15rem 0;
 }
 
 .total-banner {
   background: var(--grad-primary);
   color: white;
-  padding: 1.1rem 1.25rem;
+  padding: 1rem 1.25rem;
   border-radius: var(--radius-md);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
 }
 
 .total-label {
@@ -266,7 +270,7 @@ async function handleConfirmSale(): Promise<void> {
 
 .total-value {
   font-family: var(--font-title);
-  font-size: 2rem;
+  font-size: 1.85rem;
   font-weight: 900;
   line-height: 1.1;
 }
@@ -293,21 +297,29 @@ async function handleConfirmSale(): Promise<void> {
   gap: 0.5rem;
 }
 
+@media (max-width: 640px) {
+  .payment-methods-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.45rem;
+  }
+}
+
 .method-btn {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   gap: 0.35rem;
-  padding: 0.75rem 0.5rem;
+  padding: 0.65rem 0.5rem;
   border: 1px solid var(--border-color);
   background: #ffffff;
   border-radius: var(--radius-md);
   cursor: pointer;
   font-weight: 700;
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   color: var(--text-secondary);
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-align: center;
 }
 
 .method-btn i {
@@ -353,24 +365,27 @@ async function handleConfirmSale(): Promise<void> {
 }
 
 .bills-quick-grid {
-  display: flex;
-  gap: 0.4rem;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.45rem;
 }
 
 .bill-btn {
-  padding: 0.3rem 0.65rem;
+  padding: 0.55rem 0.5rem;
   background: #ffffff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   font-weight: 700;
-  font-size: 0.78rem;
+  font-size: 0.84rem;
   color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  justify-content: center;
+  gap: 0.35rem;
+  text-align: center;
+  min-height: 40px;
 }
 
 .bill-btn:hover {
@@ -398,46 +413,36 @@ async function handleConfirmSale(): Promise<void> {
   align-items: stretch;
 }
 
-.change-box {
-  background: #ffffff;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.35rem 0.75rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 46px;
-  transition: all 0.2s ease;
+@media (max-width: 640px) {
+  .cash-inputs-row {
+    grid-template-columns: 1fr;
+    gap: 0.65rem;
+  }
 }
 
-.change-box.has-change {
-  border-color: #86efac;
-  background: #f0fdf4;
+.change-input :deep(input) {
+  font-weight: 800 !important;
+  color: var(--text-primary) !important;
+  cursor: default;
 }
 
-.change-label {
-  font-size: 0.68rem;
-  font-weight: 600;
-  color: var(--text-muted);
-  line-height: 1;
-}
-
-.change-val {
-  font-family: var(--font-title);
-  font-size: 1.15rem;
-  font-weight: 800;
-  color: #0f172a;
-  line-height: 1.2;
-}
-
-.change-box.has-change .change-val {
-  color: #15803d;
+.change-input.has-positive-change :deep(input) {
+  color: #15803d !important;
+  background: #f0fdf4 !important;
+  border-color: #86efac !important;
 }
 
 .customer-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 0.75rem;
+}
+
+@media (max-width: 640px) {
+  .customer-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
 }
 
 .post-sale-options {

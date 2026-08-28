@@ -142,6 +142,24 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 
 .page-title {
@@ -152,6 +170,12 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
 }
 
 .page-title i {
@@ -165,7 +189,9 @@ onMounted(async () => {
 
 .header-actions {
   display: flex;
+  align-items: center;
   gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
 .table-wrapper {

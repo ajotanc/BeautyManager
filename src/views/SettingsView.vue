@@ -359,6 +359,24 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
 }
 
 .page-title {
@@ -369,6 +387,12 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
 }
 
 .page-title i {
@@ -399,6 +423,14 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .settings-form-panel {
+    padding: 1rem 0.85rem;
+  }
 }
 
 .section-heading {
@@ -462,6 +494,14 @@ onMounted(async () => {
   flex-direction: column;
   align-items: center;
   gap: 1.25rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+@media (max-width: 640px) {
+  .preview-panel {
+    padding: 1rem 0.85rem;
+  }
 }
 
 .preview-header {

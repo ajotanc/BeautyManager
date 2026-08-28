@@ -1,12 +1,17 @@
 <template>
   <div class="product-catalog-container glass-panel">
-    <!-- Header com Abas e Filtro de Categorias -->
+    <!-- Header com Abas e Filtro de Categorias no Padrão do Carrinho -->
     <div class="catalog-header">
-      <div class="catalog-title-box">
-        <span class="catalog-title">
-          <i class="ri-store-2-line"></i> Catálogo & Venda Rápida
-        </span>
-        <Tag :value="`${filteredProducts.length} itens`" severity="secondary" class="catalog-count-tag" />
+      <div class="catalog-header-top">
+        <div class="header-left">
+          <div class="header-icon-circle">
+            <i class="ri-store-2-fill"></i>
+          </div>
+          <div class="header-title-meta">
+            <h3 class="header-title">Catálogo & Venda Rápida</h3>
+            <span class="header-subtitle">{{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'produto disponível' : 'produtos disponíveis' }}</span>
+          </div>
+        </div>
       </div>
 
       <!-- Filtro Rápido de Categorias com Arraste Livre (Drag-to-Scroll) -->
@@ -68,7 +73,7 @@
             class="card-stock"
             :class="{ 'stock-warn': prod.stock_quantity <= prod.min_stock_alert }"
           >
-            {{ prod.stock_quantity }} un.
+            <i class="ri-archive-line"></i> {{ prod.stock_quantity }} un.
           </span>
         </div>
 
@@ -95,7 +100,6 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import Tag from 'primevue/tag'
 import { useProductStore } from '@/stores/productStore'
 import { usePosStore } from '@/stores/posStore'
 import type { IProduct } from '@/types/product'
@@ -215,42 +219,75 @@ const filteredProducts = computed(() => {
   overflow: hidden;
 }
 
+@media (max-width: 1024px) {
+  .product-catalog-container {
+    height: auto;
+    min-height: 260px;
+    max-height: 380px;
+  }
+}
+
 .catalog-header {
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
   flex-shrink: 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.catalog-title-box {
+.catalog-header-top {
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.catalog-title {
-  font-family: var(--font-title);
-  font-weight: 800;
-  font-size: 0.95rem;
-  color: var(--text-primary);
+.header-left {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
+  gap: 0.65rem;
 }
 
-.catalog-title i {
+.header-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--p-brand-50);
+  border: 1px solid var(--p-brand-200);
   color: var(--p-brand-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
 }
 
-.catalog-count-tag {
-  font-size: 0.72rem !important;
+.header-title-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.header-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin: 0;
+}
+
+.header-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
 }
 
 .category-pills {
   display: flex;
   gap: 0.45rem;
   overflow-x: auto;
-  padding-bottom: 0.35rem;
+  padding-bottom: 0.2rem;
   flex-shrink: 0;
   cursor: grab;
   user-select: none;
@@ -379,21 +416,30 @@ const filteredProducts = computed(() => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 85px;
+  max-width: 80px;
 }
 
 .card-stock {
   font-weight: 700;
-  color: var(--text-secondary);
-  background: var(--p-brand-50);
-  padding: 0.12rem 0.35rem;
+  color: var(--text-muted);
+  background: var(--p-surface-50);
+  border: 1px solid var(--border-subtle);
+  padding: 0.08rem 0.35rem;
   border-radius: var(--radius-xs);
-  font-size: 0.7rem;
+  font-size: 0.68rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
 }
 
-.stock-warn {
+.card-stock i {
+  font-size: 0.75rem;
+}
+
+.card-stock.stock-warn {
   background: #fee2e2;
   color: #dc2626;
+  border-color: #fca5a5;
 }
 
 .card-body {

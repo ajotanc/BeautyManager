@@ -5,7 +5,7 @@
     :dismissable-mask="dismissableMask"
     :closable="closable"
     :style="{ width, maxWidth }"
-    :content-style="contentStyle"
+    :content-style="computedContentStyle"
     class="app-dialog"
     @update:visible="(val) => emit('update:visible', val)"
   >
@@ -48,6 +48,7 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue'
 import Dialog from 'primevue/dialog'
 import type { StyleValue } from 'vue'
 
@@ -64,7 +65,7 @@ interface Props {
   contentStyle?: StyleValue
 }
 
-withDefaults(defineProps<Props>(), {
+const props = withDefaults(defineProps<Props>(), {
   visible: false,
   title: '',
   subtitle: '',
@@ -74,7 +75,16 @@ withDefaults(defineProps<Props>(), {
   dismissableMask: true,
   modal: true,
   closable: true,
-  contentStyle: () => ({ padding: '1.25rem' })
+  contentStyle: undefined
+})
+
+const computedContentStyle = computed<StyleValue>(() => {
+  if (props.contentStyle) return props.contentStyle
+  return {
+    padding: '1.25rem',
+    overflowY: 'auto',
+    maxHeight: 'calc(85vh - 125px)'
+  }
 })
 
 const emit = defineEmits<{
@@ -122,6 +132,20 @@ const emit = defineEmits<{
   justify-content: flex-end;
   gap: 0.625rem;
   width: 100%;
-  margin-top: 1rem;
+  background: #ffffff;
+  padding: 0.75rem 0.25rem 0 0.25rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+:deep(.p-dialog) {
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh;
+}
+
+:deep(.p-dialog-footer) {
+  background: #ffffff !important;
+  border-top: 1px solid var(--border-subtle) !important;
+  padding: 0.75rem 1.25rem !important;
 }
 </style>

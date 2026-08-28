@@ -1,6 +1,17 @@
 <template>
   <header class="app-navbar">
     <div class="navbar-left">
+      <!-- Botão Hamburger para Mobile / Tablet -->
+      <Button
+        icon="ri-menu-2-line"
+        severity="secondary"
+        variant="text"
+        size="small"
+        class="mobile-menu-btn"
+        aria-label="Abrir Menu"
+        @click="toggleMobileSidebar"
+      />
+
       <div class="brand-badge">
         <div class="logo-circle">
           <img src="/images/bm.svg" alt="Beauty Manager" class="brand-logo" />
@@ -17,35 +28,7 @@
         :value="isRegisterOpen ? 'Caixa Aberto' : 'Caixa Fechado'"
         :icon="isRegisterOpen ? 'ri-checkbox-circle-line' : 'ri-lock-line'"
         size="small"
-      />
-    </div>
-
-    <div class="navbar-right">
-      <div class="user-profile">
-        <Avatar
-          icon="ri-user-3-line"
-          shape="circle"
-          class="user-avatar"
-        />
-        <div class="user-meta">
-          <span class="user-name">{{ authStore.userName }}</span>
-          <Tag
-            :severity="authStore.isAdmin ? 'warn' : 'info'"
-            :value="authStore.isAdmin ? 'Administrador' : 'Operador'"
-            :icon="authStore.isAdmin ? 'ri-vip-crown-line' : 'ri-user-line'"
-            size="small"
-          />
-        </div>
-      </div>
-
-      <Button
-        label="Sair"
-        icon="ri-logout-box-r-line"
-        severity="secondary"
-        variant="outlined"
-        size="small"
-        @click="handleLogout"
-        class="logout-btn"
+        class="register-status-tag"
       />
     </div>
   </header>
@@ -53,41 +36,15 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import Avatar from 'primevue/avatar'
 import Tag from 'primevue/tag'
 import Button from 'primevue/button'
-import { useAuthStore } from '@/stores/authStore'
 import { useCashRegisterStore } from '@/stores/cashRegisterStore'
-import { useToast } from 'primevue/usetoast'
-import { parseErrorMessage } from '@/types/errors'
+import { useLayout } from '@/composables/useLayout'
 
-const router = useRouter()
-const authStore = useAuthStore()
 const cashRegisterStore = useCashRegisterStore()
-const toast = useToast()
+const { toggleMobileSidebar } = useLayout()
 
 const isRegisterOpen = computed(() => cashRegisterStore.isRegisterOpen)
-
-async function handleLogout(): Promise<void> {
-  try {
-    await authStore.logout()
-    toast.add({
-      severity: 'info',
-      summary: 'Sessão Encerrada',
-      detail: 'Você saiu do sistema com sucesso.',
-      life: 3000
-    })
-    router.push({ name: 'login' })
-  } catch (error: unknown) {
-    toast.add({
-      severity: 'error',
-      summary: 'Erro ao sair',
-      detail: parseErrorMessage(error),
-      life: 3000
-    })
-  }
-}
 </script>
 
 <style scoped>
@@ -95,7 +52,7 @@ async function handleLogout(): Promise<void> {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   background: var(--bg-card);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
@@ -106,16 +63,26 @@ async function handleLogout(): Promise<void> {
   box-shadow: var(--shadow-xs);
 }
 
-.navbar-left, .navbar-right {
+.navbar-left {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 1rem;
+}
+
+.mobile-menu-btn {
+  display: none;
+}
+
+@media (max-width: 1024px) {
+  .mobile-menu-btn {
+    display: inline-flex !important;
+  }
 }
 
 .brand-badge {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 0.65rem;
 }
 
 .logo-circle {
@@ -150,61 +117,28 @@ async function handleLogout(): Promise<void> {
 .brand-title {
   font-family: var(--font-title);
   font-weight: 800;
-  font-size: 1.12rem;
+  font-size: 1.1rem;
   color: var(--text-primary);
   line-height: 1.1;
   letter-spacing: -0.02em;
 }
 
 .brand-subtitle {
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   color: var(--text-secondary);
   font-weight: 600;
   letter-spacing: 0.02em;
 }
 
-.user-profile {
-  display: flex;
-  align-items: center;
-  gap: 0.65rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: var(--radius-md);
-  transition: background-color var(--transition-fast);
-}
-
-.user-profile:hover {
-  background: var(--p-brand-50);
-}
-
-.user-avatar {
-  background: var(--p-brand-100) !important;
-  color: var(--p-brand-700) !important;
-  border: 1px solid var(--p-brand-300);
-  transition: transform var(--transition-normal);
-}
-
-.user-profile:hover .user-avatar {
-  transform: scale(1.06);
-}
-
-.user-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.user-name {
-  font-size: 0.84rem;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
-.logout-btn {
-  font-weight: 600;
-  transition: all var(--transition-fast) !important;
-}
-
-.logout-btn:hover {
-  transform: translateY(-1px);
+@media (max-width: 640px) {
+  .brand-subtitle {
+    display: none;
+  }
+  .app-navbar {
+    padding: 0.6rem 0.85rem;
+  }
+  .navbar-left {
+    gap: 0.6rem;
+  }
 }
 </style>

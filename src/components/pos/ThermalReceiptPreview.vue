@@ -150,20 +150,31 @@ const qrLabel = computed(() => {
 .receipt-preview-wrapper {
   display: flex;
   justify-content: center;
-  padding: 1.75rem 1.5rem;
+  padding: 1.5rem 1rem;
   background: var(--p-surface-50, #f8fafc);
   border-radius: var(--radius-lg);
   border: 1px solid var(--border-color);
   width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto;
+}
+
+@media (max-width: 640px) {
+  .receipt-preview-wrapper {
+    padding: 1rem 0.5rem;
+  }
 }
 
 .paper-roll {
   width: 100%;
+  max-width: 100%;
   background: #ffffff;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15), 0 1px 3px rgba(0, 0, 0, 0.08);
   border-radius: 4px;
   position: relative;
   transition: all 0.3s ease;
+  box-sizing: border-box;
 }
 
 .paper-edge-top {

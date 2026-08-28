@@ -22,42 +22,87 @@
         <!-- Barra de Scanner e Busca -->
         <div class="scanner-search-box glass-panel">
           <div class="box-header">
-            <span class="box-title"><i class="ri-barcode-line"></i> Leitor de Código de Barras / Busca</span>
+            <div class="header-left">
+              <div class="header-icon-circle">
+                <i class="ri-barcode-line"></i>
+              </div>
+              <div class="header-title-meta">
+                <h3 class="header-title">Leitor de Código / Busca</h3>
+                <span class="header-subtitle">Escaneie o código ou busque pelo nome</span>
+              </div>
+            </div>
             <span class="kbd-badge">F1</span>
           </div>
 
-          <IconField class="w-full">
-            <InputIcon class="ri-barcode-line" />
-            <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="productSuggestions"
-              option-label="name" placeholder="Escaneie o código de barras ou digite o nome do produto..." size="small"
-              fluid autofocus @complete="handleSearchComplete" @item-select="onProductSelect"
-              @keydown.enter.prevent="handleBarcodeSubmit">
-              <template #option="{ option }">
-                <div class="flex items-center justify-between w-full py-1 gap-4">
-                  <div class="flex flex-col">
-                    <span class="font-bold text-sm text-(--text-primary)">{{ option.name }}</span>
-                    <span class="text-xs text-(--text-secondary)">{{ option.barcode }} • Estoque: {{ option.stock_quantity }}
-                      un.</span>
+          <div class="search-input-wrapper relative w-full">
+            <IconField class="w-full">
+              <InputIcon class="ri-barcode-line" />
+              <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="productSuggestions"
+                option-label="name" placeholder="Escaneie o código de barras ou digite o nome do produto..." size="small"
+                fluid autofocus append-to="self" panel-class="pos-search-overlay" @complete="handleSearchComplete"
+                @item-select="onProductSelect" @keydown.enter.prevent="handleBarcodeSubmit">
+                <template #option="{ option }">
+                  <div class="flex items-center justify-between w-full py-2 px-2 gap-3 hover:bg-rose-50/60 rounded-lg transition-colors">
+                    <div class="flex flex-col min-w-0 flex-1">
+                      <span class="font-bold text-[0.9rem] text-slate-800 truncate">{{ option.name }}</span>
+                      <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
+                        <span class="font-mono text-slate-500 tracking-tight">{{ option.barcode }}</span>
+                        <span class="text-slate-300">•</span>
+                        <span :class="option.stock_quantity <= option.min_stock_alert ? 'text-amber-600 font-bold' : 'text-slate-500 font-medium'">
+                          {{ option.stock_quantity }} {{ option.stock_quantity === 1 ? 'unidade' : 'unidades' }}
+                        </span>
+                      </div>
+                    </div>
+                    <span class="font-title font-black text-[1rem] text-(--p-brand-600) whitespace-nowrap">
+                      {{ formatCurrency(option.selling_price) }}
+                    </span>
                   </div>
-                  <strong class="text-primary font-bold text-sm whitespace-nowrap">{{
-                    formatCurrency(option.selling_price) }}</strong>
-                </div>
-              </template>
-            </AutoComplete>
-          </IconField>
+                </template>
+              </AutoComplete>
+            </IconField>
+          </div>
         </div>
 
         <!-- Grid de Produtos Rápidos & Variedades sem Código -->
         <PosQuickProductsGrid @item-added="handleItemAddedFromGrid" />
 
-        <div class="shortcuts-panel glass-panel">
-          <span class="shortcuts-title"><i class="ri-keyboard-line"></i> Teclas de Atalho:</span>
-          <div class="shortcuts-list">
-            <span class="shortcut-item"><kbd>F1</kbd> <span>Focar Leitor</span></span>
-            <span class="shortcut-item"><kbd>F4</kbd> <span>Finalizar Venda</span></span>
-            <span class="shortcut-item"><kbd>Esc</kbd> <span>Cancelar</span></span>
-          </div>
-        </div>
+        <!-- Teclas de Atalho com Accordion Oficial do PrimeVue -->
+        <Accordion :value="shortcutsAccordionValue" class="shortcuts-accordion glass-panel" @update:value="onAccordionChange">
+          <AccordionPanel value="shortcuts">
+            <AccordionHeader>
+              <div class="header-left">
+                <div class="header-icon-circle">
+                  <i class="ri-keyboard-line"></i>
+                </div>
+                <div class="header-title-meta">
+                  <h3 class="header-title">Teclas de Atalho</h3>
+                  <span class="header-subtitle">Navegação rápida pelo teclado</span>
+                </div>
+              </div>
+              <template #toggleicon>
+                <div class="header-toggle-box">
+                  <i :class="shortcutsAccordionValue === 'shortcuts' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
+                </div>
+              </template>
+            </AccordionHeader>
+            <AccordionContent>
+              <div class="shortcuts-list">
+                <div class="shortcut-pill">
+                  <kbd>F1</kbd>
+                  <span>Focar Leitor</span>
+                </div>
+                <div class="shortcut-pill">
+                  <kbd>F4</kbd>
+                  <span>Finalizar Venda</span>
+                </div>
+                <div class="shortcut-pill">
+                  <kbd>Esc</kbd>
+                  <span>Cancelar</span>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionPanel>
+        </Accordion>
       </div>
 
       <!-- Coluna Direita: Carrinho de Compras e Totais -->
@@ -82,6 +127,10 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import AutoComplete from 'primevue/autocomplete'
 import Button from 'primevue/button'
+import Accordion from 'primevue/accordion'
+import AccordionPanel from 'primevue/accordionpanel'
+import AccordionHeader from 'primevue/accordionheader'
+import AccordionContent from 'primevue/accordioncontent'
 import PosQuickProductsGrid from '@/components/pos/PosQuickProductsGrid.vue'
 import PosCart from '@/components/pos/PosCart.vue'
 import PosPaymentDialog from '@/components/pos/PosPaymentDialog.vue'
@@ -115,10 +164,16 @@ const showPaymentDialog = ref<boolean>(false)
 const showWhatsappDialog = ref<boolean>(false)
 const showOpenRegisterDialog = ref<boolean>(false)
 const lastSale = ref<ISale | null>(null)
+const shortcutsAccordionValue = ref<string | null>(typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'shortcuts' : null)
+
+function onAccordionChange(val: string | string[] | null | undefined): void {
+  shortcutsAccordionValue.value = Array.isArray(val) ? (val[0] || null) : (val || null)
+}
 
 const isRegisterOpen = computed(() => cashRegisterStore.isRegisterOpen)
 
 function focusBarcodeInput(): void {
+  if (typeof window !== 'undefined' && window.innerWidth < 1024) return
   nextTick(() => {
     const el = (document.getElementById('pos-barcode-scanner-input') as HTMLInputElement | null)
       ?? document.querySelector<HTMLInputElement>('.pos-left-panel .p-autocomplete-input, .p-autocomplete input')
@@ -130,6 +185,9 @@ function focusBarcodeInput(): void {
 }
 
 onMounted(() => {
+  if (typeof window !== 'undefined') {
+    shortcutsAccordionValue.value = window.innerWidth >= 1024 ? 'shortcuts' : null
+  }
   focusBarcodeInput()
 })
 
@@ -370,6 +428,47 @@ onMounted(async () => {
   overflow: hidden;
 }
 
+@media (max-width: 1024px) {
+  .pos-view {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+    overflow-x: hidden !important;
+    padding-bottom: 0.5rem;
+    gap: 1rem;
+  }
+
+  .pos-grid {
+    display: flex;
+    flex-direction: column;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .pos-left-panel,
+  .pos-right-panel {
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    width: 100%;
+  }
+
+  .shortcuts-panel {
+    display: flex !important;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: space-between;
+  }
+
+  .shortcuts-list {
+    gap: 0.75rem !important;
+    flex-wrap: wrap;
+  }
+}
+
 .pos-grid.is-disabled {
   opacity: 0.55;
   pointer-events: none;
@@ -394,62 +493,97 @@ onMounted(async () => {
 }
 
 .scanner-search-box {
-  padding: 1rem 1.2rem;
+  padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.65rem;
+  gap: 0.75rem;
   position: relative;
   flex-shrink: 0;
+  z-index: 40;
+  overflow: visible !important;
 }
 
 .box-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.box-title {
-  font-family: var(--font-title);
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text-primary);
+.header-left {
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.65rem;
 }
 
-.box-title i {
-  color: var(--p-brand-600);
-}
-
-.search-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: white;
-  border: 1px solid var(--border-color);
+.header-icon-circle {
+  width: 36px;
+  height: 36px;
   border-radius: var(--radius-md);
-  box-shadow: var(--shadow-lg);
-  z-index: 30;
-  max-height: 240px;
-  overflow-y: auto;
+  background: var(--p-brand-50);
+  border: 1px solid var(--p-brand-200);
+  color: var(--p-brand-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.header-title-meta {
   display: flex;
   flex-direction: column;
+  gap: 0.1rem;
 }
 
-.search-item-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid var(--border-subtle);
-  cursor: pointer;
-  transition: all 0.15s ease;
+.header-title {
+  font-family: var(--font-title);
+  font-weight: 800;
+  font-size: 0.98rem;
+  color: var(--text-primary);
+  line-height: 1.1;
+  margin: 0;
 }
 
-.search-item-row:hover {
-  background: var(--p-brand-50);
+.header-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+:deep(.p-autocomplete) {
+  width: 100% !important;
+}
+
+:deep(.pos-search-overlay),
+:deep(.p-autocomplete-overlay) {
+  width: 100% !important;
+  min-width: 100% !important;
+  border-radius: var(--radius-md) !important;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.15) !important;
+  border: 1px solid var(--border-color) !important;
+  background: #ffffff !important;
+  margin-top: 6px !important;
+  z-index: 1000 !important;
+  overflow: hidden !important;
+}
+
+:deep(.pos-search-overlay .p-autocomplete-list),
+:deep(.p-autocomplete-overlay .p-autocomplete-list) {
+  padding: 0.35rem !important;
+  gap: 0.25rem !important;
+}
+
+:deep(.pos-search-overlay .p-autocomplete-option),
+:deep(.p-autocomplete-overlay .p-autocomplete-option) {
+  border-radius: var(--radius-sm) !important;
+  padding: 0.35rem 0.5rem !important;
+}
+
+:deep(.pos-search-overlay .p-autocomplete-option:hover),
+:deep(.p-autocomplete-overlay .p-autocomplete-option:hover) {
+  background: var(--p-brand-50) !important;
 }
 
 .p-name {
@@ -471,41 +605,102 @@ onMounted(async () => {
   font-size: 0.95rem;
 }
 
-.shortcuts-panel {
-  padding: 0.65rem 1rem;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: 0.8rem;
+:deep(.shortcuts-accordion) {
+  border: 1px solid var(--border-color) !important;
+  border-radius: var(--radius-md) !important;
+  overflow: hidden !important;
+  flex-shrink: 0 !important;
+}
+
+:deep(.shortcuts-accordion .p-accordionpanel) {
+  border: none !important;
+  background: transparent !important;
+}
+
+:deep(.shortcuts-accordion .p-accordionheader) {
+  background: transparent !important;
+  border: none !important;
+  padding: 0.75rem 1.15rem !important;
+  color: inherit !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  cursor: pointer !important;
+  transition: opacity 0.15s ease !important;
+}
+
+:deep(.shortcuts-accordion .p-accordionheader:hover) {
+  background: transparent !important;
+  opacity: 0.9 !important;
+}
+
+.header-toggle-box {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-sm);
+  background: var(--p-surface-50);
+  border: 1px solid var(--border-color);
   color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  transition: all 0.2s ease;
   flex-shrink: 0;
 }
 
-.shortcuts-title {
-  font-weight: 700;
-  display: flex;
-  align-items: center;
-  gap: 0.35rem;
+:deep(.shortcuts-accordion .p-accordionheader:hover) .header-toggle-box {
+  background: var(--p-brand-50);
+  border-color: var(--p-brand-200);
+  color: var(--p-brand-600);
+}
+
+:deep(.shortcuts-accordion .p-accordioncontent) {
+  background: transparent !important;
+  border: none !important;
+}
+
+:deep(.shortcuts-accordion .p-accordioncontent-content) {
+  padding: 0.65rem 1.15rem 0.85rem 1.15rem !important;
+  background: transparent !important;
+  border-top: 1px solid var(--border-color) !important;
 }
 
 .shortcuts-list {
   display: flex;
   align-items: center;
-  gap: 1.25rem;
+  gap: 0.6rem;
+  flex-wrap: wrap;
 }
 
-.shortcut-item {
+.shortcut-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
+  background: var(--p-brand-50);
+  border: 1px solid var(--border-color);
+  padding: 0.28rem 0.65rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  transition: all 0.15s ease;
 }
 
-.shortcuts-list kbd {
+.shortcut-pill:hover {
   background: var(--p-brand-100);
-  color: var(--p-brand-900);
-  padding: 0.15rem 0.45rem;
+  border-color: var(--p-brand-300);
+  color: var(--text-primary);
+}
+
+.shortcut-pill kbd {
+  background: var(--grad-primary);
+  color: #ffffff;
+  padding: 0.1rem 0.45rem;
   border-radius: var(--radius-xs);
-  font-weight: 700;
-  border: 1px solid var(--p-brand-300);
+  font-weight: 800;
+  font-size: 0.72rem;
+  box-shadow: var(--shadow-xs);
+  border: none;
 }
 </style>

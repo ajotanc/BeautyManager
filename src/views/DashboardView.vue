@@ -102,7 +102,7 @@
             :value="`${productStore.expiringProducts.length} itens`" />
         </div>
 
-        <div v-if="productStore.expiringProducts.length === 0" class="empty-notice">
+        <div v-if="productStore.expiringProducts.length === 0" class="empty-notice success">
           <i class="ri-checkbox-circle-line text-emerald-500"></i>
           <span>Nenhum produto perto do vencimento! Estoque em dia.</span>
         </div>
@@ -127,7 +127,7 @@
             :value="`${productStore.lowStockProducts.length} itens`" />
         </div>
 
-        <div v-if="productStore.lowStockProducts.length === 0" class="empty-notice">
+        <div v-if="productStore.lowStockProducts.length === 0" class="empty-notice success">
           <i class="ri-checkbox-circle-line text-emerald-500"></i>
           <span>Estoque saudável! Todos os itens acima do limite mínimo.</span>
         </div>
@@ -295,6 +295,15 @@ onMounted(async () => {
   border-radius: var(--radius-md);
 }
 
+@media (max-width: 768px) {
+  .welcome-banner {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.85rem 1rem;
+  }
+}
+
 .welcome-title {
   font-family: var(--font-title);
   font-size: 1.25rem;
@@ -324,6 +333,19 @@ onMounted(async () => {
   gap: 1.15rem;
 }
 
+@media (max-width: 1024px) {
+  .metrics-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.85rem;
+  }
+}
+
+@media (max-width: 540px) {
+  .metrics-row {
+    grid-template-columns: 1fr;
+  }
+}
+
 .text-brand {
   color: var(--p-brand-600);
 }
@@ -342,11 +364,24 @@ onMounted(async () => {
   gap: 1.25rem;
 }
 
+@media (max-width: 900px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 .section-card {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+@media (max-width: 640px) {
+  .section-card {
+    padding: 1rem;
+    gap: 1rem;
+  }
 }
 
 .card-heading {
@@ -374,11 +409,17 @@ onMounted(async () => {
   align-items: center;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #064e3b; /* emerald-900 */
-  background: #ecfdf5; /* emerald-50 */
+  color: var(--p-brand-700);
+  background: var(--p-brand-50);
   padding: 0.85rem;
   border-radius: var(--radius-md);
-  border: 1px dashed #6ee7b7; /* emerald-300 */
+  border: 1px dashed var(--p-brand-200);
+}
+
+.empty-notice.success {
+  color: #064e3b;
+  background: #ecfdf5;
+  border-color: #6ee7b7;
 }
 
 .expiring-list,

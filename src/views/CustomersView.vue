@@ -405,6 +405,22 @@ function sendBirthdayWishes(customer: ICustomer): void {
   gap: 1rem;
 }
 
+@media (max-width: 768px) {
+  .view-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+  }
+}
+
 .page-title {
   font-family: var(--font-title);
   font-size: 1.5rem;
@@ -413,6 +429,12 @@ function sendBirthdayWishes(customer: ICustomer): void {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+@media (max-width: 640px) {
+  .page-title {
+    font-size: 1.2rem;
+  }
 }
 
 .page-title i {
@@ -428,7 +450,7 @@ function sendBirthdayWishes(customer: ICustomer): void {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 }
 
 /* Metrics Row (Estilo Oficial Dashboard) */

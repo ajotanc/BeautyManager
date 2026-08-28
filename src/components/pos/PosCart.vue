@@ -1,23 +1,27 @@
 <template>
   <div class="pos-cart-panel glass-panel">
-    <!-- Cabeçalho do Carrinho -->
+    <!-- Cabeçalho do Carrinho Refinado -->
     <div class="cart-header">
-      <div class="header-title-wrap">
-        <i class="ri-shopping-cart-2-line header-icon"></i>
-        <h3 class="cart-title">Carrinho de Compras</h3>
+      <div class="cart-header-left">
+        <div class="cart-icon-circle">
+          <i class="ri-shopping-cart-2-fill"></i>
+        </div>
+        <div class="cart-title-meta">
+          <h3 class="cart-title">Carrinho de Compras</h3>
+          <span class="cart-subtitle">{{ posStore.totalItemsCount }} {{ posStore.totalItemsCount === 1 ? 'item adicionado' : 'itens adicionados' }}</span>
+        </div>
       </div>
-      
-      <div class="header-right">
-        <Tag severity="secondary" :value="`${posStore.totalItemsCount} itens`" />
-        <Button
-          v-if="posStore.cart.length > 0"
-          icon="ri-delete-bin-line"
-          label="Limpar"
-          severity="danger"
-          variant="text"
-          size="small"
+
+      <div v-if="posStore.cart.length > 0" class="cart-header-right">
+        <button
+          type="button"
+          class="clear-cart-action-btn"
+          title="Esvaziar todos os itens do carrinho"
           @click="confirmClearCart"
-        />
+        >
+          <i class="ri-delete-bin-line"></i>
+          <span>Limpar</span>
+        </button>
       </div>
     </div>
 
@@ -33,30 +37,44 @@
       <div
         v-for="item in posStore.cart"
         :key="item.product.$id"
-        class="cart-item-row animate-slide-down"
+        class="cart-item-card animate-slide-down"
       >
-        <div class="item-main">
-          <span class="item-name">{{ item.product.name }}</span>
-          <div class="item-meta">
-            <span class="item-barcode">{{ item.product.barcode }}</span>
-            <span class="item-unit-price">{{ formatCurrency(item.unit_price) }}/un</span>
+        <!-- Topo do Item: Nome completo e Botão Excluir -->
+        <div class="item-card-top">
+          <div class="item-name-group">
+            <span class="item-name" :title="item.product.name">{{ item.product.name }}</span>
+            <span class="item-barcode-tag">{{ item.product.barcode }}</span>
           </div>
+          <button
+            type="button"
+            class="item-delete-btn"
+            title="Remover produto do carrinho"
+            @click="posStore.removeFromCart(item.product.$id)"
+          >
+            <i class="ri-delete-bin-line"></i>
+          </button>
         </div>
 
-        <div class="item-actions">
-          <div class="item-qty-controls">
+        <!-- Base do Item: Preço Unitário, Quantidade Pill e Subtotal -->
+        <div class="item-card-bottom">
+          <div class="item-pricing">
+            <span class="item-unit-val">{{ formatCurrency(item.unit_price) }}</span>
+            <span class="item-unit-label">/un</span>
+          </div>
+
+          <div class="item-qty-pill">
             <button
               type="button"
-              class="qty-btn"
+              class="qty-pill-btn"
               title="Diminuir quantidade"
               @click="posStore.updateQuantity(item.product.$id, item.quantity - 1)"
             >
               <i class="ri-subtract-line"></i>
             </button>
-            <span class="qty-val font-semibold">{{ item.quantity }}</span>
+            <span class="qty-pill-val">{{ item.quantity }}</span>
             <button
               type="button"
-              class="qty-btn"
+              class="qty-pill-btn"
               title="Aumentar quantidade"
               @click="posStore.updateQuantity(item.product.$id, item.quantity + 1)"
             >
@@ -64,20 +82,9 @@
             </button>
           </div>
 
-          <div class="item-subtotal font-bold">
-            {{ formatCurrency(item.subtotal) }}
+          <div class="item-subtotal-box">
+            <span class="item-subtotal-val">{{ formatCurrency(item.subtotal) }}</span>
           </div>
-
-          <Button
-            icon="ri-delete-bin-line"
-            severity="danger"
-            variant="text"
-            rounded
-            size="small"
-            class="item-remove-btn"
-            title="Remover item"
-            @click="posStore.removeFromCart(item.product.$id)"
-          />
         </div>
       </div>
     </div>
@@ -183,7 +190,6 @@
 import { useConfirm } from 'primevue/useconfirm'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
-import Tag from 'primevue/tag'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { usePosStore } from '@/stores/posStore'
 import { formatCurrency } from '@/utils/currency'
@@ -229,6 +235,15 @@ function confirmClearCart(): void {
   overflow: hidden;
 }
 
+@media (max-width: 1024px) {
+  .pos-cart-panel {
+    height: auto;
+    min-height: auto;
+    overflow: visible;
+    padding: 0.85rem;
+  }
+}
+
 .cart-header {
   display: flex;
   align-items: center;
@@ -238,28 +253,72 @@ function confirmClearCart(): void {
   flex-shrink: 0;
 }
 
-.header-title-wrap {
+.cart-header-left {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.65rem;
 }
 
-.header-icon {
+.cart-icon-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--p-brand-50);
+  border: 1px solid var(--p-brand-200);
   color: var(--p-brand-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+.cart-title-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
 }
 
 .cart-title {
   font-family: var(--font-title);
   font-weight: 800;
-  font-size: 1rem;
+  font-size: 0.98rem;
   color: var(--text-primary);
+  line-height: 1.1;
+  margin: 0;
 }
 
-.header-right {
-  display: flex;
+.cart-subtitle {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.clear-cart-action-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: #dc2626;
+  background: #fff1f2;
+  border: 1px solid #fecdd3;
+  padding: 0.35rem 0.7rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.clear-cart-action-btn:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+}
+
+.clear-cart-action-btn i {
+  font-size: 0.85rem;
 }
 
 .cart-empty {
@@ -297,114 +356,163 @@ function confirmClearCart(): void {
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 0.65rem 0.25rem 0.65rem 0;
+  overflow-x: hidden;
+  padding: 0.75rem 0;
   display: flex;
   flex-direction: column;
-  gap: 0.55rem;
+  gap: 0.65rem;
+  width: 100%;
 }
 
-.cart-item-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.65rem 0.85rem;
-  background: white;
-  border: 1px solid var(--border-subtle);
+.cart-item-card {
+  width: 100%;
+  box-sizing: border-box;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
+  padding: 0.75rem 0.85rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.cart-item-row:hover {
-  border-color: var(--p-brand-300);
   box-shadow: var(--shadow-xs);
 }
 
-.item-main {
+.cart-item-card:hover {
+  border-color: var(--p-brand-300);
+  box-shadow: 0 4px 14px rgba(253, 0, 84, 0.07);
+}
+
+.item-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.item-name-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
   flex: 1;
   min-width: 0;
 }
 
 .item-name {
-  font-size: 0.85rem;
+  font-size: 0.88rem;
   font-weight: 700;
   color: var(--text-primary);
-  display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  line-height: 1.3;
+  word-break: break-word;
 }
 
-.item-meta {
+.item-barcode-tag {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  background: var(--p-surface-50);
+  padding: 0.08rem 0.4rem;
+  border-radius: var(--radius-xs);
+  border: 1px solid var(--border-subtle);
+  width: fit-content;
+}
+
+.item-delete-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: var(--radius-xs);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-muted);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  margin-top: 2px;
+  justify-content: center;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
-.item-barcode {
-  font-size: 0.7rem;
+.item-delete-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.item-card-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding-top: 0.45rem;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.item-pricing {
+  display: flex;
+  align-items: baseline;
+  gap: 0.15rem;
+}
+
+.item-unit-val {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.item-unit-label {
+  font-size: 0.68rem;
   color: var(--text-muted);
 }
 
-.item-unit-price {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--p-brand-700);
-}
-
-.item-actions {
-  display: flex;
+.item-qty-pill {
+  display: inline-flex;
   align-items: center;
-  gap: 0.6rem;
-}
-
-.item-qty-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
+  gap: 0.2rem;
   background: var(--p-surface-50);
   border: 1px solid var(--border-color);
   border-radius: var(--radius-sm);
   padding: 0.15rem;
 }
 
-.qty-btn {
+.qty-pill-btn {
   width: 24px;
   height: 24px;
+  border-radius: var(--radius-xs);
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 0.85rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: white;
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-xs);
   cursor: pointer;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
   transition: all 0.15s ease;
 }
 
-.qty-btn:hover {
+.qty-pill-btn:hover {
   background: var(--p-brand-500);
   border-color: var(--p-brand-500);
-  color: white;
+  color: #ffffff;
 }
 
-.qty-val {
-  font-weight: 800;
-  font-size: 0.82rem;
-  min-width: 22px;
+.qty-pill-val {
+  min-width: 24px;
   text-align: center;
+  font-weight: 800;
+  font-size: 0.84rem;
   color: var(--text-primary);
 }
 
-.item-subtotal {
+.item-subtotal-box {
+  text-align: right;
+}
+
+.item-subtotal-val {
   font-family: var(--font-title);
   font-weight: 800;
-  font-size: 0.92rem;
+  font-size: 1rem;
   color: var(--p-brand-700);
-  min-width: 75px;
-  text-align: right;
 }
 
 .cart-summary {

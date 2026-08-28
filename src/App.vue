@@ -169,6 +169,7 @@ onUnmounted(() => {
   min-height: 0;
   width: 100%;
   overflow: hidden;
+  position: relative;
 }
 
 .app-content {
@@ -176,12 +177,35 @@ onUnmounted(() => {
   min-height: 0;
   padding: 1.25rem;
   overflow-y: auto;
+  overflow-x: hidden;
   max-width: 100%;
+  width: 100%;
 }
 
 .app-content:has(.pos-view) {
   overflow: hidden !important;
   padding: 0.85rem 1.15rem;
+}
+
+@media (max-width: 1024px) {
+  .app-content {
+    padding: 0.75rem 0.85rem;
+    overflow-x: hidden !important;
+  }
+  .app-content:has(.pos-view) {
+    padding: 0.75rem 0.85rem;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-content {
+    padding: 0.65rem 0.65rem;
+  }
+  .app-content:has(.pos-view) {
+    padding: 0.65rem 0.65rem;
+  }
 }
 
 @media print {
