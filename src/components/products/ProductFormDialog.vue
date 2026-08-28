@@ -176,11 +176,11 @@
     </Fluid>
 
     <template #footer>
-      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
-        <Button label="Cancelar" icon="ri-close-line" severity="secondary" variant="text"
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
           @click="emit('update:visible', false)" />
         <Button type="button" :label="isEditing ? 'Atualizar Produto' : 'Salvar Produto'" icon="ri-check-line"
-          severity="primary" :loading="isSubmitting" @click="triggerFormSubmit" />
+          severity="primary" size="small" :loading="isSubmitting" @click="triggerFormSubmit" />
       </div>
     </template>
   </AppDialog>

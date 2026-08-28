@@ -137,9 +137,24 @@
         </Column>
 
         <!-- CPF / Documento -->
-        <Column field="document_number" header="CPF" sortable style="min-width: 130px">
+        <Column field="document_number" header="CPF" sortable style="min-width: 140px">
           <template #body="{ data }">
-            <span class="text-sm text-(--text-secondary)">{{ data.document_number || '-' }}</span>
+            <span class="text-sm text-(--text-secondary)">{{ maskCpf(data.document_number) }}</span>
+          </template>
+        </Column>
+
+        <!-- Total de Compras & Histórico -->
+        <Column field="total_purchases" header="Compras" sortable style="min-width: 120px">
+          <template #body="{ data }">
+            <div class="flex flex-col">
+              <span class="font-bold text-sm text-(--p-brand-600) flex items-center gap-1">
+                <i class="ri-shopping-bag-3-line"></i>
+                {{ Number(data.total_purchases || 0) }} un.
+              </span>
+              <span v-if="data.last_purchase_at" class="text-[11px] text-(--text-muted)">
+                {{ data.last_purchase_at }}
+              </span>
+            </div>
           </template>
         </Column>
 
@@ -233,6 +248,7 @@ import { useConfirm } from 'primevue/useconfirm'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { dayjs } from '@/utils/date'
+import { maskCpf } from '@/utils/security'
 import { FilterMatchMode } from '@primevue/core/api'
 
 const customerStore = useCustomerStore()
@@ -369,7 +385,7 @@ function sendBirthdayWishes(customer: ICustomer): void {
   const cleanPhone = customer.phone?.replace(/\D/g, '') || ''
   if (!cleanPhone) return
   const fullPhone = cleanPhone.length <= 11 ? `55${cleanPhone}` : cleanPhone
-  const msg = `Parabéns, ${customer.name}! 🎂🎉 Toda a equipe da Beauty Manager deseja um dia incrível e repleto de alegrias! Venha nos visitar para comemorar seu aniversário com um carinho especial da loja!`
+  const msg = `Parabéns, ${customer.name}! Toda a equipe da Beauty Manager deseja um dia incrível e repleto de alegrias! Venha nos visitar para comemorar seu aniversário com um carinho especial da loja!`
   window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 </script>

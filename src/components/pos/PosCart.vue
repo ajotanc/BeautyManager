@@ -33,7 +33,7 @@
       <div
         v-for="item in posStore.cart"
         :key="item.product.$id"
-        class="cart-item-row"
+        class="cart-item-row animate-slide-down"
       >
         <div class="item-main">
           <span class="item-name">{{ item.product.name }}</span>
@@ -89,24 +89,77 @@
         <span class="font-bold">{{ formatCurrency(posStore.subtotal) }}</span>
       </div>
 
-      <div class="summary-line discount-line">
-        <span class="discount-label"><i class="ri-discount-percent-line"></i> Desconto:</span>
-        <div class="discount-control">
-          <InputNumber
-            v-model="posStore.discount"
-            mode="currency"
-            currency="BRL"
-            locale="pt-BR"
-            :min="0"
-            :max="posStore.subtotal"
-            size="small"
-            class="discount-input"
-          />
+      <!-- Desconto e Chips Rápidos -->
+      <div class="discount-container">
+        <div class="summary-line discount-line">
+          <span class="discount-label"><i class="ri-discount-percent-line"></i> Desconto:</span>
+          <div class="discount-control">
+            <InputNumber
+              v-model="posStore.discount"
+              mode="currency"
+              currency="BRL"
+              locale="pt-BR"
+              :min="0"
+              :max="posStore.subtotal"
+              size="small"
+              class="discount-input"
+            />
+          </div>
+        </div>
+
+        <!-- Chips de Desconto Rápido -->
+        <div v-if="posStore.subtotal > 0" class="discount-chips-row">
+          <button
+            type="button"
+            class="discount-chip"
+            title="Desconto de R$ 5,00"
+            @click="applyFixedDiscount(5)"
+          >
+            -R$ 5
+          </button>
+          <button
+            type="button"
+            class="discount-chip"
+            title="Desconto de R$ 10,00"
+            @click="applyFixedDiscount(10)"
+          >
+            -R$ 10
+          </button>
+          <button
+            type="button"
+            class="discount-chip"
+            title="Desconto de 5%"
+            @click="applyPercentageDiscount(5)"
+          >
+            5% OFF
+          </button>
+          <button
+            type="button"
+            class="discount-chip"
+            title="Desconto de 10%"
+            @click="applyPercentageDiscount(10)"
+          >
+            10% OFF
+          </button>
+          <button
+            v-if="posStore.discount > 0"
+            type="button"
+            class="discount-chip chip-clear"
+            title="Remover desconto"
+            @click="posStore.discount = 0"
+          >
+            <i class="ri-close-line"></i> Limpar
+          </button>
         </div>
       </div>
 
       <div class="summary-line grand-total-line">
-        <span class="total-label">TOTAL:</span>
+        <div class="flex flex-col">
+          <span class="total-label">TOTAL:</span>
+          <span v-if="posStore.discount > 0" class="saved-badge">
+            <i class="ri-sparkling-line"></i> Economia de {{ formatCurrency(posStore.discount) }}
+          </span>
+        </div>
         <span class="total-val font-bold">{{ formatCurrency(posStore.totalAmount) }}</span>
       </div>
 
@@ -141,6 +194,16 @@ const emit = defineEmits<{
 
 const posStore = usePosStore()
 const confirm = useConfirm()
+
+function applyFixedDiscount(amount: number): void {
+  const finalDiscount = Math.min(amount, posStore.subtotal)
+  posStore.discount = finalDiscount
+}
+
+function applyPercentageDiscount(percent: number): void {
+  const calculated = (posStore.subtotal * percent) / 100
+  posStore.discount = Math.min(calculated, posStore.subtotal)
+}
 
 function confirmClearCart(): void {
   confirm.require({
@@ -388,6 +451,64 @@ function confirmClearCart(): void {
   padding: 0.25rem 0.4rem !important;
   font-size: 0.82rem !important;
   text-align: right;
+}
+
+.discount-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.discount-chips-row {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.discount-chip {
+  background: var(--p-brand-50);
+  border: 1px solid var(--border-color);
+  color: var(--p-brand-800);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.discount-chip:hover {
+  background: var(--p-brand-500);
+  color: #ffffff;
+  border-color: var(--p-brand-500);
+  transform: translateY(-1px);
+}
+
+.discount-chip.chip-clear {
+  background: #fee2e2;
+  color: #dc2626;
+  border-color: #fca5a5;
+}
+
+.discount-chip.chip-clear:hover {
+  background: #dc2626;
+  color: #ffffff;
+  border-color: #dc2626;
+}
+
+.saved-badge {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--p-gold-700);
+  background: var(--p-gold-50);
+  border: 1px solid var(--p-gold-300);
+  padding: 0.1rem 0.4rem;
+  border-radius: var(--radius-xs);
+  width: fit-content;
 }
 
 .grand-total-line {

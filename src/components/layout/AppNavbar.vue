@@ -128,6 +128,12 @@ async function handleLogout(): Promise<void> {
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+}
+
+.logo-circle:hover {
+  transform: scale(1.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .brand-logo {
@@ -161,12 +167,24 @@ async function handleLogout(): Promise<void> {
   display: flex;
   align-items: center;
   gap: 0.65rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-md);
+  transition: background-color var(--transition-fast);
+}
+
+.user-profile:hover {
+  background: var(--p-brand-50);
 }
 
 .user-avatar {
   background: var(--p-brand-100) !important;
   color: var(--p-brand-700) !important;
   border: 1px solid var(--p-brand-300);
+  transition: transform var(--transition-normal);
+}
+
+.user-profile:hover .user-avatar {
+  transform: scale(1.06);
 }
 
 .user-meta {
@@ -183,5 +201,10 @@ async function handleLogout(): Promise<void> {
 
 .logout-btn {
   font-weight: 600;
+  transition: all var(--transition-fast) !important;
+}
+
+.logout-btn:hover {
+  transform: translateY(-1px);
 }
 </style>

@@ -58,9 +58,9 @@
       <div
         v-for="prod in filteredProducts"
         :key="prod.$id"
-        class="product-card"
+        class="product-card floating-card"
         :class="{ 'low-stock': prod.stock_quantity <= prod.min_stock_alert }"
-        @click="posStore.addToCart(prod, 1)"
+        @click="handleAddToCart(prod)"
       >
         <div class="card-top">
           <span class="card-category">{{ getCategoryName(prod) }}</span>
@@ -83,7 +83,7 @@
             type="button"
             class="add-btn"
             title="Adicionar ao carrinho"
-            @click.stop="posStore.addToCart(prod, 1)"
+            @click.stop="handleAddToCart(prod)"
           >
             <i class="ri-add-line"></i>
           </button>
@@ -101,11 +101,20 @@ import { usePosStore } from '@/stores/posStore'
 import type { IProduct } from '@/types/product'
 import { formatCurrency } from '@/utils/currency'
 
+const emit = defineEmits<{
+  (e: 'item-added', product: IProduct): void
+}>()
+
 const productStore = useProductStore()
 const posStore = usePosStore()
 
 const selectedCategory = ref<string>('ALL')
 const categoryScrollRef = ref<HTMLElement | null>(null)
+
+function handleAddToCart(prod: IProduct): void {
+  posStore.addToCart(prod, 1)
+  emit('item-added', prod)
+}
 
 let isMouseDown = false
 let startX = 0
@@ -269,8 +278,8 @@ const filteredProducts = computed(() => {
   background: var(--p-brand-50);
   border: 1px solid var(--border-color);
   color: var(--text-secondary);
-  padding: 0.3rem 0.75rem;
-  border-radius: var(--radius-full);
+  padding: 0.32rem 0.7rem;
+  border-radius: var(--radius-sm);
   font-size: 0.75rem;
   font-weight: 700;
   cursor: pointer;

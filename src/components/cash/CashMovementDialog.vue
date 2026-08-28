@@ -1,33 +1,21 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Movimentação de Caixa"
-    subtitle="Registre sangrias (retiradas) ou suprimentos (entradas) de dinheiro"
-    icon="ri-exchange-dollar-line"
-    width="500px"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+  <AppDialog :visible="visible" title="Movimentação de Caixa"
+    subtitle="Registre sangrias (retiradas) ou suprimentos (entradas) de dinheiro" icon="ri-exchange-dollar-line"
+    width="500px" @update:visible="(val) => emit('update:visible', val)">
     <Fluid>
       <form id="cash-movement-form" @submit.prevent="handleSubmit" class="flex flex-col gap-4">
         <!-- Tipo de Movimentação -->
         <div class="flex flex-col gap-1.5">
-          <label class="text-xs font-bold text-(--text-secondary) uppercase tracking-wider">Tipo de Movimentação *</label>
+          <label class="text-xs font-bold text-(--text-secondary) uppercase tracking-wider">Tipo de Movimentação
+            *</label>
           <div class="grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              class="type-btn out-type"
-              :class="{ 'is-active': movementType === 'OUT' }"
-              @click="movementType = 'OUT'"
-            >
+            <button type="button" class="type-btn out-type" :class="{ 'is-active': movementType === 'OUT' }"
+              @click="movementType = 'OUT'">
               <i class="ri-indeterminate-circle-line"></i>
               <span>Sangria (Retirada)</span>
             </button>
-            <button
-              type="button"
-              class="type-btn in-type"
-              :class="{ 'is-active': movementType === 'IN' }"
-              @click="movementType = 'IN'"
-            >
+            <button type="button" class="type-btn in-type" :class="{ 'is-active': movementType === 'IN' }"
+              @click="movementType = 'IN'">
               <i class="ri-add-circle-line"></i>
               <span>Suprimento (Entrada)</span>
             </button>
@@ -37,17 +25,8 @@
         <!-- Valor -->
         <div class="flex flex-col gap-1">
           <FloatLabel variant="in">
-            <InputNumber
-              id="movement_amount"
-              v-model="amount"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              fluid
-              class="w-full text-lg font-bold"
-              :min="0.01"
-              required
-            />
+            <InputNumber id="movement_amount" v-model="amount" mode="currency" currency="BRL" locale="pt-BR" fluid
+              class="w-full text-lg font-bold" :min="0.01" required />
             <label for="movement_amount">Valor (R$) *</label>
           </FloatLabel>
         </div>
@@ -55,12 +34,7 @@
         <!-- Motivo / Justificativa -->
         <div class="flex flex-col gap-1">
           <FloatLabel variant="in">
-            <InputText
-              id="movement_reason"
-              v-model="reason"
-              fluid
-              required
-            />
+            <InputText id="movement_reason" v-model="reason" fluid required />
             <label for="movement_reason">Motivo / Justificativa *</label>
           </FloatLabel>
         </div>
@@ -69,24 +43,11 @@
 
     <!-- Footer do Diálogo -->
     <template #footer>
-      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
-        <Button
-          label="Cancelar"
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          @click="emit('update:visible', false)"
-        />
-        <Button
-          type="button"
-          label="Confirmar Movimentação"
-          icon="ri-check-line"
-          severity="primary"
-          size="small"
-          :loading="isSubmitting"
-          @click="triggerSubmit"
-        />
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          @click="emit('update:visible', false)" />
+        <Button type="button" label="Confirmar Movimentação" icon="ri-check-line" severity="primary" size="small"
+          :loading="isSubmitting" @click="triggerSubmit" />
       </div>
     </template>
   </AppDialog>
@@ -191,4 +152,3 @@ async function handleSubmit(): Promise<void> {
   color: #065f46;
 }
 </style>
-

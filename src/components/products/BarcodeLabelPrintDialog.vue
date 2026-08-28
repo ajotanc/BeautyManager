@@ -1,13 +1,7 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Impressão de Etiquetas"
-    subtitle="Padrão A4 • 96 etiquetas por folha (31 x 17 mm)"
-    icon="ri-barcode-box-line"
-    width="640px"
-    @update:visible="(val) => emit('update:visible', val)"
-    class="barcode-print-modal"
-  >
+  <AppDialog :visible="visible" title="Impressão de Etiquetas"
+    subtitle="Padrão A4 • 96 etiquetas por folha (31 x 17 mm)" icon="ri-barcode-box-line" width="640px"
+    @update:visible="(val) => emit('update:visible', val)" class="barcode-print-modal">
 
     <Fluid>
       <div class="labels-dialog-content">
@@ -102,8 +96,8 @@
     </Teleport>
 
     <template #footer>
-      <div class="dialog-actions">
-        <Button label="Cancelar" severity="secondary" variant="outlined" size="small"
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
           @click="emit('update:visible', false)" />
         <Button label="Imprimir Etiquetas" icon="ri-printer-line" severity="primary" size="small"
           class="print-action-btn" @click="handlePrint" />
@@ -446,13 +440,6 @@ const { handlePrint } = useVueToPrint({
   border-radius: 2px;
   width: 100%;
   line-height: 1.1;
-}
-
-.dialog-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
 }
 
 .print-action-btn {

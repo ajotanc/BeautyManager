@@ -22,7 +22,6 @@
           v-if="selectedCategory.$id"
           icon="ri-close-line"
           severity="secondary"
-          title="Cancelar edição"
           @click="cancelEdit"
         />
         <Button
@@ -88,12 +87,13 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end w-full pt-3 border-t border-(--border-subtle)">
+      <div class="flex items-center justify-end gap-2.5 w-full">
         <Button
-          label="Pronto"
-          icon="ri-check-line"
+          label="Fechar"
+          icon="ri-close-line"
           severity="secondary"
           variant="text"
+          size="small"
           @click="emit('update:visible', false)"
         />
       </div>
@@ -222,11 +222,11 @@ function confirmDelete(cat: ICategory): void {
 <style scoped>
 :deep(.p-datatable .p-datatable-thead > tr > th) {
   background-color: var(--bg-primary, #ffffff);
-  padding: 0.75rem 1.25rem;
+  padding: 0.5rem 1rem;
   z-index: 10;
 }
 
 :deep(.p-datatable .p-datatable-tbody > tr > td) {
-  padding: 0.75rem 1.25rem;
+  padding: 0.25rem 1rem;
 }
 </style>

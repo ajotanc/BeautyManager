@@ -8,28 +8,44 @@
     @update:visible="(val) => emit('update:visible', val)"
   >
     <Fluid>
-      <div class="whatsapp-dialog-content">
-        <div class="field-item">
-          <FloatLabel variant="in">
-            <InputText id="whatsapp_dest_phone" v-model="phoneInput" size="small" fluid />
-            <label for="whatsapp_dest_phone">WhatsApp</label>
-          </FloatLabel>
-        </div>
+      <div class="flex flex-col gap-4 pt-1">
+        <FloatLabel variant="in">
+          <InputText id="whatsapp_dest_phone" v-model="phoneInput" size="small" fluid />
+          <label for="whatsapp_dest_phone">WhatsApp</label>
+        </FloatLabel>
 
-        <div class="field-item">
-          <label class="field-label">Pré-visualização da Mensagem</label>
-          <div class="message-preview">
-            {{ formattedMessage }}
-          </div>
-        </div>
+        <FloatLabel variant="in">
+          <Textarea
+            id="whatsapp_message"
+            v-model="formattedMessage"
+            rows="6"
+            auto-resize
+            readonly
+            class="text-xs leading-relaxed"
+          />
+          <label for="whatsapp_message">Pré-visualização da Mensagem</label>
+        </FloatLabel>
       </div>
     </Fluid>
 
     <template #footer>
-      <div class="dialog-actions">
-        <Button label="Fechar" icon="ri-close-line" severity="secondary" text size="small" @click="emit('update:visible', false)" />
-        <Button label="Abrir WhatsApp" icon="ri-whatsapp-line" severity="success" size="small" :disabled="!isValidPhone"
-          @click="openWhatsApp" />
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button
+          label="Fechar"
+          icon="ri-close-line"
+          severity="secondary"
+          variant="text"
+          size="small"
+          @click="emit('update:visible', false)"
+        />
+        <Button
+          label="Abrir WhatsApp"
+          icon="ri-whatsapp-line"
+          severity="success"
+          size="small"
+          :disabled="!isValidPhone"
+          @click="openWhatsApp"
+        />
       </div>
     </template>
   </AppDialog>
@@ -40,6 +56,7 @@ import { ref, computed, watch } from 'vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputText from 'primevue/inputtext'
+import Textarea from 'primevue/textarea'
 import FloatLabel from 'primevue/floatlabel'
 import Fluid from 'primevue/fluid'
 import type { ISale } from '@/types/sale'
@@ -92,46 +109,3 @@ function openWhatsApp(): void {
   window.open(`https://wa.me/${fullPhone}?text=${encodedText}`, '_blank')
 }
 </script>
-
-<style scoped>
-.whatsapp-dialog-content {
-  display: flex;
-  flex-direction: column;
-  gap: 1.15rem;
-  padding-top: 0.25rem;
-}
-
-.field-item {
-  display: flex;
-  flex-direction: column;
-  gap: 0.35rem;
-}
-
-.field-label {
-  font-size: 0.8rem;
-  font-weight: 700;
-  color: var(--text-secondary);
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-}
-
-.message-preview {
-  background: var(--bg-card-soft);
-  border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.85rem;
-  font-size: 0.78rem;
-  color: var(--text-primary);
-  white-space: pre-wrap;
-  max-height: 180px;
-  overflow-y: auto;
-  line-height: 1.4;
-}
-
-.dialog-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  width: 100%;
-}
-</style>

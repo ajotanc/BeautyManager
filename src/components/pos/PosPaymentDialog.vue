@@ -65,17 +65,16 @@
           </div>
 
           <div class="customer-grid">
-            <div>
+            <div class="autocomplete-container relative">
               <FloatLabel variant="in">
                 <AutoComplete id="customer_name" v-model="posStore.customerName" :suggestions="customerSuggestions"
-                  option-label="name" size="small" fluid
-                  @complete="handleCustomerSearch" @item-select="onCustomerSelect">
+                  option-label="name" size="small" fluid append-to="self" @complete="handleCustomerSearch"
+                  @item-select="onCustomerSelect">
                   <template #option="{ option }">
                     <div class="flex items-center justify-between w-full py-0.5 gap-2">
                       <div class="flex flex-col">
                         <span class="font-bold text-xs text-(--text-primary)">{{ option.name }}</span>
-                        <span v-if="option.phone" class="text-[11px] text-(--text-secondary)">{{ option.phone
-                          }}</span>
+                        <span v-if="option.phone" class="text-[11px] text-(--text-secondary)">{{ option.phone }}</span>
                       </div>
                       <span v-if="option.birth_date"
                         class="text-[10px] text-(--p-brand-600) font-semibold flex items-center gap-1">
@@ -96,19 +95,32 @@
           </div>
         </div>
 
-        <!-- Opção de Impressão -->
-        <div class="print-option">
-          <Checkbox v-model="autoPrintReceipt" :binary="true" input-id="auto-print" />
-          <label for="auto-print" class="print-label">Imprimir cupom térmico automaticamente</label>
+        <!-- Opções de Pós-Venda (Impressão e WhatsApp) -->
+        <div class="post-sale-options">
+          <div class="option-item">
+            <Checkbox v-model="autoPrintReceipt" :binary="true" input-id="auto-print" />
+            <label for="auto-print" class="option-label">
+              <i class="ri-printer-line text-rose-500"></i>
+              <span>Imprimir cupom térmico automaticamente</span>
+            </label>
+          </div>
+
+          <div class="option-item">
+            <Checkbox v-model="openWhatsappReceipt" :binary="true" input-id="open-whatsapp" />
+            <label for="open-whatsapp" class="option-label">
+              <i class="ri-whatsapp-line text-emerald-500"></i>
+              <span>Enviar comprovante por WhatsApp</span>
+            </label>
+          </div>
         </div>
       </div>
     </Fluid>
 
     <template #footer>
-      <div class="dialog-actions">
-        <Button label="Cancelar (Esc)" icon="ri-close-line" severity="secondary" variant="text" size="small"
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
           :disabled="posStore.isProcessingSale" @click="emit('update:visible', false)" />
-        <Button label="Concluir Venda (Enter)" icon="ri-check-line" severity="primary" size="small"
+        <Button label="Concluir Venda" icon="ri-check-line" severity="primary" size="small"
           :loading="posStore.isProcessingSale" class="confirm-sale-btn" @click="handleConfirmSale" />
       </div>
     </template>
@@ -139,12 +151,13 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
-  (e: 'sale-completed', sale: ISale, shouldPrint: boolean): void
+  (e: 'sale-completed', sale: ISale, shouldPrint: boolean, shouldOpenWhatsapp: boolean): void
 }>()
 
 const posStore = usePosStore()
 const customerStore = useCustomerStore()
 const autoPrintReceipt = ref<boolean>(true)
+const openWhatsappReceipt = ref<boolean>(false)
 const customerSuggestions = ref<ICustomer[]>([])
 
 watch(
@@ -168,13 +181,31 @@ function handleCustomerSearch(event: { query: string }): void {
 }
 
 function onCustomerSelect(event: { value: ICustomer }): void {
-  if (event.value && typeof event.value === 'object') {
-    posStore.customerName = event.value.name
-    if (event.value.phone) {
-      posStore.customerPhone = event.value.phone
-    }
+  posStore.selectedCustomer = event.value
+  posStore.customerName = event.value.name
+  if (event.value.phone) {
+    posStore.customerPhone = event.value.phone
+    openWhatsappReceipt.value = true
   }
 }
+
+watch(
+  () => posStore.customerName,
+  (name) => {
+    if (posStore.selectedCustomer && posStore.selectedCustomer.name !== name) {
+      posStore.selectedCustomer = null
+    }
+  }
+)
+
+watch(
+  () => posStore.customerPhone,
+  (phone) => {
+    if (phone && phone.trim().length > 0) {
+      openWhatsappReceipt.value = true
+    }
+  }
+)
 
 const paymentMethods = PAYMENT_METHOD_OPTIONS
 
@@ -198,7 +229,7 @@ function setExactAmount(): void {
 async function handleConfirmSale(): Promise<void> {
   try {
     const sale = await posStore.checkout()
-    emit('sale-completed', sale, autoPrintReceipt.value)
+    emit('sale-completed', sale, autoPrintReceipt.value, openWhatsappReceipt.value)
     emit('update:visible', false)
   } catch {
     // Erro tratado pela store e toast
@@ -409,23 +440,34 @@ async function handleConfirmSale(): Promise<void> {
   gap: 0.75rem;
 }
 
-.print-option {
+.post-sale-options {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 0.55rem;
+  padding: 0.75rem 0.95rem;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
 }
 
-.print-label {
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.option-label {
   font-size: 0.82rem;
   font-weight: 600;
   color: var(--text-secondary);
   cursor: pointer;
-}
-
-.dialog-actions {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  gap: 0.35rem;
+  user-select: none;
+}
+
+.option-label i {
+  font-size: 1rem;
 }
 </style>

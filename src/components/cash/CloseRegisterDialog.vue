@@ -1,12 +1,7 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Fechamento de Caixa Diário"
-    subtitle="Confira as movimentações e realize o balanço final da gaveta"
-    icon="ri-lock-line"
-    width="520px"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+  <AppDialog :visible="visible" title="Fechamento de Caixa Diário"
+    subtitle="Confira as movimentações e realize o balanço final da gaveta" icon="ri-lock-line" width="520px"
+    @update:visible="(val) => emit('update:visible', val)">
     <Fluid>
       <form id="close-register-form" @submit.prevent="handleClose" class="flex flex-col gap-4">
         <div v-if="cashRegisterStore.currentRegister" class="register-summary-box">
@@ -31,19 +26,8 @@
 
         <div class="field-item">
           <FloatLabel variant="in">
-            <InputNumber
-              id="closing_balance"
-              v-model="closingBalance"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              size="small"
-              fluid
-              class="font-bold"
-              :min="0"
-              :invalid="!!errors.closing_balance"
-              required
-            />
+            <InputNumber id="closing_balance" v-model="closingBalance" mode="currency" currency="BRL" locale="pt-BR"
+              size="small" fluid class="font-bold" :min="0" :invalid="!!errors.closing_balance" required />
             <label for="closing_balance">Valor Real Contado na Gaveta (R$) *</label>
           </FloatLabel>
           <Message v-if="errors.closing_balance" severity="error" size="small" variant="simple">
@@ -67,24 +51,11 @@
 
     <!-- Footer do Diálogo -->
     <template #footer>
-      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
-        <Button
-          label="Cancelar"
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          @click="emit('update:visible', false)"
-        />
-        <Button
-          type="button"
-          label="Fechar Caixa"
-          icon="ri-lock-line"
-          severity="danger"
-          size="small"
-          :loading="isSubmitting"
-          @click="triggerSubmit"
-        />
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          @click="emit('update:visible', false)" />
+        <Button type="button" label="Fechar Caixa" icon="ri-lock-line" severity="danger" size="small"
+          :loading="isSubmitting" @click="triggerSubmit" />
       </div>
     </template>
   </AppDialog>

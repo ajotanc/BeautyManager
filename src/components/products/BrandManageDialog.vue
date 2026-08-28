@@ -22,7 +22,6 @@
           v-if="selectedBrand.$id"
           icon="ri-close-line"
           severity="secondary"
-          title="Cancelar edição"
           @click="cancelEdit"
         />
         <Button
@@ -88,12 +87,13 @@
     </div>
 
     <template #footer>
-      <div class="flex justify-end w-full pt-3 border-t border-(--border-subtle)">
+      <div class="flex items-center justify-end gap-2.5 w-full">
         <Button
-          label="Pronto"
-          icon="ri-check-line"
+          label="Fechar"
+          icon="ri-close-line"
           severity="secondary"
           variant="text"
+          size="small"
           @click="emit('update:visible', false)"
         />
       </div>

@@ -15,38 +15,50 @@
             {{ getInitials(customer.name) }}
           </div>
           <div v-if="isBirthdayToday" class="avatar-celebration-badge" title="Aniversariante do dia!">
-            🎂
+            <i class="ri-cake-2-line text-rose-500"></i>
           </div>
         </div>
 
         <div class="profile-main-info">
-          <div class="flex items-center gap-2 flex-wrap">
+          <div class="profile-header-line">
             <h3 class="profile-name">
               {{ customer.name }}
             </h3>
             <Tag
               v-if="isBirthdayToday"
-              value="🎉 Aniversário Hoje!"
+              value="Aniversário Hoje!"
+              icon="ri-gift-line"
               severity="success"
               class="birthday-pill birthday-pill-today"
             />
             <Tag
               v-else-if="isBirthdayThisMonth"
-              value="🎂 Aniversário no Mês"
+              value="Aniversário no Mês"
+              icon="ri-cake-2-line"
               severity="warn"
               class="birthday-pill"
             />
           </div>
 
-          <div class="profile-meta">
-            <span class="meta-item">
-              <i class="ri-calendar-check-line text-rose-500"></i>
-              Cliente desde {{ formatRegistrationDate(customer.$createdAt) }}
+          <!-- Badges de Histórico e Fidelidade -->
+          <div class="profile-stats-row">
+            <span class="stat-pill" title="Data do primeiro cadastro">
+              <i class="ri-calendar-check-line"></i>
+              Desde {{ formatRegistrationDate(customer.$createdAt) }}
             </span>
-            <span v-if="customer.total_purchases" class="meta-divider">•</span>
-            <span v-if="customer.total_purchases" class="meta-item text-rose-600 font-semibold">
+
+            <span class="stat-pill stat-pill-purchases" title="Total de compras registradas no sistema">
               <i class="ri-shopping-bag-3-line"></i>
-              {{ customer.total_purchases }} pedidos
+              {{ Number(customer.total_purchases || 0) }} compra{{ Number(customer.total_purchases || 0) === 1 ? '' : 's' }}
+            </span>
+
+            <span v-if="customer.last_purchase_at" class="stat-pill stat-pill-recent" title="Data da última compra realizada">
+              <i class="ri-history-line"></i>
+              Última compra: {{ customer.last_purchase_at }}
+            </span>
+            <span v-else class="stat-pill stat-pill-empty">
+              <i class="ri-time-line"></i>
+              Sem compras registradas
             </span>
           </div>
         </div>
@@ -161,9 +173,19 @@
           </div>
           <div class="tile-content">
             <span class="tile-value truncate" :class="{ 'text-muted': !customer.document_number }">
-              {{ customer.document_number || 'Não informado' }}
+              {{ customer.document_number ? (isCpfVisible ? customer.document_number : maskCpf(customer.document_number)) : 'Não informado' }}
             </span>
             <div v-if="customer.document_number" class="tile-actions">
+              <Button
+                :icon="isCpfVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
+                text
+                rounded
+                size="small"
+                severity="secondary"
+                class="action-icon-btn"
+                :title="isCpfVisible ? 'Ocultar CPF (LGPD)' : 'Exibir CPF completo'"
+                @click="isCpfVisible = !isCpfVisible"
+              />
               <Button
                 icon="ri-file-copy-line"
                 text
@@ -207,11 +229,12 @@
         />
         <div v-else class="flex-1"></div>
 
-        <div class="flex items-center gap-2">
+        <div class="flex items-center justify-end gap-2.5">
           <Button
             label="Fechar"
+            icon="ri-close-line"
             severity="secondary"
-            variant="outlined"
+            variant="text"
             size="small"
             @click="emit('update:visible', false)"
           />
@@ -229,12 +252,13 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import type { ICustomer } from '@/types/customer'
 import { dayjs } from '@/utils/date'
+import { maskCpf } from '@/utils/security'
 import { useToast } from 'primevue/usetoast'
 
 interface Props {
@@ -253,6 +277,7 @@ const emit = defineEmits<{
 }>()
 
 const toast = useToast()
+const isCpfVisible = ref<boolean>(false)
 
 function getInitials(name: string): string {
   if (!name) return '?'
@@ -333,7 +358,7 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
   const clean = phone.replace(/\D/g, '')
   if (!clean) return
   const fullPhone = clean.length <= 11 ? `55${clean}` : clean
-  const msg = `Parabéns, ${customerName}! 🎂✨ Desejamos a você um feliz aniversário repleto de realizações! Passe aqui na loja para comemorar com a gente!`
+  const msg = `Parabéns, ${customerName}! Desejamos a você um feliz aniversário repleto de realizações! Passe aqui na loja para comemorar com a gente!`
   window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank')
 }
 </script>
@@ -360,12 +385,12 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
 .profile-hero-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.15rem 1.25rem;
-  border-radius: var(--radius-lg);
-  background: linear-gradient(135deg, #fff5f8 0%, #ffebf0 60%, #ffffff 100%);
-  border: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(225, 29, 72, 0.05);
+  gap: 1.15rem;
+  padding: 1.1rem 1.25rem;
+  border-radius: var(--radius-md);
+  background: linear-gradient(135deg, #fff0f3 0%, #ffe4e8 35%, #ffffff 100%);
+  border: 1px solid rgba(225, 29, 72, 0.14);
+  box-shadow: 0 4px 16px -2px rgba(225, 29, 72, 0.06);
 }
 
 .profile-avatar-wrapper {
@@ -377,7 +402,7 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff5d8f 0%, #e11d48 100%);
+  background: linear-gradient(135deg, #ff4d6d 0%, #e11d48 100%);
   color: #ffffff;
   font-family: var(--font-title);
   font-size: 1.15rem;
@@ -392,9 +417,9 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
 
 .avatar-celebration-badge {
   position: absolute;
-  bottom: -4px;
-  right: -4px;
-  font-size: 1rem;
+  bottom: -2px;
+  right: -2px;
+  font-size: 0.9rem;
   background: #ffffff;
   border-radius: 50%;
   width: 22px;
@@ -402,15 +427,23 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  border: 1.5px solid #ffffff;
 }
 
 .profile-main-info {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 0.35rem;
   min-width: 0;
   flex: 1;
+}
+
+.profile-header-line {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
 .profile-name {
@@ -420,30 +453,71 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
   color: var(--text-primary);
   line-height: 1.2;
   margin: 0;
+  letter-spacing: -0.01em;
 }
 
-.profile-meta {
+.profile-stats-row {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.76rem;
-  color: var(--text-secondary);
+  gap: 0.4rem;
   flex-wrap: wrap;
 }
 
-.meta-item {
+.stat-pill {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(225, 29, 72, 0.12);
+  padding: 0.15rem 0.5rem;
+  border-radius: var(--radius-xs);
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  line-height: 1.2;
 }
 
-.meta-divider {
-  color: var(--border-color);
+.stat-pill i {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.stat-pill-purchases {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+  font-weight: 700;
+}
+
+.stat-pill-purchases i {
+  color: #e11d48;
+}
+
+.stat-pill-recent {
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+  color: #047857;
+  font-weight: 700;
+}
+
+.stat-pill-recent i {
+  color: #10b981;
+}
+
+.stat-pill-empty {
+  background: #f8fafc;
+  border-color: #e2e8f0;
+  color: #94a3b8;
+}
+
+.stat-pill-empty i {
+  color: #94a3b8;
 }
 
 .birthday-pill {
   font-size: 0.7rem !important;
-  padding: 0.15rem 0.5rem !important;
+  padding: 0.12rem 0.45rem !important;
+  border-radius: var(--radius-xs) !important;
 }
 
 .birthday-pill-today {

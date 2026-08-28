@@ -4,7 +4,7 @@
     <div class="welcome-banner glass-panel">
       <div class="welcome-content">
         <h1 class="welcome-title">
-          {{ greetingMessage }}, <span class="text-brand">{{ authStore.userName }}</span>! ✨
+          {{ greetingMessage }}, <span class="text-brand">{{ authStore.userName }}</span>! <i class="ri-sparkling-fill text-brand"></i>
         </h1>
         <p class="welcome-subtitle">Pronta para mais um dia de sucesso? Aqui está o resumo da sua loja hoje.</p>
       </div>
@@ -46,10 +46,56 @@
       />
     </div>
 
+    <!-- Seção de Distribuição por Forma de Pagamento -->
+    <div class="section-card glass-panel floating-card">
+      <div class="card-heading">
+        <span class="heading-title">
+          <i class="ri-pie-chart-2-line"></i> Vendas por Forma de Pagamento
+        </span>
+        <span class="text-xs text-muted font-medium">Baseado nas vendas registradas</span>
+      </div>
+
+      <div v-if="completedSalesCount === 0" class="empty-notice">
+        <i class="ri-information-line text-brand"></i>
+        <span>Nenhuma venda concluída para calcular a distribuição de pagamentos ainda.</span>
+      </div>
+
+      <div v-else class="payment-distribution-grid">
+        <div
+          v-for="item in paymentBreakdown"
+          :key="item.method"
+          class="payment-stat-box"
+        >
+          <div class="payment-stat-header">
+            <div class="method-badge-wrap">
+              <i :class="item.icon" class="method-icon" :style="{ color: item.accentColor }"></i>
+              <span class="method-name">{{ item.label }}</span>
+            </div>
+            <span class="method-percent font-bold">{{ item.percentage.toFixed(1) }}%</span>
+          </div>
+
+          <div class="progress-bar-bg">
+            <div
+              class="progress-bar-fill"
+              :style="{
+                width: `${item.percentage}%`,
+                background: item.gradient
+              }"
+            ></div>
+          </div>
+
+          <div class="payment-stat-footer">
+            <span class="method-count">{{ item.count }} venda{{ item.count === 1 ? '' : 's' }}</span>
+            <strong class="method-total font-bold">{{ formatCurrency(item.total) }}</strong>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Alertas Especiais & Destaques de Cosméticos -->
     <div class="dashboard-grid">
       <!-- Tabela de Produtos Perto de Vencer (Crucial para Cosméticos) -->
-      <div class="section-card glass-panel">
+      <div class="section-card glass-panel floating-card">
         <div class="card-heading">
           <span class="heading-title"><i class="ri-time-line"></i> Cosméticos Próximos do Vencimento</span>
           <Tag :severity="productStore.expiringProducts.length > 0 ? 'danger' : 'success'"
@@ -74,7 +120,7 @@
       </div>
 
       <!-- Tabela de Produtos com Estoque Baixo -->
-      <div class="section-card glass-panel">
+      <div class="section-card glass-panel floating-card">
         <div class="card-heading">
           <span class="heading-title"><i class="ri-alert-line"></i> Reposição Urgente (Estoque Baixo)</span>
           <Tag :severity="productStore.lowStockProducts.length > 0 ? 'warn' : 'success'"
@@ -111,9 +157,20 @@ import Tag from 'primevue/tag'
 import { useProductStore } from '@/stores/productStore'
 import { useAuthStore } from '@/stores/authStore'
 import { sales } from '@/services/sales'
-import type { ISale } from '@/types/sale'
+import type { ISale, PaymentMethod } from '@/types/sale'
 import { formatCurrency, toNumber } from '@/utils/currency'
 import { formatDate } from '@/utils/date'
+
+interface IPaymentStat {
+  method: PaymentMethod
+  label: string
+  icon: string
+  count: number
+  total: number
+  percentage: number
+  accentColor: string
+  gradient: string
+}
 
 const productStore = useProductStore()
 const authStore = useAuthStore()
@@ -153,6 +210,66 @@ const averageTicket = computed(() => {
   return totalRevenue.value / completedSalesCount.value
 })
 
+const paymentBreakdown = computed<IPaymentStat[]>(() => {
+  const total = totalRevenue.value || 1
+  const map: Record<PaymentMethod, { count: number; total: number }> = {
+    pix: { count: 0, total: 0 },
+    credit: { count: 0, total: 0 },
+    debit: { count: 0, total: 0 },
+    cash: { count: 0, total: 0 }
+  }
+
+  for (const sale of completedSales.value) {
+    const method = sale.payment_method as PaymentMethod
+    if (map[method]) {
+      map[method].count += 1
+      map[method].total += toNumber(sale.total_amount)
+    }
+  }
+
+  const configs: Record<PaymentMethod, { label: string; icon: string; accentColor: string; gradient: string }> = {
+    pix: {
+      label: 'PIX Instantâneo',
+      icon: 'ri-qr-code-line',
+      accentColor: '#10b981',
+      gradient: 'linear-gradient(90deg, #10b981 0%, #059669 100%)'
+    },
+    credit: {
+      label: 'Cartão de Crédito',
+      icon: 'ri-bank-card-line',
+      accentColor: '#fd0054',
+      gradient: 'linear-gradient(90deg, #ff5d8f 0%, #fd0054 100%)'
+    },
+    debit: {
+      label: 'Cartão de Débito',
+      icon: 'ri-bank-card-2-line',
+      accentColor: '#3b82f6',
+      gradient: 'linear-gradient(90deg, #60a5fa 0%, #2563eb 100%)'
+    },
+    cash: {
+      label: 'Dinheiro em Espécie',
+      icon: 'ri-money-dollar-circle-line',
+      accentColor: '#f59e0b',
+      gradient: 'linear-gradient(90deg, #fbbf24 0%, #d97706 100%)'
+    }
+  }
+
+  return (Object.keys(map) as PaymentMethod[]).map((method) => {
+    const data = map[method]
+    const cfg = configs[method]
+    return {
+      method,
+      label: cfg.label,
+      icon: cfg.icon,
+      count: data.count,
+      total: data.total,
+      percentage: totalRevenue.value > 0 ? (data.total / total) * 100 : 0,
+      accentColor: cfg.accentColor,
+      gradient: cfg.gradient
+    }
+  })
+})
+
 onMounted(async () => {
   await loadDashboardData()
 })
@@ -171,23 +288,24 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.8rem 2rem;
-  margin-bottom: 0.5rem;
+  padding: 1rem 1.4rem;
+  margin-bottom: 0.25rem;
   background: linear-gradient(135deg, var(--p-brand-50) 0%, #ffffff 100%);
-  border-left: 4px solid var(--p-brand-500);
+  border-left: 3px solid var(--p-brand-500);
+  border-radius: var(--radius-md);
 }
 
 .welcome-title {
   font-family: var(--font-title);
-  font-size: 1.75rem;
+  font-size: 1.25rem;
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 0.25rem;
-  letter-spacing: -0.02em;
+  margin-bottom: 0.15rem;
+  letter-spacing: -0.015em;
 }
 
 .welcome-subtitle {
-  font-size: 0.95rem;
+  font-size: 0.82rem;
   color: var(--text-secondary);
 }
 
@@ -307,5 +425,100 @@ onMounted(async () => {
   font-size: 0.82rem;
   padding: 0.2rem 0.5rem;
   border-radius: var(--radius-xs);
+}
+
+/* Payment Distribution Grid */
+.payment-distribution-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+
+@media (max-width: 1100px) {
+  .payment-distribution-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .payment-distribution-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.payment-stat-box {
+  background: #ffffff;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  padding: 1rem 1.15rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.65rem;
+  transition: all var(--transition-normal);
+  box-shadow: var(--shadow-xs);
+}
+
+.payment-stat-box:hover {
+  border-color: var(--p-brand-300);
+  box-shadow: var(--shadow-sm);
+  transform: translateY(-2px);
+}
+
+.payment-stat-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.method-badge-wrap {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.method-icon {
+  font-size: 1.15rem;
+}
+
+.method-name {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.method-percent {
+  font-size: 0.84rem;
+  color: var(--text-secondary);
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 7px;
+  background: var(--p-brand-50);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  transition: width 0.6s var(--ease-spring);
+}
+
+.payment-stat-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78rem;
+}
+
+.method-count {
+  color: var(--text-muted);
+}
+
+.method-total {
+  font-family: var(--font-title);
+  font-size: 0.95rem;
+  color: var(--text-primary);
 }
 </style>

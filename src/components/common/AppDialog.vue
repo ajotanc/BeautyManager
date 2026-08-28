@@ -40,7 +40,9 @@
 
     <!-- Dialog Footer -->
     <template v-if="$slots.footer" #footer>
-      <slot name="footer" />
+      <div class="app-dialog-footer">
+        <slot name="footer" />
+      </div>
     </template>
   </Dialog>
 </template>
@@ -112,5 +114,14 @@ const emit = defineEmits<{
   font-size: 0.76rem;
   color: var(--text-secondary);
   margin-top: 2px;
+}
+
+.app-dialog-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.625rem;
+  width: 100%;
+  margin-top: 1rem;
 }
 </style>

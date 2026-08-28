@@ -4,7 +4,7 @@
     @update:visible="(val) => emit('update:visible', val)" class="stock-adjustment-modal">
 
     <Fluid>
-      <form @submit.prevent="handleSubmit" class="stock-adj-content">
+      <form id="stock-adj-form" @submit.prevent="handleSubmit" class="stock-adj-content">
         <!-- Card do Produto Selecionado -->
         <div v-if="product" class="prod-summary-card">
           <div class="prod-details">
@@ -118,18 +118,20 @@
             <strong class="impact-val final-val">{{ computedNewStock }} un.</strong>
           </div>
         </div>
-
-        <!-- Ações do Rodapé -->
-        <div class="form-actions">
-          <Button label="Cancelar" severity="secondary" variant="outlined" size="small"
-            @click="emit('update:visible', false)" />
-          <Button type="submit" :label="transactionType === 'IN' ? 'Confirmar Entrada' : 'Confirmar Saída'"
-            :icon="transactionType === 'IN' ? 'ri-arrow-down-line' : 'ri-arrow-up-line'"
-            :severity="transactionType === 'IN' ? 'success' : 'danger'" size="small" class="submit-action-btn"
-            :loading="isSubmitting" />
-        </div>
       </form>
     </Fluid>
+
+    <template #footer>
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          @click="emit('update:visible', false)" />
+        <Button form="stock-adj-form" type="submit"
+          :label="transactionType === 'IN' ? 'Confirmar Entrada' : 'Confirmar Saída'"
+          :icon="transactionType === 'IN' ? 'ri-arrow-down-line' : 'ri-arrow-up-line'"
+          :severity="transactionType === 'IN' ? 'success' : 'danger'" size="small" class="submit-action-btn"
+          :loading="isSubmitting" />
+      </div>
+    </template>
   </AppDialog>
 </template>
 
@@ -621,15 +623,6 @@ async function handleSubmit(): Promise<void> {
   background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
   border: 1px solid #fecdd3;
   color: #be123c;
-}
-
-/* Actions */
-.form-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 0.75rem;
-  margin-top: 0.5rem;
 }
 
 .submit-action-btn {

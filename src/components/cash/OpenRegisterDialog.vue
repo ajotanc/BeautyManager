@@ -1,30 +1,13 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Abertura de Caixa Diário"
+  <AppDialog :visible="visible" title="Abertura de Caixa Diário"
     subtitle="Informe o valor em dinheiro presente na gaveta para iniciar as operações do dia"
-    icon="ri-lock-unlock-line"
-    width="480px"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+    icon="ri-lock-unlock-line" width="480px" @update:visible="(val) => emit('update:visible', val)">
     <Fluid>
       <form id="open-register-form" @submit.prevent="handleOpen" class="flex flex-col gap-4">
         <div class="field-item">
           <FloatLabel variant="in">
-            <InputNumber
-              id="opening_balance"
-              v-model="openingBalance"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              size="small"
-              fluid
-              class="font-bold"
-              :min="0"
-              :invalid="!!errors.opening_balance"
-              autofocus
-              required
-            />
+            <InputNumber id="opening_balance" v-model="openingBalance" mode="currency" currency="BRL" locale="pt-BR"
+              size="small" fluid class="font-bold" :min="0" :invalid="!!errors.opening_balance" autofocus required />
             <label for="opening_balance">Fundo de Troco / Saldo Inicial (R$) *</label>
           </FloatLabel>
           <Message v-if="errors.opening_balance" severity="error" size="small" variant="simple">
@@ -43,24 +26,11 @@
 
     <!-- Footer do Diálogo -->
     <template #footer>
-      <div class="flex items-center justify-end gap-2.5 w-full pt-2">
-        <Button
-          label="Cancelar"
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          @click="emit('update:visible', false)"
-        />
-        <Button
-          type="button"
-          label="Abrir Caixa"
-          icon="ri-check-line"
-          severity="primary"
-          size="small"
-          :loading="isSubmitting"
-          @click="triggerSubmit"
-        />
+      <div class="flex items-center justify-end gap-2.5 w-full">
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          @click="emit('update:visible', false)" />
+        <Button type="button" label="Abrir Caixa" icon="ri-check-line" severity="primary" size="small"
+          :loading="isSubmitting" @click="triggerSubmit" />
       </div>
     </template>
   </AppDialog>

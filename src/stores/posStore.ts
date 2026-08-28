@@ -2,8 +2,10 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ICartItem, PaymentMethod, ISale, ISaleItem } from '@/types/sale'
 import type { IProduct } from '@/types/product'
+import type { ICustomer } from '@/types/customer'
 import { sales } from '@/services/sales'
 import { products } from '@/services/products'
+import { CustomerService } from '@/services/customers'
 import { useAuthStore } from './authStore'
 import { useCashRegisterStore } from './cashRegisterStore'
 import { useProductStore } from './productStore'
@@ -14,6 +16,7 @@ export const usePosStore = defineStore('pos', () => {
   const discount = ref<number>(0)
   const customerName = ref<string>('')
   const customerPhone = ref<string>('')
+  const selectedCustomer = ref<ICustomer | null>(null)
   const selectedPaymentMethod = ref<PaymentMethod>('cash')
   const amountPaid = ref<number>(0)
   const lastCompletedSale = ref<ISale | null>(null)
@@ -98,6 +101,7 @@ export const usePosStore = defineStore('pos', () => {
     discount.value = 0
     customerName.value = ''
     customerPhone.value = ''
+    selectedCustomer.value = null
     amountPaid.value = 0
   }
 
@@ -134,6 +138,11 @@ export const usePosStore = defineStore('pos', () => {
         items: saleItems
       } as ISale)
 
+      // Se houver cliente cadastrado selecionado, atualiza o histórico direto pelo $id
+      if (selectedCustomer.value?.$id) {
+        await CustomerService.recordPurchase(selectedCustomer.value, "purchase");
+      }
+
       // Se o pagamento for em dinheiro, atualiza o total_in do caixa
       if (selectedPaymentMethod.value === 'cash' && cashRegisterStore.currentRegister) {
         await cashRegisterStore.addCashSale(totalAmount.value)
@@ -157,6 +166,7 @@ export const usePosStore = defineStore('pos', () => {
     discount,
     customerName,
     customerPhone,
+    selectedCustomer,
     selectedPaymentMethod,
     amountPaid,
     lastCompletedSale,

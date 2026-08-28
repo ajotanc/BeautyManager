@@ -110,9 +110,11 @@
         </div>
       </div>
       <template #footer>
-        <Button label="Fechar" severity="secondary" variant="text" @click="showDetailsDialog = false" />
-        <Button label="Reimprimir Cupom" icon="ri-printer-line" severity="primary"
-          @click="handleReprint(selectedSale)" />
+        <div class="flex items-center justify-end gap-2.5 w-full">
+          <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small" @click="showDetailsDialog = false" />
+          <Button label="Reimprimir Cupom" icon="ri-printer-line" severity="primary" size="small"
+            @click="handleReprint(selectedSale)" />
+        </div>
       </template>
     </Dialog>
 

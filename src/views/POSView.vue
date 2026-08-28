@@ -35,8 +35,8 @@
               <template #option="{ option }">
                 <div class="flex items-center justify-between w-full py-1 gap-4">
                   <div class="flex flex-col">
-                    <span class="font-bold text-sm text-surface-900">{{ option.name }}</span>
-                    <span class="text-xs text-surface-500">{{ option.barcode }} • Estoque: {{ option.stock_quantity }}
+                    <span class="font-bold text-sm text-(--text-primary)">{{ option.name }}</span>
+                    <span class="text-xs text-(--text-secondary)">{{ option.barcode }} • Estoque: {{ option.stock_quantity }}
                       un.</span>
                   </div>
                   <strong class="text-primary font-bold text-sm whitespace-nowrap">{{
@@ -48,7 +48,7 @@
         </div>
 
         <!-- Grid de Produtos Rápidos & Variedades sem Código -->
-        <PosQuickProductsGrid />
+        <PosQuickProductsGrid @item-added="handleItemAddedFromGrid" />
 
         <div class="shortcuts-panel glass-panel">
           <span class="shortcuts-title"><i class="ri-keyboard-line"></i> Teclas de Atalho:</span>
@@ -156,6 +156,11 @@ function onProductSelect(event: { value: IProduct }): void {
   searchQuery.value = ''
   productSuggestions.value = []
   toast.add({ severity: 'success', summary: 'Item Adicionado', detail: event.value.name, life: 2000 })
+  focusBarcodeInput()
+}
+
+function handleItemAddedFromGrid(prod: IProduct): void {
+  toast.add({ severity: 'success', summary: 'Item Adicionado', detail: prod.name, life: 1800 })
   focusBarcodeInput()
 }
 
@@ -269,7 +274,7 @@ async function handleBarcodeSubmit(): Promise<void> {
   })
 }
 
-async function onSaleCompleted(sale: ISale, shouldPrint: boolean): Promise<void> {
+async function onSaleCompleted(sale: ISale, shouldPrint: boolean, shouldOpenWhatsapp?: boolean): Promise<void> {
   lastSale.value = sale
   toast.add({
     severity: 'success',
@@ -284,8 +289,8 @@ async function onSaleCompleted(sale: ISale, shouldPrint: boolean): Promise<void>
     await printReceipt()
   }
 
-  // Se o cliente tiver WhatsApp informado, abre diálogo de envio
-  if (sale.customer_phone) {
+  // Se a opção de envio por WhatsApp estiver ativa
+  if (shouldOpenWhatsapp || (typeof shouldOpenWhatsapp === 'undefined' && sale.customer_phone)) {
     showWhatsappDialog.value = true
   }
 }
