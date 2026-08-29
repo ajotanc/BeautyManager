@@ -3,26 +3,15 @@
     <div class="view-header">
       <div>
         <h1 class="page-title"><i class="ri-settings-4-line"></i> Configurações & Cupom Térmico</h1>
-        <p class="page-subtitle">Personalize os dados da sua loja, mensagem de rodapé, largura da bobina e QR Code do comprovante</p>
+        <p class="page-subtitle">Personalize os dados da sua loja, mensagem de rodapé, largura da bobina e QR Code do
+          comprovante</p>
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Testar Impressão"
-          icon="ri-printer-line"
-          severity="secondary"
-          variant="outlined"
-          size="small"
-          @click="handleTestPrint"
-        />
-        <Button
-          label="Salvar Alterações"
-          icon="ri-check-line"
-          severity="primary"
-          size="small"
-          :loading="isSaving"
-          @click="handleSaveSettings"
-        />
+        <Button label="Testar Impressão" icon="ri-printer-line" severity="secondary" variant="outlined" size="small"
+          @click="handleTestPrint" />
+        <Button label="Salvar Alterações" icon="ri-check-line" severity="primary" size="small" :loading="isSaving"
+          @click="handleSaveSettings" />
       </div>
     </div>
 
@@ -31,20 +20,13 @@
       <Fluid>
         <div class="settings-form-panel glass-panel">
           <!-- Dados da Loja -->
-          <div class="section-heading">
-            <span class="section-title"><i class="ri-store-2-line"></i> Dados da Loja</span>
-            <span class="section-sub">Informações exibidas no topo do cupom fiscal e recibos</span>
-          </div>
+          <AppSectionHeader title="Dados da Loja" subtitle="Informações exibidas no topo do cupom fiscal e recibos"
+            icon="ri-store-2-fill" />
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="field-item">
               <FloatLabel variant="in">
-                <InputText
-                  id="store_name"
-                  v-model="formData.store_name"
-                  fluid
-                  :invalid="!!errors.store_name"
-                />
+                <InputText id="store_name" v-model="formData.store_name" fluid :invalid="!!errors.store_name" />
                 <label for="store_name">Nome Fantasia da Loja *</label>
               </FloatLabel>
               <Message v-if="errors.store_name" severity="error" size="small" variant="simple">
@@ -54,11 +36,7 @@
 
             <div class="field-item">
               <FloatLabel variant="in">
-                <InputText
-                  id="document_number"
-                  v-model="formData.document_number"
-                  fluid
-                />
+                <InputText id="document_number" v-model="formData.document_number" fluid />
                 <label for="document_number">CNPJ ou CPF (Opcional)</label>
               </FloatLabel>
             </div>
@@ -90,44 +68,28 @@
           <div class="divider"></div>
 
           <!-- Impressora Térmica & QR Code -->
-          <div class="section-heading">
-            <span class="section-title"><i class="ri-printer-line"></i> Formato da Impressora Térmica & QR Code</span>
-            <span class="section-sub">Dimensões da bobina e código de leitura no comprovante</span>
-          </div>
+          <AppSectionHeader title="Formato da Impressora Térmica & QR Code"
+            subtitle="Dimensões da bobina e código de leitura no comprovante" icon="ri-printer-fill" />
 
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div class="field-item">
               <FloatLabel variant="in">
-                <Select
-                  id="receipt_width"
-                  v-model="formData.receipt_width"
-                  :options="[
-                    { label: '58 mm (Padrão Bobina Pequena)', value: '58mm' },
-                    { label: '80 mm (Bobina Larga)', value: '80mm' }
-                  ]"
-                  option-label="label"
-                  option-value="value"
-                  fluid
-                />
+                <Select id="receipt_width" v-model="formData.receipt_width" :options="[
+                  { label: '58 mm (Padrão Bobina Pequena)', value: '58mm' },
+                  { label: '80 mm (Bobina Larga)', value: '80mm' }
+                ]" option-label="label" option-value="value" fluid />
                 <label for="receipt_width">Largura da Bobina</label>
               </FloatLabel>
             </div>
 
             <div class="field-item">
               <FloatLabel variant="in">
-                <Select
-                  id="qrcode_type"
-                  v-model="formData.qrcode_type"
-                  :options="[
-                    { label: 'WhatsApp da Loja (Link Direto)', value: 'whatsapp' },
-                    { label: 'Instagram da Loja', value: 'instagram' },
-                    { label: 'Chave PIX', value: 'pix' },
-                    { label: 'Link Personalizado', value: 'custom' }
-                  ]"
-                  option-label="label"
-                  option-value="value"
-                  fluid
-                />
+                <Select id="qrcode_type" v-model="formData.qrcode_type" :options="[
+                  { label: 'WhatsApp da Loja (Link Direto)', value: 'whatsapp' },
+                  { label: 'Instagram da Loja', value: 'instagram' },
+                  { label: 'Chave PIX', value: 'pix' },
+                  { label: 'Link Personalizado', value: 'custom' }
+                ]" option-label="label" option-value="value" fluid />
                 <label for="qrcode_type">Tipo do QR Code</label>
               </FloatLabel>
             </div>
@@ -157,10 +119,8 @@
           <div class="divider"></div>
 
           <!-- Mensagens Personalizadas -->
-          <div class="section-heading">
-            <span class="section-title"><i class="ri-chat-3-line"></i> Mensagens Personalizadas</span>
-            <span class="section-sub">Texto impresso no final da notinha para o cliente</span>
-          </div>
+          <AppSectionHeader title="Mensagens Personalizadas"
+            subtitle="Texto impresso no final da notinha para o cliente" icon="ri-chat-3-fill" />
 
           <div class="field-item">
             <FloatLabel variant="in">
@@ -173,10 +133,8 @@
 
       <!-- Coluna Direita: Live Preview da Bobina Térmica em Tempo Real -->
       <div class="preview-panel glass-panel">
-        <div class="preview-header">
-          <h3 class="preview-title"><i class="ri-eye-line"></i> Pré-Visualização em Tempo Real</h3>
-          <p class="preview-sub">Bobina física de {{ formData.receipt_width }}</p>
-        </div>
+        <AppSectionHeader title="Pré-Visualização em Tempo Real"
+          subtitle="Bobina física de {{ formData.receipt_width }}" icon="ri-eye-fill" />
 
         <ThermalReceiptPreview :settings="computedSettings" />
       </div>
@@ -206,6 +164,7 @@ import type { ReceiptWidth, QrCodeType, ISettings } from '@/types/storeSettings'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { settingsSchema } from '@/schemas/settingsSchema'
+import AppSectionHeader from '@/components/common/AppSectionHeader.vue'
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()

@@ -83,7 +83,7 @@
     </div>
 
     <!-- Modal de Detalhes dos Itens da Venda -->
-    <Dialog v-model:visible="showDetailsDialog" modal header="Detalhes da Venda" :style="{ width: '560px' }">
+    <AppDialog v-model:visible="showDetailsDialog" title="Detalhes da Venda" subtitle="Visualização detalhada dos itens e valores da compra" icon="ri-receipt-line" width="560px">
       <div v-if="selectedSale" class="sale-details-content">
         <div class="details-meta-box">
           <div><strong>Data / Hora:</strong> <span>{{ formatDateTime(selectedSale.$createdAt) }}</span></div>
@@ -116,7 +116,7 @@
             @click="handleReprint(selectedSale)" />
         </div>
       </template>
-    </Dialog>
+    </AppDialog>
 
     <!-- Dialog de Envio WhatsApp -->
     <PosWhatsappReceiptDialog v-model:visible="showWhatsappDialog" :sale="selectedSale" />
@@ -132,7 +132,7 @@ import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import Dialog from 'primevue/dialog'
+import AppDialog from '@/components/common/AppDialog.vue'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import PosWhatsappReceiptDialog from '@/components/pos/PosWhatsappReceiptDialog.vue'
 import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'

@@ -8,6 +8,7 @@
       </div>
 
       <div class="header-actions">
+        <Button label="Marketing (IA)" icon="ri-sparkling-fill" severity="warn" size="small" outlined @click="isMarketingModalOpen = true" />
         <Button label="Novo Cliente" icon="ri-add-line" severity="primary" size="small" @click="newCustomer" />
       </div>
     </div>
@@ -225,6 +226,10 @@
       :customer="selectedCustomer"
       @edit="handleEditFromDetails"
     />
+
+    <WhatsappMarketingDialog
+      v-model:visible="isMarketingModalOpen"
+    />
   </div>
 </template>
 
@@ -241,6 +246,7 @@ import Tag from 'primevue/tag'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerDetailsDialog from '@/components/customers/CustomerDetailsDialog.vue'
+import WhatsappMarketingDialog from '@/components/customers/WhatsappMarketingDialog.vue'
 import { useCustomerStore } from '@/stores/customerStore'
 import { CustomerService } from '@/services/customers'
 import type { ICustomer } from '@/types/customer'
@@ -263,6 +269,7 @@ const activeFilter = ref<'all' | 'today' | 'month'>('all')
 
 const isFormModalOpen = ref<boolean>(false)
 const isDetailsModalOpen = ref<boolean>(false)
+const isMarketingModalOpen = ref<boolean>(false)
 const selectedCustomer = ref<ICustomer>({} as ICustomer)
 
 onMounted(async () => {

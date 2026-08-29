@@ -4,7 +4,7 @@
     :modal="modal"
     :dismissable-mask="dismissableMask"
     :closable="closable"
-    :style="{ width, maxWidth }"
+    :style="{ width, maxWidth, maxHeight: '90vh' }"
     :content-style="computedContentStyle"
     class="app-dialog"
     @update:visible="(val) => emit('update:visible', val)"
@@ -82,8 +82,7 @@ const computedContentStyle = computed<StyleValue>(() => {
   if (props.contentStyle) return props.contentStyle
   return {
     padding: '1.25rem',
-    overflowY: 'auto',
-    maxHeight: 'calc(85vh - 125px)'
+    overflowY: 'auto'
   }
 })
 

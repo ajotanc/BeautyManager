@@ -22,9 +22,15 @@
     <div v-if="cashRegisterStore.isRegisterOpen && cashRegisterStore.currentRegister"
       class="current-register-card glass-panel">
       <div class="card-status-header">
-        <div class="status-left">
-          <Tag severity="success" value="Caixa Aberto" icon="ri-checkbox-circle-line" />
-          <span class="open-time">Aberto em: {{ formatDateTime(cashRegisterStore.currentRegister.opened_at) }}</span>
+        <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+          <div class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-100 text-emerald-600 rounded-md border border-emerald-200 whitespace-nowrap w-max">
+            <i class="ri-checkbox-circle-fill text-emerald-600"></i>
+            <span class="font-bold tracking-tight uppercase">Caixa Aberto</span>
+          </div>
+          <div class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md border border-slate-200 whitespace-nowrap w-max">
+            <i class="ri-time-line text-slate-600"></i>
+            <span class="tracking-tight">Aberto em <strong class="text-slate-700">{{ formatDateTime(cashRegisterStore.currentRegister.opened_at) }}</strong></span>
+          </div>
         </div>
       </div>
 
@@ -239,17 +245,6 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-}
-
-.status-left {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.open-time {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
 }
 
 .metrics-grid {

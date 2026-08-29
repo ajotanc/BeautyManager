@@ -1,0 +1,10 @@
+{
+  "name": "whatsapp-ai",
+  "version": "1.0.0",
+  "description": "Função para gerar mensagens de marketing via Gemini AI",
+  "main": "src/main.js",
+  "type": "module",
+  "dependencies": {
+    "@google/genai": "latest"
+  }
+}

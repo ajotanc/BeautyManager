@@ -3,6 +3,7 @@ import { onMounted, onUnmounted } from 'vue'
 export interface PosShortcutHandlers {
   onSearchProduct?: () => void     // F1
   onCheckout?: () => void          // F4
+  onMarketing?: () => void         // F6
   onCancelOrClose?: () => void     // Escape
 }
 
@@ -19,6 +20,13 @@ export function usePosKeyboardShortcuts(handlers: PosShortcutHandlers) {
     if (event.key === 'F4') {
       event.preventDefault()
       handlers.onCheckout?.()
+      return
+    }
+
+    // F6 - Marketing WhatsApp
+    if (event.key === 'F6') {
+      event.preventDefault()
+      handlers.onMarketing?.()
       return
     }
 

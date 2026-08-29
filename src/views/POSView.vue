@@ -75,6 +75,10 @@
               <kbd>F4</kbd>
               <span>Finalizar Venda</span>
             </div>
+            <div class="shortcut-pill" @click="showMarketingDialog = true">
+              <kbd>F6</kbd>
+              <span>Marketing IA</span>
+            </div>
             <div class="shortcut-pill">
               <kbd>Esc</kbd>
               <span>Cancelar</span>
@@ -96,6 +100,8 @@
 
     <OpenRegisterDialog v-model:visible="showOpenRegisterDialog" @opened="onRegisterOpened" />
 
+    <WhatsappMarketingDialog v-model:visible="showMarketingDialog" />
+
     <!-- Área de Impressão Térmica (Oculta na tela, ativada no window.print) -->
     <ThermalReceipt :sale="lastSale" :settings="settingsStore.settings" :change-amount="posStore.changeAmount" />
   </div>
@@ -110,6 +116,7 @@ import PosCart from '@/components/pos/PosCart.vue'
 import PosPaymentDialog from '@/components/pos/PosPaymentDialog.vue'
 import PosWhatsappReceiptDialog from '@/components/pos/PosWhatsappReceiptDialog.vue'
 import OpenRegisterDialog from '@/components/cash/OpenRegisterDialog.vue'
+import WhatsappMarketingDialog from '@/components/customers/WhatsappMarketingDialog.vue'
 import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 
 import { usePosStore } from '@/stores/posStore'
@@ -153,6 +160,7 @@ const searchSuggestions = ref<PosSearchItem[]>([])
 const showPaymentDialog = ref<boolean>(false)
 const showWhatsappDialog = ref<boolean>(false)
 const showOpenRegisterDialog = ref<boolean>(false)
+const showMarketingDialog = ref<boolean>(false)
 const lastSale = ref<ISale | null>(null)
 const isRegisterOpen = computed(() => cashRegisterStore.isRegisterOpen)
 
@@ -274,9 +282,13 @@ usePosKeyboardShortcuts({
     }
     showPaymentDialog.value = true
   },
+  onMarketing: () => {
+    showMarketingDialog.value = true
+  },
   onCancelOrClose: () => {
     showPaymentDialog.value = false
     showWhatsappDialog.value = false
+    showMarketingDialog.value = false
   }
 })
 

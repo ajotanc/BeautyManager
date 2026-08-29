@@ -12,7 +12,7 @@
       <Form id="kit-form-element" ref="formRef" :key="editingKit?.$id || 'new'" :initialValues="initialValues"
         :resolver="resolver" @submit="handleSubmit" class="flex flex-col gap-4">
         <!-- Linha 1: Nome do Kit -->
-        <FormField name="name" v-slot="$field" class="flex flex-col gap-1">
+        <FormField name="name" v-slot="$field">
           <FloatLabel variant="in">
             <InputText id="kit_name" v-model="$field.value" fluid :invalid="$field?.invalid" />
             <label for="kit_name">Nome do Kit / Combo *</label>
@@ -24,21 +24,23 @@
 
         <!-- Linha 2: Código de Barras com Botão de Gerar Automático + Campanha -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField name="barcode" v-slot="$field" class="flex flex-col gap-1">
+          <FormField name="barcode" v-slot="$field">
             <InputGroup>
-              <FloatLabel variant="in" class="flex-1">
+              <FloatLabel variant="in">
                 <InputText id="kit_barcode" v-model="$field.value" fluid :invalid="$field?.invalid" />
                 <label for="kit_barcode">Código de Barras / SKU *</label>
               </FloatLabel>
-              <Button type="button" icon="ri-flashlight-line" severity="secondary" variant="outlined" class="rounded-md"
-                title="Gerar código interno para o Kit" @click="generateRandomBarcode($field)" />
+              <InputGroupAddon>
+                <Button type="button" icon="ri-flashlight-line" severity="danger" variant="text" iconOnly
+                  class="w-full h-full" @click="generateRandomBarcode($field)" />
+              </InputGroupAddon>
             </InputGroup>
             <Message v-if="$field?.invalid" severity="error" size="small" variant="simple">
               {{ $field.error?.message }}
             </Message>
           </FormField>
 
-          <FormField name="campaign_event" v-slot="$field" class="flex flex-col gap-1">
+          <FormField name="campaign_event" v-slot="$field">
             <FloatLabel variant="in">
               <Select id="kit_campaign_event" v-model="$field.value" :options="CAMPAIGN_EVENT_OPTIONS"
                 option-label="label" option-value="value" fluid :invalid="$field?.invalid"
@@ -67,14 +69,14 @@
 
         <!-- Linha 3: Data do Evento + Custo da Embalagem -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField name="event_date" v-slot="$field" class="flex flex-col gap-1">
+          <FormField name="event_date" v-slot="$field">
             <FloatLabel variant="in">
               <InputText id="kit_event_date" v-model="$field.value" fluid />
               <label for="kit_event_date">Data do Evento</label>
             </FloatLabel>
           </FormField>
 
-          <FormField name="packaging_cost" v-slot="$field" class="flex flex-col gap-1">
+          <FormField name="packaging_cost" v-slot="$field">
             <FloatLabel variant="in">
               <InputNumber id="kit_packaging_cost" v-model="$field.value" mode="currency" currency="BRL" locale="pt-BR"
                 fluid @update:model-value="val => packagingCostNum = Number(val || 0)" />
@@ -85,7 +87,7 @@
 
         <!-- Linha 4: Preço de Venda do Kit + Toggle Ativo -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 items-center">
-          <FormField name="selling_price" v-slot="$field" class="flex flex-col gap-1">
+          <FormField name="selling_price" v-slot="$field">
             <FloatLabel variant="in">
               <InputNumber id="kit_selling_price" v-model="$field.value" mode="currency" currency="BRL" locale="pt-BR"
                 fluid :invalid="$field?.invalid" @update:model-value="val => sellingPriceNum = Number(val || 0)" />
@@ -105,7 +107,7 @@
         </div>
 
         <!-- Linha 5: Descrição Opcional -->
-        <FormField name="description" v-slot="$field" class="flex flex-col gap-1">
+        <FormField name="description" v-slot="$field">
           <FloatLabel variant="in">
             <Textarea id="kit_description" v-model="$field.value" rows="2" fluid auto-resize />
             <label for="kit_description">Descrição / Apresentação (Opcional)</label>
@@ -115,7 +117,8 @@
         <!-- SEÇÃO: COMPOSIÇÃO DOS PRODUTOS (COMBO) -->
         <div class="kit-composition-card">
           <AppSectionHeader title="Produtos Componentes do Kit"
-            subtitle="Produtos que terão baixa automática de estoque ao vender" icon="ri-gift-2-line">
+            subtitle="Produtos que terão baixa automática de estoque ao vender" icon="ri-gift-2-line"
+            actions-class="w-full sm:w-auto">
             <template #actions>
               <Button type="button" label="Adicionar Produto" icon="ri-add-line" size="small" severity="primary"
                 variant="outlined" @click="addEmptyItem" />
@@ -128,48 +131,48 @@
 
           <!-- Lista de Produtos com InputGroup Perfeito -->
           <div v-else class="flex flex-col gap-2.5">
-            <InputGroup v-for="(item, index) in itemsList" :key="index">
-              <!-- 1. Select do Produto (Maior espaço, data-key por ID e nome centralizado) -->
-              <Select v-model="item.product" :options="productStore.products" option-label="name" data-key="$id"
-                :filter="true" filter-placeholder="Buscar produto..." placeholder="Selecione um Produto..."
-                class="w-80!" size="small" @change="(e) => onProductSelect(index, e.value)">
-                <template #value="{ value, placeholder }">
-                  <div class="flex items-center gap-2 h-full">
-                    <span v-if="value">{{ value.name }}</span>
-                    <span v-else>{{ placeholder }}</span>
-                  </div>
-                </template>
-                <template #option="{ option }">
-                  <div class="flex items-center justify-between w-full py-1 text-xs">
-                    <div class="flex flex-col">
-                      <span class="font-bold text-slate-800">{{ option.name }}</span>
-                      <span class="text-slate-400 font-mono text-[0.68rem]">{{ option.barcode }} • Estoque: {{
-                        option.stock_quantity }} un</span>
+            <div v-for="(item, index) in itemsList" :key="index" class="flex flex-col sm:flex-row gap-2">
+
+              <!-- 1. Select do Produto -->
+              <InputGroup>
+                <Select v-model="item.product" :options="productStore.products" option-label="name" data-key="$id"
+                  :filter="true" filter-placeholder="Buscar produto..." size="small"
+                  @change="(e) => onProductSelect(index, e.value)">
+                  <template #value="{ value, placeholder }">
+                    <div class="flex items-center gap-2 h-full">
+                      <span v-if="value">{{ value.name }}</span>
+                      <span v-else>{{ placeholder }}</span>
                     </div>
-                    <span class="font-bold text-pink-600 ml-2 whitespace-nowrap">{{ formatCurrency(option.selling_price)
-                    }}</span>
-                  </div>
-                </template>
-              </Select>
+                  </template>
+                  <template #option="{ option }">
+                    <div class="flex items-center justify-between w-full py-1 text-xs">
+                      <div class="flex flex-col">
+                        <span class="font-bold text-slate-800">{{ option.name }}</span>
+                        <span class="text-slate-400 font-mono text-[0.68rem]">{{ option.barcode }} • Estoque: {{
+                          option.stock_quantity }} un</span>
+                      </div>
+                      <span class="font-bold text-pink-600 ml-2 whitespace-nowrap">{{
+                        formatCurrency(option.selling_price)
+                      }}</span>
+                    </div>
+                  </template>
+                </Select>
+                <InputGroupAddon class="text-sm font-semibold">
+                  {{ formatCurrency(toNumber(item.product?.selling_price) * (Number(item.quantity) || 1)) }}
+                </InputGroupAddon>
+              </InputGroup>
 
-              <!-- 2. Addon Quantidade -->
-              <InputGroupAddon class="text-sm font-semibold px-2.5!">
-                Qtd
-              </InputGroupAddon>
-
-              <!-- 3. Input de Quantidade Compacto -->
-              <InputNumber v-model="item.quantity" :min="1" class="text-center text-sm" size="small" />
-
-              <!-- 4. Addon Subtotal -->
-              <InputGroupAddon class="text-sm font-semibold px-2.5!">
-                {{ formatCurrency(toNumber(item.product?.selling_price) * (Number(item.quantity) || 1)) }}
-              </InputGroupAddon>
-
-              <!-- 5. Botão de Excluir Item (Square rounded-md) -->
-              <Button type="button" icon="ri-delete-bin-line" severity="danger" variant="outlined"
-                class="hover:bg-red-50 text-red-500! border-slate-300!" title="Remover produto do kit"
-                @click="removeItem(index)" />
-            </InputGroup>
+              <InputGroup class="w-full md:w-80">
+                <InputGroupAddon class="text-sm font-semibold">
+                  Qtd
+                </InputGroupAddon>
+                <InputNumber v-model="item.quantity" :min="1" size="small" showButtons />
+                <InputGroupAddon>
+                  <Button type="button" icon="ri-delete-bin-line" severity="danger" variant="text" iconOnly size="small"
+                    class="w-full h-full" @click="removeItem(index)" />
+                </InputGroupAddon>
+              </InputGroup>
+            </div>
           </div>
         </div>
 

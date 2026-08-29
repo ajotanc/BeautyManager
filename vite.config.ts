@@ -143,7 +143,7 @@ export default defineConfig(() => {
       }
     },
     server: {
-      port: 8841,
+      // port: 8841,
       host: true,
       allowedHosts: [
         '.ajotanc.com.br',

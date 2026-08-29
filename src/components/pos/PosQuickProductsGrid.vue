@@ -333,7 +333,7 @@ const filteredProducts = computed(() => {
   padding: 0.3rem 0.65rem;
   font-size: 0.75rem;
   font-weight: 600;
-  border-radius: var(--radius-full);
+  border-radius: var(--radius-sm);
   background: var(--p-surface-50);
   color: var(--text-secondary);
   border: 1px solid var(--border-color);

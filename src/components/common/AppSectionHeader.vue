@@ -1,5 +1,5 @@
 <template>
-  <div class="box-header flex items-center justify-between gap-3 pb-3 border-b border-border">
+  <div class="box-header flex flex-wrap items-center justify-between gap-3 border-b border-border">
     <div class="header-left flex items-center gap-2.5">
       <div v-if="icon" class="header-icon-box">
         <i :class="icon"></i>
@@ -11,7 +11,7 @@
     </div>
 
     <!-- Slot para ações ou badge (ex: F1, botões ou contadores) -->
-    <div v-if="$slots.actions || badge" class="header-actions flex items-center gap-2">
+    <div v-if="$slots.actions || badge" class="header-actions flex items-center gap-2" :class="actionsClass">
       <span v-if="badge" class="kbd-badge">{{ badge }}</span>
       <slot name="actions" />
     </div>
@@ -24,6 +24,7 @@ defineProps<{
   subtitle?: string
   icon?: string
   badge?: string
+  actionsClass?: string
 }>()
 </script>
 

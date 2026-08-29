@@ -1,12 +1,6 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Ficha do Cliente"
-    subtitle="Histórico, preferências e dados de contato"
-    icon="ri-user-heart-line"
-    width="580px"
-    @update:visible="(val: boolean) => emit('update:visible', val)"
-  >
+  <AppDialog :visible="visible" title="Ficha do Cliente" subtitle="Histórico, preferências e dados de contato"
+    icon="ri-user-heart-line" width="580px" @update:visible="(val: boolean) => emit('update:visible', val)">
     <div v-if="customer" class="customer-dossier flex flex-col gap-4">
       <!-- Banner de Perfil VIP do Cliente -->
       <div class="profile-hero-card">
@@ -24,20 +18,10 @@
             <h3 class="profile-name">
               {{ customer.name }}
             </h3>
-            <Tag
-              v-if="isBirthdayToday"
-              value="Aniversário Hoje!"
-              icon="ri-gift-line"
-              severity="success"
-              class="birthday-pill birthday-pill-today"
-            />
-            <Tag
-              v-else-if="isBirthdayThisMonth"
-              value="Aniversário no Mês"
-              icon="ri-cake-2-line"
-              severity="warn"
-              class="birthday-pill"
-            />
+            <Tag v-if="isBirthdayToday" value="Aniversário Hoje!" icon="ri-gift-line" severity="success"
+              class="birthday-pill birthday-pill-today" />
+            <Tag v-else-if="isBirthdayThisMonth" value="Aniversário no Mês" icon="ri-cake-2-line" severity="warn"
+              class="birthday-pill" />
           </div>
 
           <!-- Badges de Histórico e Fidelidade -->
@@ -49,10 +33,12 @@
 
             <span class="stat-pill stat-pill-purchases" title="Total de compras registradas no sistema">
               <i class="ri-shopping-bag-3-line"></i>
-              {{ Number(customer.total_purchases || 0) }} compra{{ Number(customer.total_purchases || 0) === 1 ? '' : 's' }}
+              {{ Number(customer.total_purchases || 0) }} compra{{ Number(customer.total_purchases || 0) === 1 ? '' :
+              's' }}
             </span>
 
-            <span v-if="customer.last_purchase_at" class="stat-pill stat-pill-recent" title="Data da última compra realizada">
+            <span v-if="customer.last_purchase_at" class="stat-pill stat-pill-recent"
+              title="Data da última compra realizada">
               <i class="ri-history-line"></i>
               Última compra: {{ customer.last_purchase_at }}
             </span>
@@ -79,26 +65,10 @@
               {{ customer.phone || 'Não informado' }}
             </span>
             <div v-if="customer.phone" class="tile-actions">
-              <Button
-                icon="ri-file-copy-line"
-                text
-                rounded
-                size="small"
-                severity="secondary"
-                class="action-icon-btn"
-                title="Copiar número"
-                @click="copyText(customer.phone, 'Telefone')"
-              />
-              <Button
-                icon="ri-external-link-line"
-                text
-                rounded
-                size="small"
-                severity="success"
-                class="action-icon-btn"
-                title="Abrir no WhatsApp"
-                @click="openWhatsApp(customer.phone)"
-              />
+              <Button icon="ri-file-copy-line" text rounded size="small" severity="secondary" class="action-icon-btn"
+                title="Copiar número" @click="copyText(customer.phone, 'Telefone')" />
+              <Button icon="ri-external-link-line" text rounded size="small" severity="success" class="action-icon-btn"
+                title="Abrir no WhatsApp" @click="openWhatsApp(customer.phone)" />
             </div>
           </div>
         </div>
@@ -121,17 +91,9 @@
               </span>
             </div>
             <div v-if="customer.birth_date && customer.phone" class="tile-actions">
-              <Button
-                v-if="isBirthdayToday || isBirthdayThisMonth"
-                icon="ri-gift-line"
-                text
-                rounded
-                size="small"
-                severity="warn"
-                class="action-icon-btn"
-                title="Enviar parabéns"
-                @click="sendBirthdayMessage(customer.phone, customer.name)"
-              />
+              <Button v-if="isBirthdayToday || isBirthdayThisMonth" icon="ri-gift-line" text rounded size="small"
+                severity="warn" class="action-icon-btn" title="Enviar parabéns"
+                @click="sendBirthdayMessage(customer.phone, customer.name)" />
             </div>
           </div>
         </div>
@@ -149,16 +111,8 @@
               {{ customer.email || 'Não informado' }}
             </span>
             <div v-if="customer.email" class="tile-actions">
-              <Button
-                icon="ri-file-copy-line"
-                text
-                rounded
-                size="small"
-                severity="secondary"
-                class="action-icon-btn"
-                title="Copiar e-mail"
-                @click="copyText(customer.email, 'E-mail')"
-              />
+              <Button icon="ri-file-copy-line" text rounded size="small" severity="secondary" class="action-icon-btn"
+                title="Copiar e-mail" @click="copyText(customer.email, 'E-mail')" />
             </div>
           </div>
         </div>
@@ -173,29 +127,16 @@
           </div>
           <div class="tile-content">
             <span class="tile-value truncate" :class="{ 'text-muted': !customer.document_number }">
-              {{ customer.document_number ? (isCpfVisible ? customer.document_number : maskCpf(customer.document_number)) : 'Não informado' }}
+              {{ customer.document_number ? (isCpfVisible ? customer.document_number :
+                maskCpf(customer.document_number)) : 'Não informado' }}
             </span>
             <div v-if="customer.document_number" class="tile-actions">
-              <Button
-                :icon="isCpfVisible ? 'ri-eye-off-line' : 'ri-eye-line'"
-                text
-                rounded
-                size="small"
-                severity="secondary"
-                class="action-icon-btn"
+              <Button :icon="isCpfVisible ? 'ri-eye-off-line' : 'ri-eye-line'" text rounded size="small"
+                severity="secondary" class="action-icon-btn"
                 :title="isCpfVisible ? 'Ocultar CPF (LGPD)' : 'Exibir CPF completo'"
-                @click="isCpfVisible = !isCpfVisible"
-              />
-              <Button
-                icon="ri-file-copy-line"
-                text
-                rounded
-                size="small"
-                severity="secondary"
-                class="action-icon-btn"
-                title="Copiar documento"
-                @click="copyText(customer.document_number, 'CPF')"
-              />
+                @click="isCpfVisible = !isCpfVisible" />
+              <Button icon="ri-file-copy-line" text rounded size="small" severity="secondary" class="action-icon-btn"
+                title="Copiar documento" @click="copyText(customer.document_number, 'CPF')" />
             </div>
           </div>
         </div>
@@ -217,34 +158,16 @@
 
     <!-- Footer do Diálogo -->
     <template #footer>
-      <div class="dialog-footer-content">
-        <Button
-          v-if="customer?.phone"
-          label="Conversar no WhatsApp"
-          icon="ri-whatsapp-line"
-          severity="success"
-          size="small"
-          class="whatsapp-main-btn"
-          @click="openWhatsApp(customer.phone)"
-        />
-        <div v-else class="flex-1"></div>
+      <div class="flex flex-col sm:flex-row items-center justify-between w-full gap-3">
+        <Button v-if="customer?.phone" label="Conversar no WhatsApp" icon="ri-whatsapp-line" severity="success"
+          size="small" class="whatsapp-main-btn w-full sm:w-auto" @click="openWhatsApp(customer.phone)" />
+        <div v-else class="hidden sm:block flex-1"></div>
 
-        <div class="flex items-center justify-end gap-2.5">
-          <Button
-            label="Fechar"
-            icon="ri-close-line"
-            severity="secondary"
-            variant="text"
-            size="small"
-            @click="emit('update:visible', false)"
-          />
-          <Button
-            label="Editar Cadastro"
-            icon="ri-edit-line"
-            severity="primary"
-            size="small"
-            @click="customer && emit('edit', customer)"
-          />
+        <div class="flex flex-row items-center justify-end w-full sm:w-auto gap-2.5">
+          <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+            class="flex-1 sm:flex-none" @click="emit('update:visible', false)" />
+          <Button label="Editar Cadastro" icon="ri-edit-line" severity="primary" size="small"
+            class="flex-1 sm:flex-none" @click="customer && emit('edit', customer)" />
         </div>
       </div>
     </template>
@@ -373,6 +296,7 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
     opacity: 0;
     transform: translateY(6px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -683,14 +607,6 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
 /* =========================================================
  * Footer do Diálogo
  * ========================================================= */
-.dialog-footer-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  width: 100%;
-  gap: 0.75rem;
-}
-
 .whatsapp-main-btn {
   font-weight: 600;
 }
