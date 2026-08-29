@@ -12,7 +12,8 @@ export const settingsSchema = z.object({
   show_qrcode: z.boolean().optional(),
   qrcode_type: z.enum(['whatsapp', 'instagram', 'pix', 'custom']),
   qrcode_payload: z.string().trim().optional(),
-  pix_key: z.string().trim().optional()
+  pix_key: z.string().trim().optional(),
+  loyalty_milestone: z.number().min(0).optional()
 })
 
 export type SettingsFormData = z.infer<typeof settingsSchema>

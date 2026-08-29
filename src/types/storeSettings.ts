@@ -16,4 +16,5 @@ export interface ISettings extends Models.Row {
   qrcode_type: QrCodeType
   qrcode_payload: string
   pix_key?: string
+  loyalty_milestone?: number
 }

@@ -53,7 +53,8 @@
             <div class="input-col">
               <FloatLabel variant="in">
                 <InputNumber id="change_amount" :model-value="posStore.changeAmount" mode="currency" currency="BRL"
-                  locale="pt-BR" size="small" fluid readonly class="font-bold change-input" :class="{ 'has-positive-change': posStore.changeAmount > 0 }" />
+                  locale="pt-BR" size="small" fluid readonly class="font-bold change-input"
+                  :class="{ 'has-positive-change': posStore.changeAmount > 0 }" />
                 <label for="change_amount">Troco a Devolver</label>
               </FloatLabel>
             </div>
@@ -96,6 +97,40 @@
               </FloatLabel>
             </div>
           </div>
+
+          <!-- Banner de Mimos & Fidelidade -->
+          <template v-if="isLoyaltyEnabled && posStore.selectedCustomer">
+            <!-- Compra Premiada -->
+            <div v-if="isNextPurchaseMilestone"
+              class="rounded-sm border border-amber-300/40 bg-linear-to-br from-amber-50 to-orange-50/50 p-3 transition-all hover:border-amber-300/60">
+
+              <div class="flex flex-col">
+                <h4 class="text-xs font-bold text-amber-800/80! uppercase tracking-wide flex items-center gap-1.5">
+                  Cliente Super VIP <i class="ri-sparkling-fill text-amber-500 text-xs animate-pulse"></i>
+                </h4>
+                <p class="mt-1 m-0 text-xs text-amber-800/80 leading-snug">
+                  Esta é a <strong class="text-amber-900 font-bold bg-amber-200/40 px-1.5 py-1 rounded mx-0.5">{{
+                    Number(posStore.selectedCustomer.total_purchases || 0) + 1 }}ª compra</strong> da cliente.
+                  Hora de oferecer aquele mimo especial!
+                </p>
+              </div>
+            </div>
+
+            <!-- Progresso para próxima compra -->
+            <div v-else-if="purchasesUntilGift > 0"
+              class="rounded-sm border border-slate-300/40 bg-linear-to-br from-slate-50 to-orange-50/50 p-3 transition-all hover:border-slate-300/60">
+
+              <div class="flex flex-col">
+                <h4 class="text-xs font-bold text-slate-800/80! uppercase tracking-wide flex items-center gap-1.5">
+                  Cliente VIP <i class="ri-sparkling-fill text-slate-500 text-xs animate-pulse"></i>
+                </h4>
+                <p class="mt-1 m-0 text-xs text-slate-800/80 leading-snug">
+                  Faltam <strong class="text-slate-900 font-bold bg-slate-200/40 px-1.5 py-1 rounded mx-0.5">{{
+                    purchasesUntilGift }}</strong> compras para o próximo brinde.
+                </p>
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Opções de Pós-Venda (Impressão e WhatsApp) -->
@@ -131,7 +166,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from 'vue'
+import { ref, watch, computed } from 'vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
@@ -145,6 +180,7 @@ import type { ICustomer } from '@/types/customer'
 import { usePosStore } from '@/stores/posStore'
 import { useCustomerStore } from '@/stores/customerStore'
 import { formatCurrency } from '@/utils/currency'
+import { useLoyalty } from '@/composables/useLoyalty'
 
 interface Props {
   visible: boolean
@@ -154,7 +190,7 @@ const props = defineProps<Props>()
 
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
-  (e: 'sale-completed', sale: ISale, shouldPrint: boolean, shouldOpenWhatsapp: boolean): void
+  (e: 'sale-completed', sale: ISale, shouldPrint: boolean, shouldOpenWhatsapp: boolean, isVipSale: boolean): void
 }>()
 
 const posStore = usePosStore()
@@ -162,6 +198,10 @@ const customerStore = useCustomerStore()
 const autoPrintReceipt = ref<boolean>(true)
 const openWhatsappReceipt = ref<boolean>(false)
 const customerSuggestions = ref<ICustomer[]>([])
+
+const { isLoyaltyEnabled, isNextPurchaseMilestone, purchasesUntilGift } = useLoyalty(
+  computed(() => Number(posStore.selectedCustomer?.total_purchases || 0))
+)
 
 watch(
   () => props.visible,
@@ -231,8 +271,9 @@ function setExactAmount(): void {
 
 async function handleConfirmSale(): Promise<void> {
   try {
+    const vipStatus = isNextPurchaseMilestone.value
     const sale = await posStore.checkout()
-    emit('sale-completed', sale, autoPrintReceipt.value, openWhatsappReceipt.value)
+    emit('sale-completed', sale, autoPrintReceipt.value, openWhatsappReceipt.value, vipStatus)
     emit('update:visible', false)
   } catch {
     // Erro tratado pela store e toast

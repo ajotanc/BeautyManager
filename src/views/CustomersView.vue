@@ -144,17 +144,35 @@
           </template>
         </Column>
 
-        <!-- Total de Compras & Histórico -->
-        <Column field="total_purchases" header="Compras" sortable style="min-width: 120px">
+        <!-- Fidelidade -->
+        <Column field="total_purchases" header="Fidelidade" sortable style="min-width: 100px" bodyClass="text-center">
           <template #body="{ data }">
-            <div class="flex flex-col">
-              <span class="font-bold text-sm text-(--p-brand-600) flex items-center gap-1">
-                <i class="ri-shopping-bag-3-line"></i>
-                {{ Number(data.total_purchases || 0) }} un.
-              </span>
-              <span v-if="data.last_purchase_at" class="text-[11px] text-(--text-muted)">
-                {{ data.last_purchase_at }}
-              </span>
+            <div class="flex items-center justify-center">
+              <!-- Indicador Visual de Fidelidade -->
+              <template v-if="getPurchasesProgress(data.total_purchases)">
+                
+                <!-- VIP -->
+                <div v-if="getPurchasesProgress(data.total_purchases)!.isVip" 
+                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-amber-200 to-orange-100 text-amber-700 shadow-sm border border-amber-300/50"
+                  title="Cliente VIP - Ganhou Brinde!">
+                  <i class="ri-vip-crown-fill text-base"></i>
+                </div>
+                
+                <!-- Progresso (Faltam X) -->
+                <div v-else 
+                  class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400"
+                  :title="`Faltam ${getPurchasesProgress(data.total_purchases)!.purchasesLeft} compras`">
+                  <i class="ri-gift-line text-base"></i>
+                  <!-- Badge com número flutuante -->
+                  <div class="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 border border-red-800 shadow-sm text-[9px] font-bold text-white px-1">
+                    {{ Number(data.total_purchases || 0) % loyaltyMilestone }}/{{ loyaltyMilestone }}
+                  </div>
+                </div>
+
+              </template>
+              <template v-else>
+                <span class="text-slate-300">-</span>
+              </template>
             </div>
           </template>
         </Column>
@@ -248,6 +266,7 @@ import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerDetailsDialog from '@/components/customers/CustomerDetailsDialog.vue'
 import WhatsappMarketingDialog from '@/components/customers/WhatsappMarketingDialog.vue'
 import { useCustomerStore } from '@/stores/customerStore'
+import { useSettingsStore } from '@/stores/settingsStore'
 import { CustomerService } from '@/services/customers'
 import type { ICustomer } from '@/types/customer'
 import { useConfirm } from 'primevue/useconfirm'
@@ -258,8 +277,21 @@ import { maskCpf } from '@/utils/security'
 import { FilterMatchMode } from '@primevue/core/api'
 
 const customerStore = useCustomerStore()
+const settingsStore = useSettingsStore()
 const confirm = useConfirm()
 const toast = useToast()
+
+const loyaltyMilestone = computed(() => settingsStore.settings?.loyalty_milestone ?? 2)
+
+function getPurchasesProgress(totalPurchases: number | undefined | null) {
+  if (loyaltyMilestone.value === 0) return null
+  const total = Number(totalPurchases || 0)
+  const remainder = total % loyaltyMilestone.value
+  return {
+    isVip: remainder === 0 && total > 0,
+    purchasesLeft: loyaltyMilestone.value - remainder
+  }
+}
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }

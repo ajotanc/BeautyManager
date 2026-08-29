@@ -118,6 +118,20 @@
 
           <div class="divider"></div>
 
+          <!-- Programa de Fidelidade -->
+          <AppSectionHeader title="Programa de Fidelidade (Mimos)"
+            subtitle="Regras para alertas de brindes no PDV" icon="ri-gift-fill" />
+
+          <div class="field-item">
+            <FloatLabel variant="in">
+              <InputNumber id="loyalty_milestone" v-model="formData.loyalty_milestone" fluid />
+              <label for="loyalty_milestone">Meta de Compras para Brinde</label>
+            </FloatLabel>
+            <p class="text-xs text-slate-500 mt-1">Ex: 2 significa que a cada 2 compras o sistema avisa para dar um brinde. Use 0 para desativar.</p>
+          </div>
+
+          <div class="divider"></div>
+
           <!-- Mensagens Personalizadas -->
           <AppSectionHeader title="Mensagens Personalizadas"
             subtitle="Texto impresso no final da notinha para o cliente" icon="ri-chat-3-fill" />
@@ -134,7 +148,7 @@
       <!-- Coluna Direita: Live Preview da Bobina Térmica em Tempo Real -->
       <div class="preview-panel glass-panel">
         <AppSectionHeader title="Pré-Visualização em Tempo Real"
-          subtitle="Bobina física de {{ formData.receipt_width }}" icon="ri-eye-fill" />
+          :subtitle="`Bobina física de ${ formData.receipt_width }`" icon="ri-eye-fill" />
 
         <ThermalReceiptPreview :settings="computedSettings" />
       </div>
@@ -148,6 +162,7 @@
 <script setup lang="ts">
 import { ref, computed, watch, reactive, onMounted } from 'vue'
 import InputText from 'primevue/inputtext'
+import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
 import Select from 'primevue/select'
 import Checkbox from 'primevue/checkbox'
@@ -185,6 +200,7 @@ const formData = ref<{
   qrcode_type: QrCodeType
   qrcode_payload: string
   pix_key: string
+  loyalty_milestone: number
 }>({
   store_name: '',
   document_number: '',
@@ -196,7 +212,8 @@ const formData = ref<{
   show_qrcode: true,
   qrcode_type: 'whatsapp',
   qrcode_payload: '',
-  pix_key: ''
+  pix_key: '',
+  loyalty_milestone: 2
 })
 
 function clearErrors(): void {
@@ -218,7 +235,8 @@ watch(
         show_qrcode: s.show_qrcode ?? true,
         qrcode_type: s.qrcode_type || 'whatsapp',
         qrcode_payload: s.qrcode_payload || '',
-        pix_key: s.pix_key || ''
+        pix_key: s.pix_key || '',
+        loyalty_milestone: s.loyalty_milestone !== undefined ? s.loyalty_milestone : 2
       }
     }
   },
@@ -238,7 +256,8 @@ const computedSettings = computed<Partial<ISettings>>(() => {
     show_qrcode: formData.value.show_qrcode,
     qrcode_type: formData.value.qrcode_type,
     qrcode_payload: formData.value.qrcode_payload,
-    pix_key: formData.value.pix_key
+    pix_key: formData.value.pix_key,
+    loyalty_milestone: formData.value.loyalty_milestone
   }
 })
 
@@ -258,7 +277,8 @@ async function handleSaveSettings(): Promise<void> {
     show_qrcode: formData.value.show_qrcode,
     qrcode_type: formData.value.qrcode_type,
     qrcode_payload: formData.value.qrcode_payload || undefined,
-    pix_key: formData.value.pix_key || undefined
+    pix_key: formData.value.pix_key || undefined,
+    loyalty_milestone: formData.value.loyalty_milestone
   })
 
   if (!validation.success) {
