@@ -133,19 +133,8 @@ const emit = defineEmits<{
   gap: 0.625rem;
   width: 100%;
   background: #ffffff;
-  padding: 0.75rem 0.25rem 0 0.25rem;
+  padding-top: 1.25rem;
   border-top: 1px solid var(--border-subtle);
 }
 
-:deep(.p-dialog) {
-  display: flex;
-  flex-direction: column;
-  max-height: 90vh;
-}
-
-:deep(.p-dialog-footer) {
-  background: #ffffff !important;
-  border-top: 1px solid var(--border-subtle) !important;
-  padding: 0.75rem 1.25rem !important;
-}
 </style>

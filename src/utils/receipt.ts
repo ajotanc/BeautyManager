@@ -20,10 +20,38 @@ export function generateSaleReceiptText(sale: ISale, settings?: ISettings | null
   text += `--------------------------------\n`
 
   if (sale.items && sale.items.length > 0) {
+    const kitMap = new Map<string, { name: string; total: number; components: string[] }>()
+    const regularItems: string[] = []
+
     for (const item of sale.items) {
-      const prodName = typeof item.product === 'object' && item.product ? item.product.name : 'Produto'
-      text += `${item.quantity}x ${prodName} - ${formatCurrency(item.subtotal)}\n`
+      const prodName = item.product.name;
+
+      if (item.kit) {
+        const kitId = item.kit.$id
+        if (!kitMap.has(kitId)) {
+          kitMap.set(kitId, {
+            name: item.kit.name,
+            total: 0,
+            components: []
+          })
+        }
+        const kitEntry = kitMap.get(kitId)!
+        kitEntry.total += Number(item.subtotal)
+        kitEntry.components.push(`- ${item.quantity}x ${prodName}`)
+      } else {
+        regularItems.push(`*${item.quantity}x ${prodName}* - ${formatCurrency(item.subtotal)}`)
+      }
     }
+
+    for (const [_, kitData] of kitMap) {
+      text += `*1x ${kitData.name}* - ${formatCurrency(kitData.total)}\n`
+      text += kitData.components.join('\n') + '\n'
+    }
+
+    if (regularItems.length > 0) {
+      text += regularItems.join('\n') + '\n'
+    }
+    
     text += `--------------------------------\n`
   }
 

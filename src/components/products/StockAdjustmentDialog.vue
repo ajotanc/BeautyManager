@@ -87,7 +87,7 @@
         <div class="field-section">
           <label class="section-label">Motivo do Ajuste *</label>
           <Select id="adj_reason" v-model="reason" :options="reasonOptions" option-label="label" option-value="value"
-            size="small" fluid class="custom-select" :invalid="!!errors.reason" required />
+            :filter="true" filter-placeholder="Buscar motivo..." size="small" fluid class="custom-select" :invalid="!!errors.reason" required />
           <Message v-if="errors.reason" severity="error" size="small" variant="simple">
             {{ errors.reason }}
           </Message>

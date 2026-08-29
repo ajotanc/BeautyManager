@@ -69,6 +69,12 @@
             <span class="badge-shortcut">F5</span>
           </router-link>
 
+          <router-link to="/kits" class="nav-item" active-class="is-active" @click="closeMobileSidebar">
+            <i class="ri-gift-2-line"></i>
+            <span>Kits & Presentes</span>
+            <span class="badge-shortcut">F9</span>
+          </router-link>
+
           <router-link to="/customers" class="nav-item" active-class="is-active" @click="closeMobileSidebar">
             <i class="ri-user-heart-line"></i>
             <span>Clientes</span>

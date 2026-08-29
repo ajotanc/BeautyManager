@@ -126,8 +126,18 @@ app.use(PrimeVue, {
     preset: BeautyManagerPreset,
     options: {
       darkModeSelector: '.dark-mode',
-      cssLayer: false
+      cssLayer: {
+        name: 'primevue',
+        order: 'theme, base, primevue'
+      }
     }
+  },
+  zIndex: {
+    modal: 1100,
+    overlay: 1200,
+    menu: 1200,
+    tooltip: 1300,
+    toast: 1400
   },
   locale: ptBRLocale,
   ripple: true

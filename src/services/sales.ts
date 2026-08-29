@@ -12,7 +12,7 @@ export const SalesService = {
         tableId: TABLES.SALES,
         rowId,
         queries: [
-          Query.select(['*', 'items.*'])
+          Query.select(['*', 'items.*', 'items.product.*', 'items.kit.*'])
         ]
       })
     } catch (error) {
@@ -27,7 +27,7 @@ export const SalesService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.SALES,
         queries: [
-          Query.select(['*', 'items.*', 'items.product.*']),
+          Query.select(['*', 'items.*', 'items.product.*', 'items.kit.*']),
           Query.orderDesc('$createdAt'),
           Query.limit(limitCount)
         ]

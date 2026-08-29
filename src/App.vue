@@ -134,6 +134,15 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
     }
     return
   }
+
+  // F9 - Kits & Combos (Apenas Admin)
+  if (event.key === 'F9') {
+    event.preventDefault()
+    if (authStore.isAdmin && route.name !== 'kits') {
+      router.push({ name: 'kits' })
+    }
+    return
+  }
 }
 
 onMounted(async () => {

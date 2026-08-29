@@ -1,10 +1,13 @@
+@layer theme, base, tailwind-base, tailwind-utilities, primevue;
+
 @import "tailwindcss";
 @import './variables.css';
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+@layer base { 
+  *:not([class*="p-"]) {
+    margin: 0;
+    padding: 0;
+  }
 }
 
 /* Alinhamento e centralização de ícones (RemixIcon) */
@@ -276,19 +279,5 @@ h1, h2, h3, h4, h5, h6 {
 
   .view-header .page-subtitle {
     font-size: 0.78rem;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
-  .floating-card:hover {
-    transform: none !important;
   }
 }

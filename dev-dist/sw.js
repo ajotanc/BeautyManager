@@ -67,7 +67,7 @@ if (!self.define) {
     });
   };
 }
-define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
+define(['./workbox-cc1d1889'], (function (workbox) { 'use strict';
 
   self.skipWaiting();
   workbox.clientsClaim();
@@ -81,11 +81,23 @@ define(['./workbox-7e5eb42b'], (function (workbox) { 'use strict';
     "revision": "3ca0b8505b4bec776b69afdba2768812"
   }, {
     "url": "index.html",
-    "revision": "0.e2eoo57jqs"
+    "revision": "0.iq3sj5e3i0k"
   }], {});
   workbox.cleanupOutdatedCaches();
   workbox.registerRoute(new workbox.NavigationRoute(workbox.createHandlerBoundToURL("index.html"), {
-    allowlist: [/^\/$/]
+    allowlist: [/^\/$/],
+    denylist: [/^\/sitemap\.xml$/, /^\/robots\.xml$/, /^\/llms\.xml$/]
   }));
+  workbox.registerRoute(/^https:\/\/.*\/v1\/storage\/buckets\/.*\/files\/.*\/view/, new workbox.CacheFirst({
+    "cacheName": "appwrite-storage-cache",
+    plugins: [new workbox.ExpirationPlugin({
+      maxEntries: 60,
+      maxAgeSeconds: 2592000
+    }), new workbox.CacheableResponsePlugin({
+      statuses: [0, 200]
+    })]
+  }), 'GET');
+  workbox.registerRoute(/^https:\/\/.*\/v1\/databases\/.*/, new workbox.NetworkOnly(), 'GET');
+  workbox.registerRoute(/^https:\/\/.*\/v1\/account\/.*/, new workbox.NetworkOnly(), 'GET');
 
 }));

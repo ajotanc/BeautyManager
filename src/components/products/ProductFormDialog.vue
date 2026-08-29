@@ -43,7 +43,7 @@
             <InputGroup>
               <FloatLabel variant="in" class="flex-1">
                 <Select id="prod_category" v-model="$field.value" :options="productStore.categories" option-label="name"
-                  fluid show-clear :invalid="$field?.invalid" />
+                  :filter="true" filter-placeholder="Buscar categoria..." fluid show-clear :invalid="$field?.invalid" />
                 <label for="prod_category">Categoria</label>
               </FloatLabel>
               <Button type="button" icon="ri-add-line" severity="secondary" variant="outlined"
@@ -57,8 +57,8 @@
           <FormField name="brand" v-slot="$field" class="flex flex-col gap-1">
             <InputGroup>
               <FloatLabel variant="in" class="flex-1">
-                <Select id="prod_brand" v-model="$field.value" :options="productStore.brands" option-label="name" fluid
-                  show-clear :invalid="$field?.invalid" />
+                <Select id="prod_brand" v-model="$field.value" :options="productStore.brands" option-label="name"
+                  :filter="true" filter-placeholder="Buscar marca..." fluid show-clear :invalid="$field?.invalid" />
                 <label for="prod_brand">Marca / Fabricante</label>
               </FloatLabel>
               <Button type="button" icon="ri-add-line" severity="secondary" variant="outlined" title="Gerenciar Marcas"

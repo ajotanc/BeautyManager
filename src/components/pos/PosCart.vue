@@ -2,55 +2,48 @@
   <div class="pos-cart-panel glass-panel">
     <!-- Cabeçalho do Carrinho Refinado -->
     <div class="cart-header">
-      <div class="cart-header-left">
-        <div class="cart-icon-circle">
-          <i class="ri-shopping-cart-2-fill"></i>
-        </div>
-        <div class="cart-title-meta">
-          <h3 class="cart-title">Carrinho de Compras</h3>
-          <span class="cart-subtitle">{{ posStore.totalItemsCount }} {{ posStore.totalItemsCount === 1 ? 'item adicionado' : 'itens adicionados' }}</span>
-        </div>
-      </div>
+      <AppSectionHeader title="Carrinho de Compras"
+        :subtitle="`${posStore.totalItemsCount} ${posStore.totalItemsCount === 1 ? 'item adicionado' : 'itens adicionados'}`"
+        icon="ri-shopping-cart-2-fill">
+        <template #actions v-if="posStore.cart.length > 0">
+          <button type="button" class="clear-cart-action-btn" title="Esvaziar todos os itens do carrinho"
+            @click="confirmClearCart">
+            <i class="ri-delete-bin-line"></i>
+            <span>Limpar</span>
+          </button>
+        </template>
+      </AppSectionHeader>
 
-      <div v-if="posStore.cart.length > 0" class="cart-header-right">
-        <button
-          type="button"
-          class="clear-cart-action-btn"
-          title="Esvaziar todos os itens do carrinho"
-          @click="confirmClearCart"
-        >
-          <i class="ri-delete-bin-line"></i>
-          <span>Limpar</span>
-        </button>
-      </div>
+
     </div>
 
     <!-- Lista de Itens do Carrinho -->
-    <AppEmptyState
-      v-if="posStore.cart.length === 0"
-      icon="ri-shopping-bag-3-line"
-      title="Pronto para a próxima venda!"
-      description="Passe o produto no leitor ou escolha no catálogo ao lado para começar."
-    />
+    <AppEmptyState v-if="posStore.cart.length === 0" icon="ri-shopping-bag-3-line" title="Pronto para a próxima venda!"
+      description="Passe o produto no leitor ou escolha no catálogo ao lado para começar." />
 
     <div v-else class="cart-items-list">
-      <div
-        v-for="item in posStore.cart"
-        :key="item.product.$id"
-        class="cart-item-card animate-slide-down"
-      >
+      <div v-for="item in posStore.cart" :key="item.product?.$id || item.kit?.$id"
+        class="cart-item-card animate-slide-down" :class="{ 'is-kit-card': Boolean(item.kit) }">
         <!-- Topo do Item: Nome completo e Botão Excluir -->
         <div class="item-card-top">
           <div class="item-name-group">
-            <span class="item-name" :title="item.product.name">{{ item.product.name }}</span>
-            <span class="item-barcode-tag">{{ item.product.barcode }}</span>
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <span v-if="item.kit" class="kit-chip-tag">
+                <i class="ri-gift-line"></i> Kit
+              </span>
+              <span class="item-name" :title="item.product?.name || item.kit?.name">
+                {{ item.product?.name || item.kit?.name }}
+              </span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="item-barcode-tag font-mono">{{ item.product?.barcode || item.kit?.barcode }}</span>
+              <span v-if="item.kit?.items" class="text-[0.7rem] text-slate-500">
+                ({{item.kit.items.map(k => `${k.quantity}x ${k.product?.name || 'Item'}`).join(', ')}})
+              </span>
+            </div>
           </div>
-          <button
-            type="button"
-            class="item-delete-btn"
-            title="Remover produto do carrinho"
-            @click="posStore.removeFromCart(item.product.$id)"
-          >
+          <button type="button" class="item-delete-btn" title="Remover item do carrinho"
+            @click="posStore.removeFromCart(item.product?.$id || item.kit?.$id || '')">
             <i class="ri-delete-bin-line"></i>
           </button>
         </div>
@@ -63,21 +56,13 @@
           </div>
 
           <div class="item-qty-pill">
-            <button
-              type="button"
-              class="qty-pill-btn"
-              title="Diminuir quantidade"
-              @click="posStore.updateQuantity(item.product.$id, item.quantity - 1)"
-            >
+            <button type="button" class="qty-pill-btn" title="Diminuir quantidade"
+              @click="posStore.updateQuantity(item.product?.$id || item.kit?.$id || '', item.quantity - 1)">
               <i class="ri-subtract-line"></i>
             </button>
             <span class="qty-pill-val">{{ item.quantity }}</span>
-            <button
-              type="button"
-              class="qty-pill-btn"
-              title="Aumentar quantidade"
-              @click="posStore.updateQuantity(item.product.$id, item.quantity + 1)"
-            >
+            <button type="button" class="qty-pill-btn" title="Aumentar quantidade"
+              @click="posStore.updateQuantity(item.product?.$id || item.kit?.$id || '', item.quantity + 1)">
               <i class="ri-add-line"></i>
             </button>
           </div>
@@ -101,60 +86,27 @@
         <div class="summary-line discount-line">
           <span class="discount-label"><i class="ri-discount-percent-line"></i> Desconto:</span>
           <div class="discount-control">
-            <InputNumber
-              v-model="posStore.discount"
-              mode="currency"
-              currency="BRL"
-              locale="pt-BR"
-              :min="0"
-              :max="posStore.subtotal"
-              size="small"
-              class="discount-input"
-            />
+            <InputNumber v-model="posStore.discount" mode="currency" currency="BRL" locale="pt-BR" :min="0"
+              :max="posStore.subtotal" size="small" class="discount-input" />
           </div>
         </div>
 
         <!-- Chips de Desconto Rápido -->
         <div v-if="posStore.subtotal > 0" class="discount-chips-row">
-          <button
-            type="button"
-            class="discount-chip"
-            title="Desconto de R$ 5,00"
-            @click="applyFixedDiscount(5)"
-          >
+          <button type="button" class="discount-chip" title="Desconto de R$ 5,00" @click="applyFixedDiscount(5)">
             -R$ 5
           </button>
-          <button
-            type="button"
-            class="discount-chip"
-            title="Desconto de R$ 10,00"
-            @click="applyFixedDiscount(10)"
-          >
+          <button type="button" class="discount-chip" title="Desconto de R$ 10,00" @click="applyFixedDiscount(10)">
             -R$ 10
           </button>
-          <button
-            type="button"
-            class="discount-chip"
-            title="Desconto de 5%"
-            @click="applyPercentageDiscount(5)"
-          >
+          <button type="button" class="discount-chip" title="Desconto de 5%" @click="applyPercentageDiscount(5)">
             5% OFF
           </button>
-          <button
-            type="button"
-            class="discount-chip"
-            title="Desconto de 10%"
-            @click="applyPercentageDiscount(10)"
-          >
+          <button type="button" class="discount-chip" title="Desconto de 10%" @click="applyPercentageDiscount(10)">
             10% OFF
           </button>
-          <button
-            v-if="posStore.discount > 0"
-            type="button"
-            class="discount-chip chip-clear"
-            title="Remover desconto"
-            @click="posStore.discount = 0"
-          >
+          <button v-if="posStore.discount > 0" type="button" class="discount-chip chip-clear" title="Remover desconto"
+            @click="posStore.discount = 0">
             <i class="ri-close-line"></i> Limpar
           </button>
         </div>
@@ -170,12 +122,8 @@
         <span class="total-val font-bold">{{ formatCurrency(posStore.totalAmount) }}</span>
       </div>
 
-      <Button
-        :disabled="posStore.cart.length === 0"
-        severity="primary"
-        class="checkout-btn w-full"
-        @click="emit('open-payment')"
-      >
+      <Button :disabled="posStore.cart.length === 0" severity="primary" class="checkout-btn w-full"
+        @click="emit('open-payment')">
         <div class="btn-left">
           <i class="ri-checkbox-circle-line"></i>
           <span>FINALIZAR VENDA</span>
@@ -193,6 +141,7 @@ import Button from 'primevue/button'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
 import { usePosStore } from '@/stores/posStore'
 import { formatCurrency } from '@/utils/currency'
+import AppSectionHeader from '../common/AppSectionHeader.vue'
 
 const emit = defineEmits<{
   (e: 'open-payment'): void
@@ -648,6 +597,23 @@ function confirmClearCart(): void {
   font-size: 0.98rem;
   font-weight: 800;
   letter-spacing: 0.02em;
+}
+
+.cart-item-card.is-kit-card {
+  border-left: 3px solid #ec4899;
+  background: linear-gradient(90deg, rgba(236, 72, 153, 0.04) 0%, rgba(255, 255, 255, 1) 100%);
+}
+
+.kit-chip-tag {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: #ec4899;
+  background: rgba(236, 72, 153, 0.12);
+  padding: 0.1rem 0.35rem;
+  border-radius: var(--radius-xs);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
 }
 
 .btn-left {

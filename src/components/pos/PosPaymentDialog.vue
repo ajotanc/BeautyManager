@@ -71,7 +71,7 @@
             <div class="autocomplete-container relative">
               <FloatLabel variant="in">
                 <AutoComplete id="customer_name" v-model="posStore.customerName" :suggestions="customerSuggestions"
-                  option-label="name" size="small" fluid append-to="self" @complete="handleCustomerSearch"
+                  option-label="name" size="small" fluid @complete="handleCustomerSearch"
                   @item-select="onCustomerSelect">
                   <template #option="{ option }">
                     <div class="flex items-center justify-between w-full py-0.5 gap-2">

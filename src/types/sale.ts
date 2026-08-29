@@ -1,5 +1,6 @@
 import type { Models } from 'appwrite'
 import type { IProduct } from './product'
+import type { IKit } from './kit'
 
 export type PaymentMethod = 'pix' | 'credit' | 'debit' | 'cash'
 export type SaleStatus = 'completed' | 'canceled'
@@ -26,6 +27,7 @@ export function formatPaymentMethod(method: PaymentMethod | string | null | unde
 
 export interface ISaleItem extends Models.Row {
   product: IProduct
+  kit?: IKit
   quantity: number
   unit_price: number | string
   subtotal: number | string
@@ -43,7 +45,8 @@ export interface ISale extends Models.Row {
 }
 
 export interface ICartItem {
-  product: IProduct
+  product?: IProduct
+  kit?: IKit
   quantity: number
   unit_price: number
   subtotal: number
@@ -56,5 +59,11 @@ export interface IReceiptItem {
   quantity: number
   unitPrice: number
   subtotal: number
+  isKit?: boolean
+  components?: Array<{
+    name: string
+    quantity: number,
+    price: number,
+  }>
 }
 

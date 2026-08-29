@@ -2,9 +2,11 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import type { ICartItem, PaymentMethod, ISale, ISaleItem } from '@/types/sale'
 import type { IProduct } from '@/types/product'
+import type { IKit } from '@/types/kit'
 import type { ICustomer } from '@/types/customer'
 import { sales } from '@/services/sales'
 import { products } from '@/services/products'
+import { kits } from '@/services/kits'
 import { CustomerService } from '@/services/customers'
 import { useAuthStore } from './authStore'
 import { useCashRegisterStore } from './cashRegisterStore'
@@ -44,7 +46,7 @@ export const usePosStore = defineStore('pos', () => {
 
   function addToCart(product: IProduct, quantity: number = 1): void {
     const priceNum = toNumber(product.selling_price)
-    const existingIndex = cart.value.findIndex((item) => item.product.$id === product.$id)
+    const existingIndex = cart.value.findIndex((item) => item.product?.$id === product.$id)
     if (existingIndex !== -1) {
       const existing = cart.value[existingIndex]
       const newQty = existing.quantity + quantity
@@ -64,23 +66,54 @@ export const usePosStore = defineStore('pos', () => {
     }
   }
 
+  function addKitToCart(kit: IKit, quantity: number = 1): void {
+    const priceNum = toNumber(kit.selling_price)
+    const existingIndex = cart.value.findIndex((item) => item.kit?.$id === kit.$id)
+    if (existingIndex !== -1) {
+      const existing = cart.value[existingIndex]
+      const newQty = existing.quantity + quantity
+      cart.value[existingIndex] = {
+        ...existing,
+        quantity: newQty,
+        subtotal: Number((newQty * existing.unit_price).toFixed(2))
+      }
+    } else {
+      cart.value.push({
+        kit,
+        quantity,
+        unit_price: priceNum,
+        subtotal: Number((quantity * priceNum).toFixed(2)),
+        discount: 0
+      })
+    }
+  }
+
   async function addByBarcode(barcode: string): Promise<boolean> {
     const trimmed = barcode.trim()
     if (!trimmed) return false
 
+    // 1. Tenta buscar por produto avulso
     const product = await products.getByBarcode(trimmed)
     if (product) {
       addToCart(product, 1)
       return true
     }
+
+    // 2. Se não encontrar, tenta buscar por Kit promocional
+    const kit = await kits.byBarcode(trimmed)
+    if (kit) {
+      addKitToCart(kit, 1)
+      return true
+    }
+
     return false
   }
 
-  function updateQuantity(productId: string, quantity: number): void {
-    const index = cart.value.findIndex((item) => item.product.$id === productId)
+  function updateQuantity(rowId: string, quantity: number): void {
+    const index = cart.value.findIndex((item) => (item.product?.$id === rowId) || (item.kit?.$id === rowId))
     if (index !== -1) {
       if (quantity <= 0) {
-        removeFromCart(productId)
+        removeFromCart(rowId)
       } else {
         const item = cart.value[index]
         cart.value[index] = {
@@ -92,8 +125,8 @@ export const usePosStore = defineStore('pos', () => {
     }
   }
 
-  function removeFromCart(productId: string): void {
-    cart.value = cart.value.filter((item) => item.product.$id !== productId)
+  function removeFromCart(rowId: string): void {
+    cart.value = cart.value.filter((item) => item.product?.$id !== rowId && item.kit?.$id !== rowId)
   }
 
   function clearCart(): void {
@@ -120,12 +153,56 @@ export const usePosStore = defineStore('pos', () => {
 
     isProcessingSale.value = true
     try {
-      const saleItems = cart.value.map((item) => ({
-        product: item.product,
-        quantity: item.quantity,
-        unit_price: toDecimalString(item.unit_price),
-        subtotal: toDecimalString(item.subtotal)
-      } as ISaleItem))
+      const saleItems: ISaleItem[] = []
+
+      for (const item of cart.value) {
+        if (item.product) {
+          saleItems.push({
+            product: item.product,
+            quantity: item.quantity,
+            unit_price: toDecimalString(item.unit_price),
+            subtotal: toDecimalString(item.subtotal)
+          } as ISaleItem)
+        } else if (item.kit && item.kit.items && item.kit.items.length > 0) {
+          const kitTotalOriginal = item.kit.items.reduce((acc, comp) => {
+            const price = toNumber(comp.product?.selling_price)
+            return acc + price * (Number(comp.quantity) || 1)
+          }, 0)
+
+          const kitSellingPrice = toNumber(item.kit.selling_price)
+          const ratio = kitTotalOriginal > 0 ? (kitSellingPrice / kitTotalOriginal) : (1 / item.kit.items.length)
+
+          let accumulatedSubtotal = 0
+          const validComponents = item.kit.items.filter((comp) => comp.product)
+          const totalComponents = validComponents.length
+
+          validComponents.forEach((comp, idx) => {
+            const compQty = item.quantity * (Number(comp.quantity) || 1)
+            const origUnitPrice = toNumber(comp.product.selling_price)
+            
+            let compUnitPrice = Number((origUnitPrice * ratio).toFixed(2))
+            let compSubtotal = Number((compUnitPrice * compQty).toFixed(2))
+
+            // Ajuste de centavos no último item para fechar exatamente no valor do kit
+            if (idx === totalComponents - 1) {
+              const expectedTotal = item.subtotal
+              const diff = Number((expectedTotal - (accumulatedSubtotal + compSubtotal)).toFixed(2))
+              compSubtotal = Number((compSubtotal + diff).toFixed(2))
+              compUnitPrice = compQty > 0 ? Number((compSubtotal / compQty).toFixed(2)) : compSubtotal
+            } else {
+              accumulatedSubtotal += compSubtotal
+            }
+
+            saleItems.push({
+              product: comp.product,
+              kit: item.kit, // Rastreabilidade do Kit para histórico
+              quantity: compQty,
+              unit_price: toDecimalString(compUnitPrice),
+              subtotal: toDecimalString(compSubtotal)
+            } as ISaleItem)
+          })
+        }
+      }
 
       const createdSale = await sales.createSale({
         total_amount: toDecimalString(totalAmount.value),
@@ -138,19 +215,26 @@ export const usePosStore = defineStore('pos', () => {
         items: saleItems
       } as ISale)
 
-      // Se houver cliente cadastrado selecionado, atualiza o histórico direto pelo $id
-      if (selectedCustomer.value?.$id) {
-        await CustomerService.recordPurchase(selectedCustomer.value, "purchase");
+      // Atualiza o estoque local na store para feedback instantâneo na UI
+      for (const item of cart.value) {
+        if (item.product) {
+          productStore.decrementStock(item.product.$id, item.quantity)
+        } else if (item.kit?.items) {
+          for (const kitComponent of item.kit.items) {
+            if (kitComponent.product?.$id) {
+              const qtyToDeduct = item.quantity * (Number(kitComponent.quantity) || 1)
+              productStore.decrementStock(kitComponent.product.$id, qtyToDeduct)
+            }
+          }
+        }
       }
 
-      // Se o pagamento for em dinheiro, atualiza o total_in do caixa
+      if (selectedCustomer.value?.$id) {
+        await CustomerService.recordPurchase(selectedCustomer.value, 'purchase')
+      }
+
       if (selectedPaymentMethod.value === 'cash' && cashRegisterStore.currentRegister) {
         await cashRegisterStore.addCashSale(totalAmount.value)
-      }
-
-      // Atualiza o estoque local no productStore imediatamente sem fazer requisição de rede
-      for (const item of cart.value) {
-        productStore.decrementStock(item.product.$id, item.quantity)
       }
 
       lastCompletedSale.value = createdSale
@@ -176,6 +260,7 @@ export const usePosStore = defineStore('pos', () => {
     changeAmount,
     totalItemsCount,
     addToCart,
+    addKitToCart,
     addByBarcode,
     updateQuantity,
     removeFromCart,

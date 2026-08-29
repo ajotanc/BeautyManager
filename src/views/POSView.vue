@@ -20,36 +20,34 @@
       <!-- Coluna Esquerda: Scanner, Busca Rápida e Grid de Variedades -->
       <div class="pos-left-panel">
         <!-- Barra de Scanner e Busca -->
-        <div class="scanner-search-box glass-panel">
-          <div class="box-header">
-            <div class="header-left">
-              <div class="header-icon-circle">
-                <i class="ri-barcode-line"></i>
-              </div>
-              <div class="header-title-meta">
-                <h3 class="header-title">Leitor de Código / Busca</h3>
-                <span class="header-subtitle">Escaneie o código ou busque pelo nome</span>
-              </div>
-            </div>
-            <span class="kbd-badge">F1</span>
-          </div>
+        <div class="pos-box-panel glass-panel">
+          <AppSectionHeader title="Leitor de Código / Busca" subtitle="Escaneie o código ou busque pelo nome"
+            icon="ri-barcode-line" badge="F1" />
 
           <div class="search-input-wrapper relative w-full">
             <IconField class="w-full">
               <InputIcon class="ri-barcode-line" />
-              <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="productSuggestions"
-                option-label="name" placeholder="Escaneie o código de barras ou digite o nome do produto..." size="small"
-                fluid autofocus append-to="self" panel-class="pos-search-overlay" @complete="handleSearchComplete"
-                @item-select="onProductSelect" @keydown.enter.prevent="handleBarcodeSubmit">
+              <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="searchSuggestions"
+                option-label="name" placeholder="Escaneie o código ou busque por produto ou kit..." size="small" fluid
+                autofocus panel-class="pos-search-overlay" @complete="handleSearchComplete"
+                @item-select="onItemSelect" @keydown.enter.prevent="handleBarcodeSubmit">
                 <template #option="{ option }">
-                  <div class="flex items-center justify-between w-full py-2 px-2 gap-3 hover:bg-rose-50/60 rounded-lg transition-colors">
+                  <div
+                    class="flex items-center justify-between w-full py-2 px-2 gap-3 hover:bg-rose-50/60 rounded-lg transition-colors">
                     <div class="flex flex-col min-w-0 flex-1">
-                      <span class="font-bold text-[0.9rem] text-slate-800 truncate">{{ option.name }}</span>
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <div v-if="option.type === 'kit'"
+                          class="flex align-center gap-1 text-[0.65rem] font-bold px-1.5! py-0.2! rounded bg-pink-100 text-pink-700">
+                          <i class="ri-gift-line"></i>
+                          <span>KIT</span>
+                        </div>
+                        <span class="font-bold text-[0.9rem] text-slate-800 truncate">{{ option.name }}</span>
+                      </div>
                       <div class="flex items-center gap-2 mt-0.5 text-xs text-slate-500">
                         <span class="font-mono text-slate-500 tracking-tight">{{ option.barcode }}</span>
                         <span class="text-slate-300">•</span>
-                        <span :class="option.stock_quantity <= option.min_stock_alert ? 'text-amber-600 font-bold' : 'text-slate-500 font-medium'">
-                          {{ option.stock_quantity }} {{ option.stock_quantity === 1 ? 'unidade' : 'unidades' }}
+                        <span :class="option.is_low_stock ? 'text-amber-600 font-bold' : 'text-slate-500 font-medium'">
+                          {{ option.stock_label }}
                         </span>
                       </div>
                     </div>
@@ -66,43 +64,23 @@
         <!-- Grid de Produtos Rápidos & Variedades sem Código -->
         <PosQuickProductsGrid @item-added="handleItemAddedFromGrid" />
 
-        <!-- Teclas de Atalho com Accordion Oficial do PrimeVue -->
-        <Accordion :value="shortcutsAccordionValue" class="shortcuts-accordion glass-panel" @update:value="onAccordionChange">
-          <AccordionPanel value="shortcuts">
-            <AccordionHeader>
-              <div class="header-left">
-                <div class="header-icon-circle">
-                  <i class="ri-keyboard-line"></i>
-                </div>
-                <div class="header-title-meta">
-                  <h3 class="header-title">Teclas de Atalho</h3>
-                  <span class="header-subtitle">Navegação rápida pelo teclado</span>
-                </div>
-              </div>
-              <template #toggleicon>
-                <div class="header-toggle-box">
-                  <i :class="shortcutsAccordionValue === 'shortcuts' ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'"></i>
-                </div>
-              </template>
-            </AccordionHeader>
-            <AccordionContent>
-              <div class="shortcuts-list">
-                <div class="shortcut-pill">
-                  <kbd>F1</kbd>
-                  <span>Focar Leitor</span>
-                </div>
-                <div class="shortcut-pill">
-                  <kbd>F4</kbd>
-                  <span>Finalizar Venda</span>
-                </div>
-                <div class="shortcut-pill">
-                  <kbd>Esc</kbd>
-                  <span>Cancelar</span>
-                </div>
-              </div>
-            </AccordionContent>
-          </AccordionPanel>
-        </Accordion>
+        <div class="pos-box-panel glass-panel hidden! md:flex!">
+          <AppSectionHeader title="Teclas de Atalho" subtitle="Navegação rápida pelo teclado" icon="ri-keyboard-line" />
+          <div class="shortcuts-list">
+            <div class="shortcut-pill">
+              <kbd>F1</kbd>
+              <span>Focar Leitor</span>
+            </div>
+            <div class="shortcut-pill">
+              <kbd>F4</kbd>
+              <span>Finalizar Venda</span>
+            </div>
+            <div class="shortcut-pill">
+              <kbd>Esc</kbd>
+              <span>Cancelar</span>
+            </div>
+          </div>
+        </div>
       </div>
 
       <!-- Coluna Direita: Carrinho de Compras e Totais -->
@@ -127,10 +105,6 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import AutoComplete from 'primevue/autocomplete'
 import Button from 'primevue/button'
-import Accordion from 'primevue/accordion'
-import AccordionPanel from 'primevue/accordionpanel'
-import AccordionHeader from 'primevue/accordionheader'
-import AccordionContent from 'primevue/accordioncontent'
 import PosQuickProductsGrid from '@/components/pos/PosQuickProductsGrid.vue'
 import PosCart from '@/components/pos/PosCart.vue'
 import PosPaymentDialog from '@/components/pos/PosPaymentDialog.vue'
@@ -140,36 +114,46 @@ import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 
 import { usePosStore } from '@/stores/posStore'
 import { useProductStore } from '@/stores/productStore'
+import { useKitStore } from '@/stores/kitStore'
 import { useCashRegisterStore } from '@/stores/cashRegisterStore'
 import { useSettingsStore } from '@/stores/settingsStore'
 import { useBarcodeScanner } from '@/composables/useBarcodeScanner'
 import { usePosKeyboardShortcuts } from '@/composables/usePosKeyboardShortcuts'
 import { useThermalPrinter } from '@/composables/useThermalPrinter'
 import type { IProduct } from '@/types/product'
+import type { IKit } from '@/types/kit'
 import type { ISale } from '@/types/sale'
 import { formatCurrency } from '@/utils/currency'
 import { useToast } from 'primevue/usetoast'
 import { IconField, InputIcon } from 'primevue'
+import AppSectionHeader from '@/components/common/AppSectionHeader.vue'
+
+interface PosSearchItem {
+  id: string
+  type: 'product' | 'kit'
+  name: string
+  barcode: string
+  selling_price: string | number | null | undefined
+  stock_label: string
+  is_low_stock?: boolean
+  product?: IProduct
+  kit?: IKit
+}
 
 const posStore = usePosStore()
 const productStore = useProductStore()
+const kitStore = useKitStore()
 const cashRegisterStore = useCashRegisterStore()
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()
 const toast = useToast()
 
-const searchQuery = ref<string | IProduct>('')
-const productSuggestions = ref<IProduct[]>([])
+const searchQuery = ref<string | PosSearchItem>('')
+const searchSuggestions = ref<PosSearchItem[]>([])
 const showPaymentDialog = ref<boolean>(false)
 const showWhatsappDialog = ref<boolean>(false)
 const showOpenRegisterDialog = ref<boolean>(false)
 const lastSale = ref<ISale | null>(null)
-const shortcutsAccordionValue = ref<string | null>(typeof window !== 'undefined' && window.innerWidth >= 1024 ? 'shortcuts' : null)
-
-function onAccordionChange(val: string | string[] | null | undefined): void {
-  shortcutsAccordionValue.value = Array.isArray(val) ? (val[0] || null) : (val || null)
-}
-
 const isRegisterOpen = computed(() => cashRegisterStore.isRegisterOpen)
 
 function focusBarcodeInput(): void {
@@ -185,35 +169,68 @@ function focusBarcodeInput(): void {
 }
 
 onMounted(() => {
-  if (typeof window !== 'undefined') {
-    shortcutsAccordionValue.value = window.innerWidth >= 1024 ? 'shortcuts' : null
-  }
   focusBarcodeInput()
 })
 
-// Filtro de sugestões para o AutoComplete
+// Filtro de sugestões para o AutoComplete (Produtos e Kits)
 function handleSearchComplete(event: { query: string }): void {
   const query = event.query?.trim().toLowerCase() || ''
   if (!query) {
-    productSuggestions.value = []
+    searchSuggestions.value = []
     return
   }
 
-  productSuggestions.value = productStore.products.filter(
-    (p) => p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query)
-  ).slice(0, 8)
+  const prodResults: PosSearchItem[] = productStore.products
+    .filter((p) => p.name.toLowerCase().includes(query) || p.barcode.toLowerCase().includes(query))
+    .slice(0, 6)
+    .map((p) => ({
+      id: p.$id,
+      type: 'product',
+      name: p.name,
+      barcode: p.barcode,
+      selling_price: p.selling_price,
+      stock_label: `${p.stock_quantity} un.`,
+      is_low_stock: p.stock_quantity <= p.min_stock_alert,
+      product: p
+    }))
+
+  const kitResults: PosSearchItem[] = kitStore.activeKits
+    .filter((k) => k.name.toLowerCase().includes(query) || k.barcode.toLowerCase().includes(query))
+    .slice(0, 4)
+    .map((k) => {
+      const stock = kitStore.getAvailableStock(k)
+      return {
+        id: k.$id,
+        type: 'kit',
+        name: k.name,
+        barcode: k.barcode,
+        selling_price: k.selling_price,
+        stock_label: `${stock} kits montáveis`,
+        is_low_stock: stock === 0,
+        kit: k
+      }
+    })
+
+  searchSuggestions.value = [...prodResults, ...kitResults]
 }
 
 // Quando o usuário seleciona um item na lista de sugestões
-function onProductSelect(event: { value: IProduct }): void {
+function onItemSelect(event: { value: PosSearchItem }): void {
   if (!isRegisterOpen.value) {
     toast.add({ severity: 'warn', summary: 'Caixa Fechado', detail: 'Abra o caixa antes de adicionar itens.', life: 3000 })
     return
   }
-  posStore.addToCart(event.value, 1)
+
+  if (event.value.type === 'product' && event.value.product) {
+    posStore.addToCart(event.value.product, 1)
+    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: event.value.name, life: 2000 })
+  } else if (event.value.type === 'kit' && event.value.kit) {
+    posStore.addKitToCart(event.value.kit, 1)
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: event.value.name, life: 2000 })
+  }
+
   searchQuery.value = ''
-  productSuggestions.value = []
-  toast.add({ severity: 'success', summary: 'Item Adicionado', detail: event.value.name, life: 2000 })
+  searchSuggestions.value = []
   focusBarcodeInput()
 }
 
@@ -233,8 +250,9 @@ useBarcodeScanner({
     if (success) {
       toast.add({ severity: 'success', summary: 'Item Bipado', detail: `Código: ${barcode}`, life: 2000 })
       searchQuery.value = ''
+      searchSuggestions.value = []
     } else {
-      toast.add({ severity: 'error', summary: 'Não Encontrado', detail: `Produto com código "${barcode}" não cadastrado.`, life: 3000 })
+      toast.add({ severity: 'error', summary: 'Não Encontrado', detail: `Produto ou Kit com código "${barcode}" não cadastrado.`, life: 3000 })
     }
     focusBarcodeInput()
   }
@@ -269,56 +287,69 @@ async function handleBarcodeSubmit(): Promise<void> {
     return
   }
 
-  // Se já for um objeto IProduct selecionado
+  // Se já for um objeto selecionado
   if (typeof searchQuery.value === 'object' && searchQuery.value !== null) {
-    onProductSelect({ value: searchQuery.value as IProduct })
+    onItemSelect({ value: searchQuery.value as PosSearchItem })
     return
   }
 
   const rawQuery = String(searchQuery.value || '').trim()
   if (!rawQuery) return
 
-  // 1. Tenta adicionar se for correspondência exata de código de barras
+  // 1. Tenta adicionar se for correspondência exata de código de barras em produto ou kit
   const exactByBarcode = productStore.products.find((p) => p.barcode === rawQuery)
   if (exactByBarcode) {
     posStore.addToCart(exactByBarcode, 1)
     searchQuery.value = ''
-    productSuggestions.value = []
+    searchSuggestions.value = []
     toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByBarcode.name, life: 2000 })
     focusBarcodeInput()
     return
   }
 
-  // 2. Se houver 1 único resultado com nome idêntico exato
+  const exactKitByBarcode = kitStore.activeKits.find((k) => k.barcode === rawQuery)
+  if (exactKitByBarcode) {
+    posStore.addKitToCart(exactKitByBarcode, 1)
+    searchQuery.value = ''
+    searchSuggestions.value = []
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByBarcode.name, life: 2000 })
+    focusBarcodeInput()
+    return
+  }
+
+  // 2. Se houver correspondência exata de nome em produto ou kit
   const exactByName = productStore.products.find((p) => p.name.toLowerCase() === rawQuery.toLowerCase())
   if (exactByName) {
     posStore.addToCart(exactByName, 1)
     searchQuery.value = ''
-    productSuggestions.value = []
+    searchSuggestions.value = []
     toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByName.name, life: 2000 })
     focusBarcodeInput()
     return
   }
 
-  // 3. Se for uma busca parcial com sugestões abertas
-  if (productSuggestions.value.length === 1) {
-    // Apenas 1 sugestão evidente encontrada
-    const singleProd = productSuggestions.value[0]
-    if (singleProd) {
-      posStore.addToCart(singleProd, 1)
-      searchQuery.value = ''
-      productSuggestions.value = []
-      toast.add({ severity: 'success', summary: 'Item Adicionado', detail: singleProd.name, life: 2000 })
-      focusBarcodeInput()
-      return
-    }
+  const exactKitByName = kitStore.activeKits.find((k) => k.name.toLowerCase() === rawQuery.toLowerCase())
+  if (exactKitByName) {
+    posStore.addKitToCart(exactKitByName, 1)
+    searchQuery.value = ''
+    searchSuggestions.value = []
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByName.name, life: 2000 })
+    focusBarcodeInput()
+    return
   }
 
-  if (productSuggestions.value.length > 1) {
+  // 3. Se houver 1 único resultado nas sugestões
+  if (searchSuggestions.value.length === 1) {
+    const single = searchSuggestions.value[0]
+    onItemSelect({ value: single })
+    return
+  }
+
+  if (searchSuggestions.value.length > 1) {
     toast.add({
       severity: 'info',
-      summary: 'Selecione o Produto',
-      detail: `Foram encontrados ${productSuggestions.value.length} produtos. Selecione o item desejado na lista.`,
+      summary: 'Selecione o Item',
+      detail: `Foram encontrados ${searchSuggestions.value.length} itens. Selecione o item desejado na lista.`,
       life: 3000
     })
     return
@@ -327,7 +358,7 @@ async function handleBarcodeSubmit(): Promise<void> {
   toast.add({
     severity: 'error',
     summary: 'Não Encontrado',
-    detail: `Nenhum produto cadastrado para "${rawQuery}".`,
+    detail: `Nenhum produto ou kit cadastrado para "${rawQuery}".`,
     life: 3000
   })
 }
@@ -360,6 +391,7 @@ function onRegisterOpened(): void {
 onMounted(async () => {
   await Promise.all([
     productStore.fetchAll(),
+    kitStore.fetchKits(),
     cashRegisterStore.checkActiveRegister()
   ])
   focusBarcodeInput()
@@ -492,7 +524,7 @@ onMounted(async () => {
   overflow: hidden;
 }
 
-.scanner-search-box {
+.pos-box-panel {
   padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
@@ -702,5 +734,11 @@ onMounted(async () => {
   font-size: 0.72rem;
   box-shadow: var(--shadow-xs);
   border: none;
+}
+
+@media (max-width: 1023px) {
+  .shortcuts-accordion {
+    display: none !important;
+  }
 }
 </style>

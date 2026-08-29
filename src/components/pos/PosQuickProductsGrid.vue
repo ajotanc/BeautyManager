@@ -2,122 +2,151 @@
   <div class="product-catalog-container glass-panel">
     <!-- Header com Abas e Filtro de Categorias no Padrão do Carrinho -->
     <div class="catalog-header">
-      <div class="catalog-header-top">
-        <div class="header-left">
-          <div class="header-icon-circle">
-            <i class="ri-store-2-fill"></i>
-          </div>
-          <div class="header-title-meta">
-            <h3 class="header-title">Catálogo & Venda Rápida</h3>
-            <span class="header-subtitle">{{ filteredProducts.length }} {{ filteredProducts.length === 1 ? 'produto disponível' : 'produtos disponíveis' }}</span>
-          </div>
-        </div>
-      </div>
+      <AppSectionHeader title="Catálogo & Venda Rápida"
+        :subtitle="`${isKitsSelected ? kitStore.activeKits.length : filteredProducts.length} ${isKitsSelected ? 'kits disponíveis' : filteredProducts.length === 1 ? 'produto disponível' : 'produtos disponíveis'}`"
+        icon="ri-store-2-fill" />
 
       <!-- Filtro Rápido de Categorias com Arraste Livre (Drag-to-Scroll) -->
-      <div
-        ref="categoryScrollRef"
-        class="category-pills"
-        @wheel.prevent="handleWheelScroll"
-        @mousedown="startDrag"
-        @mouseleave="stopDrag"
-        @mouseup="stopDrag"
-        @mousemove="onDrag"
-      >
-        <button
-          type="button"
-          class="pill-btn"
-          :class="{ 'is-active': selectedCategory === 'ALL' }"
-          @click="handleCategoryClick('ALL')"
-        >
+      <div ref="categoryScrollRef" class="category-pills" @wheel.prevent="handleWheelScroll" @mousedown="startDrag"
+        @mouseleave="stopDrag" @mouseup="stopDrag" @mousemove="onDrag">
+        <button type="button" class="pill-btn" :class="{ 'is-active': selectedCategory === 'ALL' }"
+          @click="handleCategoryClick('ALL')">
           Todos
         </button>
-        <button
-          type="button"
-          class="pill-btn"
-          :class="{ 'is-active': selectedCategory === 'QUICK' }"
-          @click="handleCategoryClick('QUICK')"
-        >
+        <button type="button" class="pill-btn pill-kits" :class="{ 'is-active': selectedCategory === 'KITS' }"
+          @click="handleCategoryClick('KITS')">
+          <i class="ri-gift-2-line"></i> Kits & Presentes
+        </button>
+        <button type="button" class="pill-btn" :class="{ 'is-active': selectedCategory === 'QUICK' }"
+          @click="handleCategoryClick('QUICK')">
           <i class="ri-flashlight-line"></i> Venda Rápida
         </button>
-        <button
-          v-for="cat in productStore.categories"
-          :key="cat.$id"
-          type="button"
-          class="pill-btn"
-          :class="{ 'is-active': selectedCategory === cat.$id }"
-          @click="handleCategoryClick(cat.$id)"
-        >
+        <button v-for="cat in productStore.categories" :key="cat.$id" type="button" class="pill-btn"
+          :class="{ 'is-active': selectedCategory === cat.$id }" @click="handleCategoryClick(cat.$id)">
           {{ cat.name }}
         </button>
       </div>
     </div>
 
-    <!-- Lista / Grid de Produtos -->
-    <div v-if="filteredProducts.length === 0" class="catalog-empty">
-      <i class="ri-search-line empty-icon"></i>
-      <span>Nenhum produto cadastrado nesta categoria.</span>
-    </div>
+    <!-- Seção de Kits Promocionais -->
+    <template v-if="isKitsSelected">
+      <div v-if="kitStore.activeKits.length === 0" class="catalog-empty">
+        <i class="ri-gift-line empty-icon"></i>
+        <span>Nenhum kit promocional ativo no momento.</span>
+      </div>
 
-    <div v-else class="catalog-grid">
-      <div
-        v-for="prod in filteredProducts"
-        :key="prod.$id"
-        class="product-card floating-card"
-        :class="{ 'low-stock': prod.stock_quantity <= prod.min_stock_alert }"
-        @click="handleAddToCart(prod)"
-      >
-        <div class="card-top">
-          <span class="card-category">{{ getCategoryName(prod) }}</span>
-          <span
-            class="card-stock"
-            :class="{ 'stock-warn': prod.stock_quantity <= prod.min_stock_alert }"
-          >
-            <i class="ri-archive-line"></i> {{ prod.stock_quantity }} un.
-          </span>
-        </div>
+      <div v-else class="catalog-grid">
+        <div v-for="kit in kitStore.activeKits" :key="kit.$id" class="product-card floating-card kit-pos-card"
+          :class="{ 'low-stock': kitStore.getAvailableStock(kit) === 0 }" @click="handleAddKitToCart(kit)">
+          <div class="card-top">
+            <span class="card-category font-bold" :style="{ color: getCampaignEvent(kit.campaign_event).color }">
+              <i :class="getCampaignEvent(kit.campaign_event).icon"></i>
+              {{ getCampaignEvent(kit.campaign_event).label }}
+            </span>
+            <span class="card-stock" :class="{ 'stock-warn': kitStore.getAvailableStock(kit) === 0 }">
+              <i class="ri-archive-line"></i>
+              <span>{{ kitStore.getAvailableStock(kit) }} kits</span>
+            </span>
+          </div>
 
-        <div class="card-body">
-          <span class="card-name" :title="prod.name">{{ prod.name }}</span>
-          <span class="card-barcode">{{ prod.barcode }}</span>
-        </div>
+          <div class="card-body">
+            <span class="card-name" :title="kit.name">{{ kit.name }}</span>
+            <span class="card-barcode font-mono">{{ kit.barcode }}</span>
+            <span v-if="kit.items && kit.items.length > 0" class="kit-items-summary" :title="formatKitItems(kit)">
+              {{ formatKitItems(kit) }}
+            </span>
+          </div>
 
-        <div class="card-bottom">
-          <strong class="card-price font-bold">{{ formatCurrency(prod.selling_price) }}</strong>
-          <button
-            type="button"
-            class="add-btn"
-            title="Adicionar ao carrinho"
-            @click.stop="handleAddToCart(prod)"
-          >
-            <i class="ri-add-line"></i>
-          </button>
+          <div class="card-bottom">
+            <strong class="card-price font-bold text-(--p-brand-600)">{{ formatCurrency(kit.selling_price) }}</strong>
+            <button type="button" class="add-btn kit-add-btn" title="Adicionar kit ao carrinho"
+              @click.stop="handleAddKitToCart(kit)">
+              <i class="ri-add-line"></i>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </template>
+
+    <!-- Seção Padrão de Produtos Avulsos -->
+    <template v-else>
+      <div v-if="filteredProducts.length === 0" class="catalog-empty">
+        <i class="ri-search-line empty-icon"></i>
+        <span>Nenhum produto cadastrado nesta categoria.</span>
+      </div>
+
+      <div v-else class="catalog-grid">
+        <div v-for="prod in filteredProducts" :key="prod.$id" class="product-card floating-card"
+          :class="{ 'low-stock': prod.stock_quantity <= prod.min_stock_alert }" @click="handleAddToCart(prod)">
+          <div class="card-top">
+            <span class="card-category">{{ getCategoryName(prod) }}</span>
+            <span class="card-stock" :class="{ 'stock-warn': prod.stock_quantity <= prod.min_stock_alert }">
+              <i class="ri-archive-line"></i>
+              <span> {{ prod.stock_quantity }} un.</span>
+            </span>
+          </div>
+
+          <div class="card-body">
+            <span class="card-name" :title="prod.name">{{ prod.name }}</span>
+            <span class="card-barcode">{{ prod.barcode }}</span>
+          </div>
+
+          <div class="card-bottom">
+            <strong class="card-price font-bold">{{ formatCurrency(prod.selling_price) }}</strong>
+            <button type="button" class="add-btn" title="Adicionar ao carrinho" @click.stop="handleAddToCart(prod)">
+              <i class="ri-add-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useProductStore } from '@/stores/productStore'
 import { usePosStore } from '@/stores/posStore'
+import { useKitStore } from '@/stores/kitStore'
 import type { IProduct } from '@/types/product'
+import type { IKit } from '@/types/kit'
+import { getCampaignEvent } from '@/types/kit'
 import { formatCurrency } from '@/utils/currency'
+import AppSectionHeader from '../common/AppSectionHeader.vue'
 
 const emit = defineEmits<{
   (e: 'item-added', product: IProduct): void
+  (e: 'kit-added', kit: IKit): void
 }>()
 
 const productStore = useProductStore()
 const posStore = usePosStore()
+const kitStore = useKitStore()
 
 const selectedCategory = ref<string>('ALL')
 const categoryScrollRef = ref<HTMLElement | null>(null)
 
+const isKitsSelected = computed(() => selectedCategory.value === 'KITS')
+
+onMounted(async () => {
+  if (kitStore.kits.length === 0) {
+    await kitStore.fetchKits()
+  }
+})
+
 function handleAddToCart(prod: IProduct): void {
   posStore.addToCart(prod, 1)
   emit('item-added', prod)
+}
+
+function handleAddKitToCart(kit: IKit): void {
+  posStore.addKitToCart(kit, 1)
+  emit('kit-added', kit)
+}
+
+function formatKitItems(kit: IKit): string {
+  if (!kit.items || kit.items.length === 0) return ''
+  return kit.items.map((i) => `${i.quantity}x ${i.product?.name || 'Item'}`).join(' + ')
 }
 
 let isMouseDown = false
@@ -185,7 +214,7 @@ const filteredProducts = computed(() => {
     return list.filter((p) => p.is_quick_sale)
   }
 
-  if (selectedCategory.value !== 'ALL') {
+  if (selectedCategory.value !== 'ALL' && selectedCategory.value !== 'KITS') {
     return list.filter((p) => {
       if (!p.category) return false
       if (Array.isArray(p.category)) {
@@ -249,95 +278,94 @@ const filteredProducts = computed(() => {
 }
 
 .header-icon-circle {
-  width: 36px;
-  height: 36px;
-  border-radius: var(--radius-md);
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-xs);
   background: var(--p-brand-50);
-  border: 1px solid var(--p-brand-200);
   color: var(--p-brand-600);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.2rem;
-  flex-shrink: 0;
+  font-size: 1rem;
 }
 
 .header-title-meta {
   display: flex;
   flex-direction: column;
-  gap: 0.1rem;
+  gap: 0.05rem;
 }
 
 .header-title {
-  font-family: var(--font-title);
-  font-weight: 800;
-  font-size: 0.98rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-primary);
-  line-height: 1.1;
   margin: 0;
 }
 
 .header-subtitle {
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: var(--text-secondary);
+  font-size: 0.7rem;
+  color: var(--text-muted);
 }
 
 .category-pills {
   display: flex;
-  gap: 0.45rem;
+  align-items: center;
+  gap: 0.4rem;
   overflow-x: auto;
   padding-bottom: 0.2rem;
-  flex-shrink: 0;
+  scrollbar-width: none;
   cursor: grab;
   user-select: none;
-  -webkit-user-select: none;
-  scroll-behavior: smooth;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(253, 0, 84, 0.25) transparent;
+}
+
+.category-pills::-webkit-scrollbar {
+  display: none;
 }
 
 .category-pills.is-dragging {
   cursor: grabbing;
-  scroll-behavior: auto;
-}
-
-.category-pills::-webkit-scrollbar {
-  height: 4px;
-}
-
-.category-pills::-webkit-scrollbar-thumb {
-  background: rgba(253, 0, 84, 0.25);
-  border-radius: 9999px;
 }
 
 .pill-btn {
-  background: var(--p-brand-50);
-  border: 1px solid var(--border-color);
-  color: var(--text-secondary);
-  padding: 0.32rem 0.7rem;
-  border-radius: var(--radius-sm);
-  font-size: 0.75rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all 0.2s ease;
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.3rem;
+  gap: 0.35rem;
+  padding: 0.3rem 0.65rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border-radius: var(--radius-full);
+  background: var(--p-surface-50);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
 .pill-btn:hover {
-  background: var(--p-brand-100);
-  border-color: var(--p-brand-300);
-  color: var(--text-primary);
+  background: var(--p-brand-50);
+  color: var(--p-brand-600);
+  border-color: var(--p-brand-200);
 }
 
 .pill-btn.is-active {
-  background: var(--grad-primary);
-  border-color: transparent;
+  background: var(--p-brand-600);
   color: #ffffff;
+  border-color: var(--p-brand-600);
+  font-weight: 700;
   box-shadow: var(--shadow-sm);
+}
+
+.pill-btn.pill-kits {
+  background: rgba(236, 72, 153, 0.08);
+  color: #db2777;
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.pill-btn.pill-kits.is-active {
+  background: #db2777;
+  color: #ffffff;
+  border-color: #db2777;
 }
 
 .catalog-empty {
@@ -346,151 +374,153 @@ const filteredProducts = computed(() => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  flex: 1;
-  padding: 1.5rem;
+  padding: 2.5rem 1rem;
   color: var(--text-muted);
   font-size: 0.85rem;
 }
 
 .empty-icon {
-  font-size: 2.2rem;
-  color: var(--p-brand-300);
+  font-size: 2rem;
+  color: var(--text-muted);
+  opacity: 0.5;
 }
 
 .catalog-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(145px, 1fr));
-  grid-auto-rows: max-content;
-  align-content: start;
-  gap: 0.75rem;
-  flex: 1;
-  min-height: 0;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  grid-auto-rows: 135px;
+  align-items: start;
+  gap: 0.5rem;
   overflow-y: auto;
-  padding-right: 0.35rem;
-}
-
-.catalog-grid::-webkit-scrollbar {
-  width: 5px;
-}
-
-.catalog-grid::-webkit-scrollbar-thumb {
-  background: var(--p-brand-200);
-  border-radius: 4px;
+  flex: 1;
+  padding: 0.15rem 0.05rem;
+  scrollbar-width: thin;
 }
 
 .product-card {
-  height: 140px;
+  height: 135px;
   background: #ffffff;
   border: 1px solid var(--border-color);
-  border-radius: var(--radius-md);
-  padding: 0.75rem 0.8rem;
+  border-radius: var(--radius-sm);
+  padding: 0.45rem 0.55rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-xs);
+  transition: all 0.18s ease;
+  position: relative;
+  box-sizing: border-box;
 }
 
 .product-card:hover {
-  border-color: var(--p-brand-400);
-  box-shadow: var(--shadow-md);
+  border-color: var(--p-brand-300);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
 }
 
-.product-card:active {
-  transform: scale(0.98);
+.product-card.kit-pos-card {
+  background: linear-gradient(135deg, rgba(236, 72, 153, 0.03) 0%, rgba(255, 255, 255, 1) 100%);
+  border-color: rgba(236, 72, 153, 0.25);
+}
+
+.product-card.kit-pos-card:hover {
+  border-color: #ec4899;
 }
 
 .card-top {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  font-size: 0.68rem;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.62rem;
 }
 
 .card-category {
-  color: var(--p-brand-600);
+  color: var(--text-muted);
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  white-space: nowrap;
-  max-width: 80px;
+  max-width: 90px;
 }
 
 .card-stock {
-  font-weight: 700;
-  color: var(--text-muted);
-  background: var(--p-surface-50);
-  border: 1px solid var(--border-subtle);
-  padding: 0.08rem 0.35rem;
-  border-radius: var(--radius-xs);
-  font-size: 0.68rem;
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.2rem;
-}
-
-.card-stock i {
-  font-size: 0.75rem;
+  gap: 0.25rem;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+  background: var(--p-surface-100);
+  padding: 0.08rem 0.3rem;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
 }
 
 .card-stock.stock-warn {
   background: #fee2e2;
   color: #dc2626;
-  border-color: #fca5a5;
 }
 
 .card-body {
   display: flex;
   flex-direction: column;
-  gap: 0.2rem;
+  gap: 0.1rem;
 }
 
 .card-name {
+  font-size: 0.78rem;
   font-weight: 700;
-  font-size: 0.82rem;
   color: var(--text-primary);
-  line-height: 1.25;
+  line-height: 1.2;
   display: -webkit-box;
   line-clamp: 2;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  min-height: 2rem;
+  min-height: 1.9rem;
 }
 
 .card-barcode {
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   color: var(--text-muted);
+}
+
+.kit-items-summary {
+  font-size: 0.64rem;
+  color: #db2777;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-weight: 600;
 }
 
 .card-bottom {
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  padding-top: 0.4rem;
+  align-items: center;
+  padding-top: 0.25rem;
   border-top: 1px dashed var(--border-subtle);
 }
 
 .card-price {
-  font-size: 0.95rem;
-  font-weight: 800;
+  font-size: 0.9rem;
   color: var(--p-brand-600);
 }
 
 .add-btn {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-full);
+  width: 24px;
+  height: 24px;
+  border-radius: var(--radius-xs);
   background: var(--p-brand-50);
-  border: 1px solid var(--p-brand-300);
-  color: var(--p-brand-700);
+  color: var(--p-brand-600);
+  border: 1px solid var(--p-brand-200);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1rem;
+  font-size: 0.85rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
@@ -500,5 +530,17 @@ const filteredProducts = computed(() => {
   color: #ffffff;
   border-color: var(--p-brand-600);
   transform: scale(1.08);
+}
+
+.add-btn.kit-add-btn {
+  background: rgba(236, 72, 153, 0.12);
+  color: #db2777;
+  border-color: rgba(236, 72, 153, 0.3);
+}
+
+.add-btn.kit-add-btn:hover {
+  background: #db2777;
+  color: #ffffff;
+  border-color: #db2777;
 }
 </style>

@@ -37,6 +37,12 @@
             <span>{{ item.quantity }}x {{ formatCurrency(item.unitPrice) }}</span>
             <span class="font-bold">{{ formatCurrency(item.subtotal) }}</span>
           </div>
+          <!-- Componentes inclusos no Kit -->
+          <div v-if="item.isKit && item.components && item.components.length > 0" class="kit-receipt-components">
+            <div v-for="(comp, cIdx) in item.components" :key="cIdx" class="kit-component-line text-[0.82em] text-slate-700 pl-2">
+              - {{ comp.quantity }}x {{ comp.name }}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -90,21 +96,19 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import QrcodeVue from 'qrcode.vue'
-import { formatPaymentMethod, type ISale, type ICartItem, type IReceiptItem } from '@/types/sale'
+import { formatPaymentMethod, type ISale, type IReceiptItem } from '@/types/sale'
 import type { ISettings } from '@/types/storeSettings'
 import { formatCurrency, toNumber } from '@/utils/currency'
 import { dayjs, formatDateTime, nowIso } from '@/utils/date'
 
 interface Props {
   sale?: ISale | null
-  cartItems?: ICartItem[]
   settings?: Partial<ISettings> | null
   changeAmount?: number
 }
 
 const props = withDefaults(defineProps<Props>(), {
   sale: null,
-  cartItems: () => [],
   settings: null,
   changeAmount: 0
 })
@@ -115,30 +119,50 @@ const year = dayjs().year();
  * Normalização dos itens para impressão idêntica ao preview
  */
 const receiptItems = computed<IReceiptItem[]>(() => {
-  if (props.sale?.items && props.sale.items.length > 0) {
-    return props.sale.items.map((item) => {
-      const productName = typeof item.product === 'object' && item.product
-        ? item.product.name
-        : 'Produto Cosmético'
+  if (props.sale) {
+    if (props.sale.items && props.sale.items.length > 0) {
+      const result: IReceiptItem[] = []
+      const kitMap = new Map<string, IReceiptItem>()
 
-      return {
-        id: item.$id,
-        name: productName,
-        quantity: item.quantity,
-        unitPrice: toNumber(item.unit_price),
-        subtotal: toNumber(item.subtotal)
+      for (const item of props.sale.items) {
+        const productName = item.product.name;
+
+        if (item.kit) {
+          const kitId = item.kit.$id
+          if (!kitMap.has(kitId)) {
+            const newKitItem: IReceiptItem = {
+              id: kitId,
+              name: item.kit.name,
+              quantity: 1, // Consideramos que a proporção foi tratada no PDV
+              unitPrice: 0,
+              subtotal: 0,
+              isKit: true,
+              components: []
+            }
+            kitMap.set(kitId, newKitItem)
+            result.push(newKitItem)
+          }
+
+          const kitEntry = kitMap.get(kitId)!
+          kitEntry.unitPrice += toNumber(item.subtotal) // Preço total do kit é a soma
+          kitEntry.subtotal += toNumber(item.subtotal)
+          kitEntry.components && kitEntry.components.push({
+            name: productName,
+            quantity: item.quantity,
+            price: toNumber(item.unit_price)
+          })
+        } else {
+          result.push({
+            id: item.$id,
+            name: productName,
+            quantity: item.quantity,
+            unitPrice: toNumber(item.unit_price),
+            subtotal: toNumber(item.subtotal)
+          })
+        }
       }
-    })
-  }
-
-  if (props.cartItems && props.cartItems.length > 0) {
-    return props.cartItems.map((item) => ({
-      id: item.product.$id,
-      name: item.product.name,
-      quantity: item.quantity,
-      unitPrice: toNumber(item.unit_price),
-      subtotal: toNumber(item.subtotal)
-    }))
+      return result
+    }
   }
 
   // Itens padrão idênticos ao preview

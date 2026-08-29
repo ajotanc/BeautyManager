@@ -13,7 +13,9 @@ export const TABLES = {
   SALES: 'sales',
   SALE_ITEMS: 'sale_items',
   CASH_REGISTER: 'cash_register',
-  STORE_SETTINGS: 'settings'
+  STORE_SETTINGS: 'settings',
+  KITS: 'kits',
+  KIT_ITEMS: 'kit_items'
 } as const
 
 export const client = new Client()
