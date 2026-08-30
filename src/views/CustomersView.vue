@@ -295,7 +295,8 @@ function openWhatsApp(customer: ICustomer): void {
   const cleanPhone = customer.phone?.replace(/\D/g, '') || ''
   if (!cleanPhone) return
   const fullPhone = cleanPhone.length <= 11 ? `55${cleanPhone}` : cleanPhone
-  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(`Olá, ${customer.name}! Tudo bem?`)}`, '_blank')
+  const params = new URLSearchParams({ phone: fullPhone, text: `Olá, ${customer.name}! Tudo bem?` })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
 }
 
 function sendBirthdayWishes(customer: ICustomer): void {
@@ -303,9 +304,9 @@ function sendBirthdayWishes(customer: ICustomer): void {
   if (!cleanPhone) return
   const fullPhone = cleanPhone.length <= 11 ? `55${cleanPhone}` : cleanPhone
   const msg = `Parabéns, ${customer.name}! Toda a equipe da Beauty Manager deseja um dia incrível e repleto de alegrias! Venha nos visitar para comemorar seu aniversário com um carinho especial da loja!`
-  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank')
-}
-</script>
+  const params = new URLSearchParams({ phone: fullPhone, text: msg })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
+}</script>
 
 <style scoped>
 .customers-view {

@@ -105,7 +105,7 @@ function openWhatsApp(): void {
   if (!isValidPhone.value) return
   const clean = phoneInput.value.replace(/\D/g, '')
   const fullPhone = `55${clean}`
-  const encodedText = encodeURIComponent(formattedMessage.value)
-  window.open(`https://wa.me/${fullPhone}?text=${encodedText}`, '_blank')
+  const params = new URLSearchParams({ phone: fullPhone, text: formattedMessage.value })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
 }
 </script>

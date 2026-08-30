@@ -274,7 +274,8 @@ function openWhatsApp(phone: string): void {
   if (!clean) return
   const fullPhone = clean.length <= 11 ? `55${clean}` : clean
   const greeting = props.customer ? `Olá, ${props.customer.name}! Tudo bem?` : 'Olá! Tudo bem?'
-  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(greeting)}`, '_blank')
+  const params = new URLSearchParams({ phone: fullPhone, text: greeting })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
 }
 
 function sendBirthdayMessage(phone: string, customerName: string): void {
@@ -282,7 +283,8 @@ function sendBirthdayMessage(phone: string, customerName: string): void {
   if (!clean) return
   const fullPhone = clean.length <= 11 ? `55${clean}` : clean
   const msg = `Parabéns, ${customerName}! Desejamos a você um feliz aniversário repleto de realizações! Passe aqui na loja para comemorar com a gente!`
-  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(msg)}`, '_blank')
+  const params = new URLSearchParams({ phone: fullPhone, text: msg })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
 }
 </script>
 

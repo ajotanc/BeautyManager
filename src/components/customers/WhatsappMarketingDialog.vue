@@ -288,7 +288,8 @@ function sendWhatsApp() {
   const clean = selectedCustomer.value.phone.replace(/\D/g, '')
   if (!clean) return
   const fullPhone = clean.length <= 11 ? `55${clean}` : clean
-  window.open(`https://wa.me/${fullPhone}?text=${encodeURIComponent(generatedMessage.value)}`, '_blank')
+  const params = new URLSearchParams({ phone: fullPhone, text: generatedMessage.value })
+  window.open(`https://api.whatsapp.com/send?${params.toString()}`, '_blank')
 }
 
 async function copyToClipboard() {

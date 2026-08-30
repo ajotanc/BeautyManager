@@ -126,7 +126,7 @@ const qrPayload = computed(() => {
   if (!props.settings) return 'https://beautymanager.loja'
   if (props.settings.qrcode_type === 'whatsapp') {
     const rawPhone = props.settings.phone?.replace(/\D/g, '') || ''
-    return rawPhone ? `https://wa.me/55${rawPhone}` : props.settings.qrcode_payload || 'https://wa.me'
+    return rawPhone ? `https://api.whatsapp.com/send?phone=55${rawPhone}` : props.settings.qrcode_payload || 'https://api.whatsapp.com/'
   }
   if (props.settings.qrcode_type === 'instagram') {
     const cleanUser = props.settings.instagram?.replace('@', '').trim() || ''
