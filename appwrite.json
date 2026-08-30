@@ -49,7 +49,7 @@
             "events": [],
             "schedule": "",
             "timeout": 15,
-            "path": "functions/whatsapp-ai",
+            "path": "functions/Whatsapp Marketing AI",
             "entrypoint": "src/main.js",
             "commands": "npm install",
             "enabled": true,

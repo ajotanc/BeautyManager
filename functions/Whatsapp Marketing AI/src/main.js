@@ -1,16 +1,19 @@
 import { GoogleGenAI } from '@google/genai';
 
 export default async ({ req, res, log, error }) => {
-  // Configuração básica do CORS e verificação
   if (req.method === 'OPTIONS') {
     return res.empty();
   }
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { customerName, messageType, customSubject } = payload;
+    const { customerName, productName, messageType, customSubject, marketingMode } = payload;
 
-    if (!customerName || !messageType) {
+    const isProductMode = marketingMode === 'product';
+
+    if (isProductMode && (!productName || !messageType)) {
+      return res.json({ error: 'Parâmetros ausentes. Envie productName e messageType.' }, 400);
+    } else if (!isProductMode && (!customerName || !messageType)) {
       return res.json({ error: 'Parâmetros ausentes. Envie customerName e messageType.' }, 400);
     }
 
@@ -19,15 +22,14 @@ export default async ({ req, res, log, error }) => {
     if (!apiKey) {
       log('GEMINI_API_KEY ausente. Usando fallback default.');
       return res.json({
-        message: getFallbackMessage(customerName, messageType, customSubject)
+        message: getFallbackMessage(isProductMode ? productName : customerName, messageType, customSubject, isProductMode)
       });
     }
 
     const ai = new GoogleGenAI({ apiKey });
-    const prompt = getPromptForType(customerName, messageType, customSubject);
+    const prompt = getPromptForType(isProductMode ? productName : customerName, messageType, customSubject, isProductMode);
 
-    // Prioridade para os modelos mais econômicos (Flash Lite) e rápidos para textos curtos
-    const modelsToTry = ['gemini-flash-lite-latest', 'gemini-3.1-flash-lite', 'gemini-2.5-flash-lite', 'gemini-2.5-flash'];
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
     
     let resultText = '';
     let success = false;
@@ -43,7 +45,7 @@ export default async ({ req, res, log, error }) => {
 
         resultText = response.text;
         success = true;
-        break; // Sucesso, sai do loop
+        break;
       } catch (e) {
         log(`Falha ao usar o modelo ${modelName}: ${e.message}`);
         lastError = e;
@@ -58,18 +60,48 @@ export default async ({ req, res, log, error }) => {
 
   } catch (err) {
     error('Erro ao gerar mensagem via Gemini: ' + err.message);
+    const isProd = req.body?.marketingMode === 'product';
     return res.json({
       error: 'Falha na IA',
       message: getFallbackMessage(
-        req.body?.customerName || 'Cliente',
+        isProd ? (req.body?.productName || 'Produto') : (req.body?.customerName || 'Cliente'),
         req.body?.messageType || 'generic',
-        req.body?.customSubject
+        req.body?.customSubject,
+        isProd
       )
     }, 500);
   }
 };
 
-function getPromptForType(name, type, customSubject) {
+function getPromptForType(name, type, customSubject, isProductMode) {
+  if (isProductMode) {
+    const baseRules = `Você é um especialista em vendas e marketing de uma loja de cosméticos.
+Escreva um anúncio curto, persuasivo e focado em conversão (1 ou 2 parágrafos) para vender o produto "${name}".
+Regras de formatação:
+- Use emojis que chamem atenção.
+- Use gatilhos mentais de escassez e urgência.
+- Use a formatação nativa do WhatsApp: *para negrito* e _para itálico_.
+- Não inclua placeholders (como [Seu Nome], [Preço] ou [Nome da Loja]). Faça o texto focado no benefício e no produto em si, deixando espaço para a loja complementar se quiser.
+- Seja enérgico e envolvente.
+
+Objetivo do anúncio: `;
+
+    switch (type) {
+      case 'clearance':
+        return `${baseRules}É uma "Queima de Estoque"! O produto está perto do vencimento ou sendo descontinuado, então o desconto é absurdo para zerar o estoque hoje.`;
+      case 'unmissable':
+        return `${baseRules}É uma "Oferta Imperdível"! Um produto muito desejado que entrou em uma promoção relâmpago surpresa e o estoque vai acabar rápido.`;
+      case 'news':
+        return `${baseRules}É uma "Novidade Exclusiva"! O produto acabou de chegar na loja e queremos gerar desejo extremo para ser o primeiro a comprar.`;
+      default:
+        if (customSubject) {
+          return `${baseRules}O tema central é: "${customSubject}". Desenvolva o anúncio de vendas com base nisso.`;
+        }
+        return `${baseRules}Crie um anúncio focado nos benefícios incríveis que esse produto traz para quem o usa.`;
+    }
+  }
+
+  // Customer Mode logic (default)
   const firstName = name.split(' ')[0];
   const baseRules = `Você é uma atendente simpática e amigável de uma loja de cosméticos.
 Escreva uma mensagem curta de WhatsApp (1 ou 2 parágrafos no máximo) para a cliente chamada ${firstName}.
@@ -100,7 +132,21 @@ Objetivo da mensagem: `;
   }
 }
 
-function getFallbackMessage(name, type, subject) {
+function getFallbackMessage(name, type, subject, isProductMode) {
+  if (isProductMode) {
+    switch (type) {
+      case 'clearance':
+        return `🔥 QUEIMA DE ESTOQUE: *${name}* 🔥\nÚltimas unidades com um desconto surreal para zerar o estoque! Não perca a chance de garantir o seu antes que acabe. Corre pra loja! 🏃‍♀️💨`;
+      case 'unmissable':
+        return `🚨 OFERTA IMPERDÍVEL 🚨\nO seu favorito *${name}* está em promoção relâmpago! Estoque limitadíssimo. Aproveite agora mesmo! ✨💖`;
+      case 'news':
+        return `✨ NOVIDADE EXCLUSIVA ✨\nAcabou de chegar: *${name}*! A sensação do momento já está disponível aqui na loja. Venha ser uma das primeiras a garantir! 🛍️😍`;
+      default:
+        return `✨ O produto *${name}* é simplesmente perfeito para você! Aproveite essa oportunidade incrível e venha buscar o seu. 🥰`;
+    }
+  }
+
+  // Customer Mode logic (default)
   const firstName = name ? name.split(' ')[0] : 'Cliente';
   switch (type) {
     case 'birthday':

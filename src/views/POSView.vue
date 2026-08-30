@@ -422,8 +422,10 @@ onMounted(async () => {
 }
 
 .cash-closed-banner {
-  background: #fff5f5;
-  border-color: #fed7d7;
+  background: var(--color-danger-bg);
+  border-color: var(--p-brand-200);
+  border-width: 1px;
+  border-style: solid;
   padding: 1.25rem 1.5rem;
   border-radius: var(--radius-md);
   display: flex;
@@ -442,8 +444,8 @@ onMounted(async () => {
   width: 44px;
   height: 44px;
   border-radius: var(--radius-md);
-  background: #fee2e2;
-  color: #dc2626;
+  background: var(--p-brand-100);
+  color: var(--p-brand-600);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -454,12 +456,12 @@ onMounted(async () => {
 .banner-title {
   font-size: 1.1rem;
   font-weight: 800;
-  color: #991b1b;
+  color: var(--p-brand-800);
 }
 
 .banner-desc {
   font-size: 0.84rem;
-  color: #b91c1c;
+  color: var(--p-brand-700);
 }
 
 .pos-grid {

@@ -21,31 +21,6 @@
   --p-brand-900: #05081f;
   --p-brand-950: #02040d;
 
-  /* Aliases para compatibilidade */
-  --p-pink-50: var(--p-brand-50);
-  --p-pink-100: var(--p-brand-100);
-  --p-pink-200: var(--p-brand-200);
-  --p-pink-300: var(--p-brand-300);
-  --p-pink-400: var(--p-brand-400);
-  --p-pink-500: var(--p-brand-500);
-  --p-pink-600: var(--p-brand-600);
-  --p-pink-700: var(--p-brand-700);
-  --p-pink-800: var(--p-brand-800);
-  --p-pink-900: var(--p-brand-900);
-  --p-pink-950: var(--p-brand-950);
-
-  --p-rose-50: var(--p-brand-50);
-  --p-rose-100: var(--p-brand-100);
-  --p-rose-200: var(--p-brand-200);
-  --p-rose-300: var(--p-brand-300);
-  --p-rose-400: var(--p-brand-400);
-  --p-rose-500: var(--p-brand-500);
-  --p-rose-600: var(--p-brand-600);
-  --p-rose-700: var(--p-brand-700);
-  --p-rose-800: var(--p-brand-800);
-  --p-rose-900: var(--p-brand-900);
-  --p-rose-950: var(--p-brand-950);
-
   /* Escala Secundária - Bright Gold */
   --p-gold-50: #fffbeb;
   --p-gold-100: #fef3c7;
@@ -76,7 +51,6 @@
 
   /* Gradientes Explosivos */
   --grad-primary: linear-gradient(135deg, #ff5d8f 0%, #e11d48 100%);
-  --grad-surface: linear-gradient(180deg, #ffffff 0%, #fff5f8 100%);
   --grad-gold: linear-gradient(135deg, #fbbf24 0%, #d97706 100%);
 
   /* Status Colors */
@@ -86,7 +60,6 @@
   --color-warning-bg: #fffbeb;
   --color-danger: #a80038;
   --color-danger-bg: #ffe5ec;
-  --color-info: #3b82f6;
 
   /* Sombras Vivas e Leves (Vibrant Pink Tint) */
   --shadow-xs: 0 1px 2px rgba(225, 29, 72, 0.03);

@@ -8,88 +8,45 @@
       </div>
 
       <div class="header-actions">
-        <Button label="Marketing (IA)" icon="ri-sparkling-fill" severity="warn" size="small" outlined @click="isMarketingModalOpen = true" />
+        <Button label="Marketing (IA)" icon="ri-sparkling-fill" severity="warn" size="small" outlined
+          @click="isMarketingModalOpen = true" />
         <Button label="Novo Cliente" icon="ri-add-line" severity="primary" size="small" @click="newCustomer" />
       </div>
     </div>
 
     <!-- Cards de Métricas no Estilo Oficial do Dashboard -->
     <div class="metrics-row">
-      <MetricCard
-        label="Total de Clientes"
-        :value="customerStore.totalCustomers"
-        icon="ri-team-line"
-        color="rose"
-        is-clickable
-        :is-active="activeFilter === 'all'"
-        @click="activeFilter = 'all'"
-      />
+      <MetricCard label="Total de Clientes" :value="customerStore.totalCustomers" icon="ri-team-line" color="rose"
+        is-clickable :is-active="activeFilter === 'all'" @click="activeFilter = 'all'" />
 
-      <MetricCard
-        label="Aniversariantes do Mês"
-        :value="customerStore.birthdaysThisMonth.length"
-        icon="ri-cake-2-line"
-        color="purple"
-        is-clickable
-        :is-active="activeFilter === 'month'"
-        @click="toggleFilter('month')"
-      />
+      <MetricCard label="Aniversariantes do Mês" :value="customerStore.birthdaysThisMonth.length" icon="ri-cake-2-line"
+        color="purple" is-clickable :is-active="activeFilter === 'month'" @click="toggleFilter('month')" />
 
-      <MetricCard
-        label="Aniversariantes de Hoje"
-        :value="customerStore.birthdaysToday.length"
-        icon="ri-gift-line"
-        color="emerald"
-        is-clickable
-        :is-active="activeFilter === 'today'"
-        @click="toggleFilter('today')"
-      />
+      <MetricCard label="Aniversariantes de Hoje" :value="customerStore.birthdaysToday.length" icon="ri-gift-line"
+        color="emerald" is-clickable :is-active="activeFilter === 'today'" @click="toggleFilter('today')" />
     </div>
 
     <!-- Tabela de Clientes -->
     <div class="table-container glass-panel">
-      <DataTable
-        v-model:filters="filters"
-        :value="filteredCustomers"
-        paginator
-        :rows="12"
-        :rows-per-page-options="[12, 24, 48]"
-        data-key="$id"
-        :loading="customerStore.isLoading"
-        filter-display="row"
-        :global-filter-fields="['name', 'phone', 'document_number']"
-        responsive-layout="scroll"
-        empty-message="Nenhum cliente por aqui ainda. Seu primeiro cliente está a um clique de distância!"
-      >
+      <DataTable v-model:filters="filters" :value="filteredCustomers" paginator :rows="12"
+        :rows-per-page-options="[12, 24, 48]" data-key="$id" :loading="customerStore.isLoading" filter-display="row"
+        :global-filter-fields="['name', 'phone', 'document_number']" responsive-layout="scroll"
+        empty-message="Nenhum cliente por aqui ainda. Seu primeiro cliente está a um clique de distância!">
         <template #header>
           <div class="table-header-bar">
             <IconField>
               <InputIcon class="ri-search-line" />
-              <InputText
-                v-model="filters['global'].value"
-                placeholder="Buscar por nome, telefone ou CPF..."
-                size="small"
-                class="global-search-input"
-              />
+              <InputText v-model="filters['global'].value" placeholder="Buscar por nome, telefone ou CPF..."
+                size="small" class="global-search-input" />
             </IconField>
 
             <div class="stock-alerts-summary">
-              <Tag
-                v-if="customerStore.birthdaysToday.length > 0"
-                severity="success"
-                :value="`${customerStore.birthdaysToday.length} aniversariante(s) hoje`"
-                icon="ri-gift-line"
-                class="cursor-pointer"
-                @click="toggleFilter('today')"
-              />
-              <Tag
-                v-if="customerStore.birthdaysThisMonth.length > 0"
-                severity="warn"
-                :value="`${customerStore.birthdaysThisMonth.length} aniversariante(s) no mês`"
-                icon="ri-cake-2-line"
-                class="cursor-pointer"
-                @click="toggleFilter('month')"
-              />
+              <Tag v-if="customerStore.birthdaysToday.length > 0" severity="success"
+                :value="`${customerStore.birthdaysToday.length} aniversariante(s) hoje`" icon="ri-gift-line"
+                class="cursor-pointer" @click="toggleFilter('today')" />
+              <Tag v-if="customerStore.birthdaysThisMonth.length > 0" severity="warn"
+                :value="`${customerStore.birthdaysThisMonth.length} aniversariante(s) no mês`" icon="ri-cake-2-line"
+                class="cursor-pointer" @click="toggleFilter('month')" />
             </div>
           </div>
         </template>
@@ -111,16 +68,8 @@
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span class="text-sm font-medium text-(--text-primary)">{{ data.phone }}</span>
-              <Button
-                v-if="data.phone"
-                icon="ri-whatsapp-line"
-                severity="success"
-                variant="text"
-                rounded
-                size="small"
-                title="Abrir WhatsApp"
-                @click="openWhatsApp(data)"
-              />
+              <Button v-if="data.phone" icon="ri-whatsapp-line" severity="success" variant="text" rounded size="small"
+                title="Abrir WhatsApp" @click="openWhatsApp(data)" />
             </div>
           </template>
         </Column>
@@ -129,7 +78,8 @@
         <Column field="birth_date" header="Aniversário" sortable style="min-width: 150px">
           <template #body="{ data }">
             <div class="flex items-center gap-2">
-              <span v-if="data.birth_date" class="text-sm font-medium text-(--text-primary)">{{ data.birth_date }}</span>
+              <span v-if="data.birth_date" class="text-sm font-medium text-(--text-primary)">{{ data.birth_date
+                }}</span>
               <span v-else class="text-muted">-</span>
               <Tag v-if="isToday(data.birth_date)" severity="success" value="Hoje!" class="mini-tag" />
               <Tag v-else-if="isThisMonth(data.birth_date)" severity="info" value="No Mês" class="mini-tag" />
@@ -144,35 +94,17 @@
           </template>
         </Column>
 
-        <!-- Fidelidade -->
-        <Column field="total_purchases" header="Fidelidade" sortable style="min-width: 100px" bodyClass="text-center">
+        <!-- Total de Compras & Histórico -->
+        <Column field="total_purchases" header="Compras" sortable style="min-width: 120px">
           <template #body="{ data }">
-            <div class="flex items-center justify-center">
-              <!-- Indicador Visual de Fidelidade -->
-              <template v-if="getPurchasesProgress(data.total_purchases)">
-                
-                <!-- VIP -->
-                <div v-if="getPurchasesProgress(data.total_purchases)!.isVip" 
-                  class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-linear-to-tr from-amber-200 to-orange-100 text-amber-700 shadow-sm border border-amber-300/50"
-                  title="Cliente VIP - Ganhou Brinde!">
-                  <i class="ri-vip-crown-fill text-base"></i>
-                </div>
-                
-                <!-- Progresso (Faltam X) -->
-                <div v-else 
-                  class="relative flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-slate-50 border border-slate-200 text-slate-400"
-                  :title="`Faltam ${getPurchasesProgress(data.total_purchases)!.purchasesLeft} compras`">
-                  <i class="ri-gift-line text-base"></i>
-                  <!-- Badge com número flutuante -->
-                  <div class="absolute -top-1.5 -right-2 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 border border-red-800 shadow-sm text-[9px] font-bold text-white px-1">
-                    {{ Number(data.total_purchases || 0) % loyaltyMilestone }}/{{ loyaltyMilestone }}
-                  </div>
-                </div>
-
-              </template>
-              <template v-else>
-                <span class="text-slate-300">-</span>
-              </template>
+            <div class="flex flex-col">
+              <span class="font-bold text-sm text-(--p-brand-600) flex items-center gap-1">
+                <i class="ri-shopping-bag-3-line"></i>
+                {{ Number(data.total_purchases || 0) }} un.
+              </span>
+              <span v-if="data.last_purchase_at" class="text-[11px] text-(--text-muted)">
+                {{ data.last_purchase_at }}
+              </span>
             </div>
           </template>
         </Column>
@@ -181,73 +113,33 @@
         <Column header="Ações" style="min-width: 160px" body-class="text-right">
           <template #body="{ data }">
             <div class="actions-row">
-              <Button
-                v-if="isToday(data.birth_date)"
-                icon="ri-gift-line"
-                severity="success"
-                variant="text"
-                rounded
-                size="small"
-                title="Enviar Felicitações no WhatsApp"
-                @click="sendBirthdayWishes(data)"
-              />
-              <Button
-                icon="ri-eye-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Ver Detalhes"
-                @click="openDetailsModal(data)"
-              />
-              <Button
-                icon="ri-pencil-line"
-                severity="primary"
-                variant="text"
-                rounded
-                size="small"
-                title="Editar Cliente"
-                @click="editCustomer(data)"
-              />
-              <Button
-                icon="ri-delete-bin-line"
-                severity="danger"
-                variant="text"
-                rounded
-                size="small"
-                title="Excluir Cliente"
-                @click="confirmDelete(data)"
-              />
+              <Button v-if="isToday(data.birth_date)" icon="ri-gift-line" severity="success" variant="text" rounded
+                size="small" title="Enviar Felicitações no WhatsApp" @click="sendBirthdayWishes(data)" />
+              <Button icon="ri-eye-line" severity="secondary" variant="text" rounded size="small" title="Ver Detalhes"
+                @click="openDetailsModal(data)" />
+              <Button icon="ri-pencil-line" severity="primary" variant="text" rounded size="small"
+                title="Editar Cliente" @click="editCustomer(data)" />
+              <Button icon="ri-delete-bin-line" severity="danger" variant="text" rounded size="small"
+                title="Excluir Cliente" @click="confirmDelete(data)" />
             </div>
           </template>
         </Column>
 
         <template #empty>
-          <AppEmptyState
-            icon="ri-user-heart-line"
-            title="Nenhum cliente cadastrado"
-            description="Cadastre clientes para vincular compras, histórico e gerar comprovantes personalizados."
-          />
+          <AppEmptyState icon="ri-user-heart-line" title="Nenhum cliente cadastrado"
+            description="Cadastre clientes para vincular compras, histórico e gerar comprovantes personalizados." />
         </template>
       </DataTable>
     </div>
 
     <!-- Modais de Clientes -->
-    <CustomerFormDialog
-      v-model:visible="isFormModalOpen"
-      :customer-to-edit="selectedCustomer"
-      @saved="handleCustomerSaved"
-    />
+    <CustomerFormDialog v-model:visible="isFormModalOpen" :customer-to-edit="selectedCustomer"
+      @saved="handleCustomerSaved" />
 
-    <CustomerDetailsDialog
-      v-model:visible="isDetailsModalOpen"
-      :customer="selectedCustomer"
-      @edit="handleEditFromDetails"
-    />
+    <CustomerDetailsDialog v-model:visible="isDetailsModalOpen" :customer="selectedCustomer"
+      @edit="handleEditFromDetails" />
 
-    <WhatsappMarketingDialog
-      v-model:visible="isMarketingModalOpen"
-    />
+    <WhatsappMarketingDialog v-model:visible="isMarketingModalOpen" />
   </div>
 </template>
 
@@ -266,7 +158,6 @@ import CustomerFormDialog from '@/components/customers/CustomerFormDialog.vue'
 import CustomerDetailsDialog from '@/components/customers/CustomerDetailsDialog.vue'
 import WhatsappMarketingDialog from '@/components/customers/WhatsappMarketingDialog.vue'
 import { useCustomerStore } from '@/stores/customerStore'
-import { useSettingsStore } from '@/stores/settingsStore'
 import { CustomerService } from '@/services/customers'
 import type { ICustomer } from '@/types/customer'
 import { useConfirm } from 'primevue/useconfirm'
@@ -277,21 +168,8 @@ import { maskCpf } from '@/utils/security'
 import { FilterMatchMode } from '@primevue/core/api'
 
 const customerStore = useCustomerStore()
-const settingsStore = useSettingsStore()
 const confirm = useConfirm()
 const toast = useToast()
-
-const loyaltyMilestone = computed(() => settingsStore.settings?.loyalty_milestone ?? 2)
-
-function getPurchasesProgress(totalPurchases: number | undefined | null) {
-  if (loyaltyMilestone.value === 0) return null
-  const total = Number(totalPurchases || 0)
-  const remainder = total % loyaltyMilestone.value
-  return {
-    isVip: remainder === 0 && total > 0,
-    purchasesLeft: loyaltyMilestone.value - remainder
-  }
-}
 
 const filters = ref({
   global: { value: null, matchMode: FilterMatchMode.CONTAINS }
