@@ -119,15 +119,16 @@
           <div class="divider"></div>
 
           <!-- Programa de Fidelidade -->
-          <AppSectionHeader title="Programa de Fidelidade (Mimos)"
-            subtitle="Regras para alertas de brindes no PDV" icon="ri-gift-fill" />
+          <AppSectionHeader title="Programa de Fidelidade (Mimos)" subtitle="Regras para alertas de brindes no PDV"
+            icon="ri-gift-fill" />
 
           <div class="field-item">
             <FloatLabel variant="in">
               <InputNumber id="loyalty_milestone" v-model="formData.loyalty_milestone" fluid />
               <label for="loyalty_milestone">Meta de Compras para Brinde</label>
             </FloatLabel>
-            <p class="text-xs text-slate-500 mt-1">Ex: 2 significa que a cada 2 compras o sistema avisa para dar um brinde. Use 0 para desativar.</p>
+            <p class="text-xs text-slate-500 mt-1">Ex: 2 significa que a cada 2 compras o sistema avisa para dar um
+              brinde. Use 0 para desativar.</p>
           </div>
 
           <div class="divider"></div>
@@ -148,7 +149,7 @@
       <!-- Coluna Direita: Live Preview da Bobina Térmica em Tempo Real -->
       <div class="preview-panel glass-panel">
         <AppSectionHeader title="Pré-Visualização em Tempo Real"
-          :subtitle="`Bobina física de ${ formData.receipt_width }`" icon="ri-eye-fill" />
+          :subtitle="`Bobina física de ${formData.receipt_width}`" icon="ri-eye-fill" />
 
         <ThermalReceiptPreview :settings="computedSettings" />
       </div>
@@ -311,7 +312,7 @@ async function handleSaveSettings(): Promise<void> {
       severity: 'error',
       summary: 'Erro ao salvar',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSaving.value = false

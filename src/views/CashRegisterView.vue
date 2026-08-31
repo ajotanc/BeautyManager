@@ -23,13 +23,16 @@
       class="current-register-card glass-panel">
       <div class="card-status-header">
         <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
-          <div class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-100 text-emerald-600 rounded-md border border-emerald-200 whitespace-nowrap w-max">
+          <div
+            class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-emerald-100 text-emerald-600 rounded-md border border-emerald-200 whitespace-nowrap w-max">
             <i class="ri-checkbox-circle-fill text-emerald-600"></i>
             <span class="font-bold tracking-tight uppercase">Caixa Aberto</span>
           </div>
-          <div class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md border border-slate-200 whitespace-nowrap w-max">
+          <div
+            class="inline-flex items-center gap-1 px-2 py-1 text-xs bg-slate-100 text-slate-600 rounded-md border border-slate-200 whitespace-nowrap w-max">
             <i class="ri-time-line text-slate-600"></i>
-            <span class="tracking-tight">Aberto em <strong class="text-slate-700">{{ formatDateTime(cashRegisterStore.currentRegister.opened_at) }}</strong></span>
+            <span class="tracking-tight">Aberto em <strong class="text-slate-700">{{
+              formatDateTime(cashRegisterStore.currentRegister.opened_at) }}</strong></span>
           </div>
         </div>
       </div>
@@ -126,11 +129,8 @@
         </Column>
 
         <template #empty>
-          <AppEmptyState
-            icon="ri-calendar-check-line"
-            title="Nenhum histórico de fechamento"
-            description="Os caixas fechados anteriormente serão listados aqui para conferência e auditoria."
-          />
+          <AppEmptyState icon="ri-calendar-check-line" title="Nenhum histórico de fechamento"
+            description="Os caixas fechados anteriormente serão listados aqui para conferência e auditoria." />
         </template>
       </DataTable>
     </div>
@@ -265,6 +265,7 @@ onMounted(async () => {
     grid-template-columns: 1fr;
     gap: 0.65rem;
   }
+
   .card-status-header {
     flex-direction: column;
     align-items: flex-start;
@@ -380,6 +381,9 @@ onMounted(async () => {
 
 .history-container {
   padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
 }
 
 .history-title {

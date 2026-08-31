@@ -152,7 +152,7 @@ async function handleClose(): Promise<void> {
       severity: 'success',
       summary: 'Caixa Fechado!',
       detail: `Fechamento concluído com saldo de ${formatCurrency(validation.data.closing_balance)}.`,
-      life: 3500
+      life: 3000
     })
     emit('closed')
     emit('update:visible', false)
@@ -161,7 +161,7 @@ async function handleClose(): Promise<void> {
       severity: 'error',
       summary: 'Erro ao fechar caixa',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSubmitting.value = false

@@ -12,55 +12,24 @@
       </div>
 
       <div class="header-actions">
-        <Button
-          label="Novo Kit Promocional"
-          icon="ri-add-line"
-          severity="primary"
-          size="small"
-          class="btn-new-kit"
-          @click="openCreateDialog"
-        />
+        <Button label="Novo Kit Promocional" icon="ri-add-line" severity="primary" size="small" class="btn-new-kit"
+          @click="openCreateDialog" />
       </div>
     </div>
 
     <!-- Cards de Métricas Oficiais do Design System -->
     <div class="metrics-grid">
-      <MetricCard
-        label="Total de Kits"
-        :value="kitStore.kits.length"
-        icon="ri-gift-line"
-        color="rose"
-        :is-clickable="true"
-        :is-active="selectedStatusFilter === 'all'"
-        @click="selectedStatusFilter = 'all'"
-      />
+      <MetricCard label="Total de Kits" :value="kitStore.kits.length" icon="ri-gift-line" color="rose"
+        :is-clickable="true" :is-active="selectedStatusFilter === 'all'" @click="selectedStatusFilter = 'all'" />
 
-      <MetricCard
-        label="Kits Ativos"
-        :value="kitStore.activeKits.length"
-        icon="ri-checkbox-circle-line"
-        color="emerald"
-        :is-clickable="true"
-        :is-active="selectedStatusFilter === 'active'"
-        @click="selectedStatusFilter = 'active'"
-      />
+      <MetricCard label="Kits Ativos" :value="kitStore.activeKits.length" icon="ri-checkbox-circle-line" color="emerald"
+        :is-clickable="true" :is-active="selectedStatusFilter === 'active'" @click="selectedStatusFilter = 'active'" />
 
-      <MetricCard
-        label="Sem Estoque de Montagem"
-        :value="outOfStockCount"
-        icon="ri-error-warning-line"
-        color="amber"
-        :is-clickable="true"
-        :is-active="selectedStatusFilter === 'out_of_stock'"
-        @click="selectedStatusFilter = 'out_of_stock'"
-      />
+      <MetricCard label="Sem Estoque de Montagem" :value="outOfStockCount" icon="ri-error-warning-line" color="amber"
+        :is-clickable="true" :is-active="selectedStatusFilter === 'out_of_stock'"
+        @click="selectedStatusFilter = 'out_of_stock'" />
 
-      <MetricCard
-        label="Campanhas Ativas"
-        :value="activeCampaignsCount"
-        icon="ri-calendar-check-line"
-        color="purple"
-      />
+      <MetricCard label="Campanhas Ativas" :value="activeCampaignsCount" icon="ri-calendar-check-line" color="purple" />
     </div>
 
     <!-- Barra de Filtros & Visualização -->
@@ -69,65 +38,33 @@
       <div class="search-box">
         <IconField class="w-full">
           <InputIcon class="ri-search-line" />
-          <InputText
-            v-model="searchQuery"
-            placeholder="Buscar por nome do kit ou código de barras..."
-            size="small"
-            fluid
-          />
+          <InputText v-model="searchQuery" placeholder="Buscar por nome do kit ou código de barras..." size="small"
+            fluid />
         </IconField>
       </div>
 
       <!-- Filtro por Campanha -->
       <div class="filter-campaign">
-        <Select
-          v-model="selectedCampaignFilter"
-          :options="campaignFilterOptions"
-          option-label="label"
-          option-value="value"
-          :filter="true"
-          filter-placeholder="Buscar campanha..."
-          placeholder="Filtrar por Campanha"
-          size="small"
-          class="w-full md:w-56"
-        />
+        <Select v-model="selectedCampaignFilter" :options="campaignFilterOptions" option-label="label"
+          option-value="value" :filter="true" filter-placeholder="Buscar campanha..." placeholder="Filtrar por Campanha"
+          size="small" class="w-full md:w-56" />
       </div>
 
       <!-- Filtro por Status -->
       <div class="filter-status">
-        <Select
-          v-model="selectedStatusFilter"
-          :options="statusFilterOptions"
-          option-label="label"
-          option-value="value"
-          :filter="true"
-          filter-placeholder="Buscar status..."
-          placeholder="Status"
-          size="small"
-          class="w-full md:w-44"
-        />
+        <Select v-model="selectedStatusFilter" :options="statusFilterOptions" option-label="label" option-value="value"
+          :filter="true" filter-placeholder="Buscar status..." placeholder="Status" size="small"
+          class="w-full md:w-44" />
       </div>
 
       <!-- Alternador de Visualização (Cards vs Tabela) com Botões Square -->
       <div class="view-toggle flex items-center gap-1.5 ml-auto">
-        <Button
-          icon="ri-grid-fill"
-          :severity="viewMode === 'grid' ? 'primary' : 'secondary'"
-          :variant="viewMode === 'grid' ? 'solid' : 'outlined'"
-          size="small"
-          class="w-9! h-9!"
-          title="Visualização em Grade de Cards"
-          @click="viewMode = 'grid'"
-        />
-        <Button
-          icon="ri-table-line"
-          :severity="viewMode === 'table' ? 'primary' : 'secondary'"
-          :variant="viewMode === 'table' ? 'solid' : 'outlined'"
-          size="small"
-          class="w-9! h-9!"
-          title="Visualização em Tabela"
-          @click="viewMode = 'table'"
-        />
+        <Button icon="ri-grid-fill" :severity="viewMode === 'grid' ? 'primary' : 'secondary'"
+          :variant="viewMode === 'grid' ? 'solid' : 'outlined'" size="small" class="w-9! h-9!"
+          title="Visualização em Grade de Cards" @click="viewMode = 'grid'" />
+        <Button icon="ri-table-line" :severity="viewMode === 'table' ? 'primary' : 'secondary'"
+          :variant="viewMode === 'table' ? 'solid' : 'outlined'" size="small" class="w-9! h-9!"
+          title="Visualização em Tabela" @click="viewMode = 'table'" />
       </div>
     </div>
 
@@ -141,44 +78,26 @@
         <p class="empty-desc">
           {{ searchQuery || selectedCampaignFilter !== 'all' ? 'Tente ajustar os filtros de busca.' : 'Crie seu primeiro combo comemorativo para alavancar as vendas.' }}
         </p>
-        <Button
-          label="Cadastrar Primeiro Kit"
-          icon="ri-add-line"
-          severity="primary"
-          size="small"
-          @click="openCreateDialog"
-        />
+        <Button label="Cadastrar Primeiro Kit" icon="ri-add-line" severity="primary" size="small"
+          @click="openCreateDialog" />
       </div>
 
       <div v-else class="kits-grid">
-        <KitCard
-          v-for="kit in filteredKits"
-          :key="kit.$id"
-          :kit="kit"
-          @edit="openEditDialog"
-          @delete="confirmDeleteKit"
-          @toggle-status="handleToggleStatus"
-        />
+        <KitCard v-for="kit in filteredKits" :key="kit.$id" :kit="kit" @edit="openEditDialog" @delete="confirmDeleteKit"
+          @toggle-status="handleToggleStatus" />
       </div>
     </div>
 
     <!-- Visualização em Tabela DataTable -->
     <div v-else class="table-container glass-panel">
-      <DataTable
-        :value="filteredKits"
-        paginator
-        :rows="10"
-        :rows-per-page-options="[10, 20, 50]"
-        data-key="$id"
-        :loading="kitStore.isLoading"
-        responsive-layout="scroll"
-        empty-message="Nenhum kit encontrado."
-      >
+      <DataTable :value="filteredKits" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" data-key="$id"
+        :loading="kitStore.isLoading" responsive-layout="scroll" empty-message="Nenhum kit encontrado.">
         <!-- Campanha -->
         <Column field="campaign_event" header="Campanha" sortable style="min-width: 150px">
           <template #body="{ data }">
             <div class="flex items-center gap-1.5">
-              <i :class="getCampaignEvent(data.campaign_event).icon" :style="{ color: getCampaignEvent(data.campaign_event).color }"></i>
+              <i :class="getCampaignEvent(data.campaign_event).icon"
+                :style="{ color: getCampaignEvent(data.campaign_event).color }"></i>
               <span class="font-bold text-xs" :style="{ color: getCampaignEvent(data.campaign_event).color }">
                 {{ getCampaignEvent(data.campaign_event).label }}
               </span>
@@ -216,10 +135,8 @@
         <!-- Estoque Disponível para Montagem -->
         <Column header="Estoque Montável" sortable style="min-width: 140px">
           <template #body="{ data }">
-            <span
-              class="font-bold text-xs px-2 py-0.5 rounded"
-              :class="kitStore.getAvailableStock(data) > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'"
-            >
+            <span class="font-bold text-xs px-2 py-0.5 rounded"
+              :class="kitStore.getAvailableStock(data) > 0 ? 'bg-emerald-50 text-emerald-700' : 'bg-rose-50 text-rose-700'">
               {{ kitStore.getAvailableStock(data) }} kits
             </span>
           </template>
@@ -228,10 +145,7 @@
         <!-- Status -->
         <Column field="is_active" header="Status" sortable style="min-width: 100px">
           <template #body="{ data }">
-            <ToggleSwitch
-              :model-value="data.is_active"
-              @update:model-value="handleToggleStatus(data)"
-            />
+            <ToggleSwitch :model-value="data.is_active" @update:model-value="handleToggleStatus(data)" />
           </template>
         </Column>
 
@@ -239,24 +153,10 @@
         <Column header="Ações" style="min-width: 110px" body-class="text-right">
           <template #body="{ data }">
             <div class="flex items-center justify-end gap-1">
-              <Button
-                icon="ri-edit-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Editar"
-                @click="openEditDialog(data)"
-              />
-              <Button
-                icon="ri-delete-bin-line"
-                severity="danger"
-                variant="text"
-                rounded
-                size="small"
-                title="Excluir"
-                @click="confirmDeleteKit(data)"
-              />
+              <Button icon="ri-edit-line" severity="secondary" variant="text" rounded size="small" title="Editar"
+                @click="openEditDialog(data)" />
+              <Button icon="ri-delete-bin-line" severity="danger" variant="text" rounded size="small" title="Excluir"
+                @click="confirmDeleteKit(data)" />
             </div>
           </template>
         </Column>
@@ -264,11 +164,7 @@
     </div>
 
     <!-- Modal de Cadastro / Edição -->
-    <KitFormDialog
-      v-model:visible="showFormDialog"
-      :editing-kit="selectedKitForEdit"
-      @saved="kitStore.fetchKits"
-    />
+    <KitFormDialog v-model:visible="showFormDialog" :editing-kit="selectedKitForEdit" @saved="kitStore.fetchKits" />
   </div>
 </template>
 
@@ -282,7 +178,7 @@ import Select from 'primevue/select'
 import ToggleSwitch from 'primevue/toggleswitch'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useToast } from 'primevue/usetoast'
 
 import type { IKit } from '@/types/kit'
@@ -295,7 +191,7 @@ import KitFormDialog from '@/components/kits/KitFormDialog.vue'
 import { formatCurrency } from '@/utils/currency'
 import { parseErrorMessage } from '@/types/errors'
 
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 const toast = useToast()
 const kitStore = useKitStore()
 const productStore = useProductStore()
@@ -384,7 +280,7 @@ async function handleToggleStatus(kit: IKit): Promise<void> {
       severity: 'info',
       summary: kit.is_active ? 'Kit Ativado' : 'Kit Desativado',
       detail: `O status do kit "${kit.name}" foi alterado.`,
-      life: 2500
+      life: 3000
     })
   } catch (error: unknown) {
     toast.add({
@@ -397,13 +293,13 @@ async function handleToggleStatus(kit: IKit): Promise<void> {
 }
 
 function confirmDeleteKit(kit: IKit): void {
-  confirm.require({
+  requireConfirm({
     message: `Tem certeza que deseja excluir o kit "${kit.name}"? Os produtos originais continuarão no catálogo normalmente.`,
     header: 'Excluir Kit Promocional',
-    icon: 'ri-error-warning-line',
-    rejectLabel: 'Cancelar',
+    icon: 'ri-alert-line',
     acceptLabel: 'Excluir Kit',
-    acceptProps: { severity: 'danger' },
+    rejectLabel: 'Cancelar',
+    severity: 'error',
     accept: async () => {
       try {
         await kitStore.removeKit(kit)
@@ -418,7 +314,7 @@ function confirmDeleteKit(kit: IKit): void {
           severity: 'error',
           summary: 'Erro ao excluir kit',
           detail: parseErrorMessage(error),
-          life: 4000
+          life: 3000
         })
       }
     }
@@ -568,21 +464,26 @@ function confirmDeleteKit(kit: IKit): void {
     align-items: flex-start;
     gap: 0.75rem;
   }
+
   .btn-new-kit {
     width: 100%;
     justify-content: center;
   }
+
   .metrics-grid {
     grid-template-columns: 1fr;
   }
+
   .filters-bar {
     flex-direction: column;
     align-items: stretch;
   }
+
   .view-toggle {
     margin-left: 0;
     justify-content: flex-end;
   }
+
   .kits-grid {
     grid-template-columns: 1fr;
   }

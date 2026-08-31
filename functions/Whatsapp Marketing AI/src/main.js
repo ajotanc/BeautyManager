@@ -29,7 +29,7 @@ export default async ({ req, res, log, error }) => {
     const ai = new GoogleGenAI({ apiKey });
     const prompt = getPromptForType(isProductMode ? productName : customerName, messageType, customSubject, isProductMode);
 
-    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'];
+    const modelsToTry = ['gemini-3.6-flash', 'gemini-2.5-flash'];
     
     let resultText = '';
     let success = false;

@@ -44,21 +44,6 @@ defineProps<{
   gap: 0.65rem;
 }
 
-.header-icon-box {
-  width: 38px;
-  height: 38px;
-  border-radius: 8px;
-  background: #fff1f2;
-  border: 1px solid #fecdd3;
-  color: #e11d48;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-  box-shadow: 0 1px 2px rgba(225, 29, 72, 0.05);
-}
-
 .header-title-meta {
   display: flex;
   flex-direction: column;

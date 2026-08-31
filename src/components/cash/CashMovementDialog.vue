@@ -106,7 +106,7 @@ async function handleSubmit(): Promise<void> {
       severity: 'success',
       summary: movementType.value === 'OUT' ? 'Sangria Realizada' : 'Suprimento Registrado',
       detail: `${formatCurrency(amount.value)} - ${justification}`,
-      life: 3000
+      life: 3000, group: 'expanded'
     })
     reason.value = ''
     emit('completed')
@@ -116,7 +116,7 @@ async function handleSubmit(): Promise<void> {
       severity: 'error',
       summary: 'Erro na movimentação',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000, group: 'expanded'
     })
   } finally {
     isSubmitting.value = false

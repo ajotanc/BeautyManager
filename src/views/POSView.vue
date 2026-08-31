@@ -29,8 +29,8 @@
               <InputIcon class="ri-barcode-line" />
               <AutoComplete input-id="pos-barcode-scanner-input" v-model="searchQuery" :suggestions="searchSuggestions"
                 option-label="name" placeholder="Escaneie o código ou busque por produto ou kit..." size="small" fluid
-                autofocus panel-class="pos-search-overlay" @complete="handleSearchComplete"
-                @item-select="onItemSelect" @keydown.enter.prevent="handleBarcodeSubmit">
+                autofocus panel-class="pos-search-overlay" @complete="handleSearchComplete" @item-select="onItemSelect"
+                @keydown.enter.prevent="handleBarcodeSubmit">
                 <template #option="{ option }">
                   <div
                     class="flex items-center justify-between w-full py-2 px-2 gap-3 hover:bg-rose-50/60 rounded-lg transition-colors">
@@ -51,7 +51,7 @@
                         </span>
                       </div>
                     </div>
-                    <span class="font-title font-black text-[1rem] text-(--p-brand-600) whitespace-nowrap">
+                    <span class="font-title font-black text-base text-(--p-brand-600) whitespace-nowrap">
                       {{ formatCurrency(option.selling_price) }}
                     </span>
                   </div>
@@ -231,10 +231,10 @@ function onItemSelect(event: { value: PosSearchItem }): void {
 
   if (event.value.type === 'product' && event.value.product) {
     posStore.addToCart(event.value.product, 1)
-    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: event.value.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: event.value.name, life: 3000 })
   } else if (event.value.type === 'kit' && event.value.kit) {
     posStore.addKitToCart(event.value.kit, 1)
-    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: event.value.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: event.value.name, life: 3000 })
   }
 
   searchQuery.value = ''
@@ -256,7 +256,7 @@ useBarcodeScanner({
     }
     const success = await posStore.addByBarcode(barcode)
     if (success) {
-      toast.add({ severity: 'success', summary: 'Item Bipado', detail: `Código: ${barcode}`, life: 2000 })
+      toast.add({ severity: 'success', summary: 'Item Bipado', detail: `Código: ${barcode}`, life: 3000 })
       searchQuery.value = ''
       searchSuggestions.value = []
     } else {
@@ -277,7 +277,7 @@ usePosKeyboardShortcuts({
       return
     }
     if (posStore.cart.length === 0) {
-      toast.add({ severity: 'info', summary: 'Carrinho Vazio', detail: 'Adicione produtos ao carrinho antes de finalizar a venda.', life: 2500 })
+      toast.add({ severity: 'info', summary: 'Carrinho Vazio', detail: 'Adicione produtos ao carrinho antes de finalizar a venda.', life: 3000 })
       return
     }
     showPaymentDialog.value = true
@@ -314,7 +314,7 @@ async function handleBarcodeSubmit(): Promise<void> {
     posStore.addToCart(exactByBarcode, 1)
     searchQuery.value = ''
     searchSuggestions.value = []
-    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByBarcode.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByBarcode.name, life: 3000 })
     focusBarcodeInput()
     return
   }
@@ -324,7 +324,7 @@ async function handleBarcodeSubmit(): Promise<void> {
     posStore.addKitToCart(exactKitByBarcode, 1)
     searchQuery.value = ''
     searchSuggestions.value = []
-    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByBarcode.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByBarcode.name, life: 3000 })
     focusBarcodeInput()
     return
   }
@@ -335,7 +335,7 @@ async function handleBarcodeSubmit(): Promise<void> {
     posStore.addToCart(exactByName, 1)
     searchQuery.value = ''
     searchSuggestions.value = []
-    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByName.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Item Adicionado', detail: exactByName.name, life: 3000 })
     focusBarcodeInput()
     return
   }
@@ -345,7 +345,7 @@ async function handleBarcodeSubmit(): Promise<void> {
     posStore.addKitToCart(exactKitByName, 1)
     searchQuery.value = ''
     searchSuggestions.value = []
-    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByName.name, life: 2000 })
+    toast.add({ severity: 'success', summary: 'Kit Adicionado', detail: exactKitByName.name, life: 3000 })
     focusBarcodeInput()
     return
   }

@@ -125,7 +125,7 @@ app.use(PrimeVue, {
   theme: {
     preset: BeautyManagerPreset,
     options: {
-      darkModeSelector: '.dark-mode',
+      darkModeSelector: false,
       cssLayer: {
         name: 'primevue',
         order: 'theme, base, primevue'

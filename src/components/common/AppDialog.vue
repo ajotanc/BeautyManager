@@ -1,23 +1,13 @@
 <template>
-  <Dialog
-    :visible="visible"
-    :modal="modal"
-    :dismissable-mask="dismissableMask"
-    :closable="closable"
-    :style="{ width, maxWidth, maxHeight: '90vh' }"
-    :content-style="computedContentStyle"
-    class="app-dialog"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+  <Dialog :visible="visible" :modal="modal" :dismissable-mask="dismissableMask" :closable="closable"
+    :style="{ width, maxWidth, maxHeight: '90vh' }" :content-style="computedContentStyle" class="app-dialog"
+    @update:visible="(val) => emit('update:visible', val)">
     <!-- Custom Unified Header -->
     <template #header>
       <slot name="header">
         <div class="dialog-custom-header flex items-center justify-between w-full pr-2">
           <div class="flex items-center gap-3">
-            <div
-              v-if="icon"
-              class="header-icon-box"
-            >
+            <div v-if="icon" class="header-icon-box">
               <i :class="icon"></i>
             </div>
             <div class="header-text flex flex-col">
@@ -98,19 +88,6 @@ const emit = defineEmits<{
   gap: 0.85rem;
 }
 
-.header-icon-box {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--p-brand-50);
-  color: var(--p-brand-600);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
 .header-title {
   font-family: var(--font-title);
   font-size: 1.15rem;
@@ -135,5 +112,4 @@ const emit = defineEmits<{
   padding-top: 1.25rem;
   border-top: 1px solid var(--border-subtle);
 }
-
 </style>

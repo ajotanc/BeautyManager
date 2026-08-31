@@ -17,15 +17,8 @@
         <form @submit.prevent="handleLogin" class="login-form">
           <div class="field-item">
             <FloatLabel variant="in">
-              <InputText
-                id="login_email"
-                v-model="email"
-                type="email"
-                size="small"
-                fluid
-                :invalid="!!errors.email"
-                autofocus
-              />
+              <InputText id="login_email" v-model="email" type="email" size="small" fluid :invalid="!!errors.email"
+                autofocus />
               <label for="login_email">E-mail de Acesso *</label>
             </FloatLabel>
             <Message v-if="errors.email" severity="error" size="small" variant="simple">
@@ -35,14 +28,8 @@
 
           <div class="field-item">
             <FloatLabel variant="in">
-              <InputText
-                id="login_password"
-                v-model="password"
-                type="password"
-                size="small"
-                fluid
-                :invalid="!!errors.password"
-              />
+              <InputText id="login_password" v-model="password" type="password" size="small" fluid
+                :invalid="!!errors.password" />
               <label for="login_password">Senha de Acesso *</label>
             </FloatLabel>
             <Message v-if="errors.password" severity="error" size="small" variant="simple">
@@ -50,15 +37,8 @@
             </Message>
           </div>
 
-          <Button
-            type="submit"
-            label="Entrar no Sistema"
-            icon="ri-login-box-line"
-            severity="primary"
-            size="small"
-            :loading="isLoading"
-            class="submit-login-btn"
-          />
+          <Button type="submit" label="Entrar no Sistema" icon="ri-login-box-line" severity="primary" size="small"
+            :loading="isLoading" class="submit-login-btn" />
         </form>
       </Fluid>
 
@@ -144,7 +124,7 @@ async function handleLogin(): Promise<void> {
       severity: 'error',
       summary: 'Falha no Login',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isLoading.value = false

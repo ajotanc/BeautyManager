@@ -1,37 +1,17 @@
 <template>
-  <AppDialog
-    :visible="visible"
-    title="Gerenciar Categorias"
-    subtitle="Cadastre, edite ou remova as categorias dos produtos"
-    icon="ri-folder-3-line"
-    width="480px"
-    @update:visible="(val) => emit('update:visible', val)"
-  >
+  <AppDialog :visible="visible" title="Gerenciar Categorias"
+    subtitle="Cadastre, edite ou remova as categorias dos produtos" icon="ri-folder-3-line" width="480px"
+    @update:visible="(val) => emit('update:visible', val)">
     <div class="flex flex-col gap-4">
       <!-- Barra de Inserção / Edição Rápida -->
       <InputGroup>
-        <InputText
-          id="category_input"
-          v-model="categoryName"
-          :invalid="!!errorMsg"
-          @keyup.enter="saveCategory"
-          placeholder="Nome da Categoria..."
-        />
-        
-        <Button
-          v-if="selectedCategory.$id"
-          icon="ri-close-line"
-          severity="secondary"
-          @click="cancelEdit"
-        />
-        <Button
-          :label="selectedCategory.$id ? 'Salvar' : 'Adicionar'"
-          :icon="selectedCategory.$id ? 'ri-check-line' : 'ri-add-line'"
-          severity="primary"
-          class="font-semibold px-4"
-          :loading="isSubmitting"
-          @click="saveCategory"
-        />
+        <InputText id="category_input" v-model="categoryName" :invalid="!!errorMsg" @keyup.enter="saveCategory"
+          placeholder="Nome da Categoria..." />
+
+        <Button v-if="selectedCategory.$id" icon="ri-close-line" severity="secondary" @click="cancelEdit" />
+        <Button :label="selectedCategory.$id ? 'Salvar' : 'Adicionar'"
+          :icon="selectedCategory.$id ? 'ri-check-line' : 'ri-add-line'" severity="primary" class="font-semibold px-4"
+          :loading="isSubmitting" @click="saveCategory" />
       </InputGroup>
 
       <Message v-if="errorMsg" severity="error" size="small" variant="simple">
@@ -39,21 +19,12 @@
       </Message>
 
       <!-- Tabela de Categorias -->
-      <DataTable
-        :value="productStore.categories"
-        scrollable
-        scrollHeight="260px"
-        size="small"
-        data-key="$id"
-        class="border rounded-lg overflow-hidden border-(--border-color)"
-        empty-message="Nenhuma categoria cadastrada."
-      >
+      <DataTable :value="productStore.categories" scrollable scrollHeight="260px" size="small" data-key="$id"
+        class="border rounded-lg overflow-hidden border-(--border-color)" empty-message="Nenhuma categoria cadastrada.">
         <Column field="name" header="Nome">
           <template #body="{ data }">
-            <span
-              class="text-sm"
-              :class="selectedCategory.$id === data.$id ? 'font-bold text-(--p-brand-600)' : 'font-medium text-(--text-primary)'"
-            >
+            <span class="text-sm"
+              :class="selectedCategory.$id === data.$id ? 'font-bold text-(--p-brand-600)' : 'font-medium text-(--text-primary)'">
               {{ data.name }}
             </span>
           </template>
@@ -62,24 +33,10 @@
         <Column header="Ações" style="width: 88px" bodyClass="text-right">
           <template #body="{ data }">
             <div class="flex items-center justify-end gap-1">
-              <Button
-                icon="ri-pencil-line"
-                severity="secondary"
-                variant="text"
-                rounded
-                size="small"
-                title="Editar"
-                @click="editCategory(data)"
-              />
-              <Button
-                icon="ri-delete-bin-line"
-                severity="danger"
-                variant="text"
-                rounded
-                size="small"
-                title="Excluir"
-                @click="confirmDelete(data)"
-              />
+              <Button icon="ri-pencil-line" severity="secondary" variant="text" rounded size="small" title="Editar"
+                @click="editCategory(data)" />
+              <Button icon="ri-delete-bin-line" severity="danger" variant="text" rounded size="small" title="Excluir"
+                @click="confirmDelete(data)" />
             </div>
           </template>
         </Column>
@@ -88,14 +45,8 @@
 
     <template #footer>
       <div class="flex items-center justify-end gap-2.5 w-full">
-        <Button
-          label="Fechar"
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          @click="emit('update:visible', false)"
-        />
+        <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+          @click="emit('update:visible', false)" />
       </div>
     </template>
   </AppDialog>
@@ -110,7 +61,7 @@ import InputGroup from 'primevue/inputgroup'
 import DataTable from 'primevue/datatable'
 import Column from 'primevue/column'
 import Message from 'primevue/message'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useProductStore } from '@/stores/productStore'
 import { CategoryService } from '@/services/categories'
 import type { ICategory } from '@/types/category'
@@ -133,7 +84,7 @@ const emit = defineEmits<{
 
 const productStore = useProductStore()
 const toast = useToast()
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 
 const selectedCategory = ref<ICategory>({} as ICategory)
 const categoryName = ref<string>('')
@@ -196,13 +147,13 @@ async function saveCategory(): Promise<void> {
 }
 
 function confirmDelete(cat: ICategory): void {
-  confirm.require({
+  requireConfirm({
     header: 'Excluir Categoria',
     message: `Tem certeza que deseja excluir "${cat.name}"? Esta ação não pode ser desfeita.`,
     icon: 'ri-alert-line',
     acceptLabel: 'Excluir',
-    acceptClass: 'p-button-danger',
     rejectLabel: 'Cancelar',
+    severity: 'error',
     accept: async () => {
       try {
         await CategoryService.delete(cat.$id)

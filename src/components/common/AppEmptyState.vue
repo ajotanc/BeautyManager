@@ -1,20 +1,14 @@
 <template>
   <div class="app-empty-state">
-    <div class="empty-icon-circle">
+    <div class="header-icon-box xl">
       <i :class="icon"></i>
     </div>
     <h3 class="empty-title">{{ title }}</h3>
     <p v-if="description" class="empty-description">{{ description }}</p>
     <div v-if="$slots.action || actionLabel" class="empty-actions">
       <slot name="action">
-        <Button
-          v-if="actionLabel"
-          :label="actionLabel"
-          :icon="actionIcon"
-          :severity="actionSeverity"
-          size="small"
-          @click="emit('action')"
-        />
+        <Button v-if="actionLabel" :label="actionLabel" :icon="actionIcon" :severity="actionSeverity" size="small"
+          @click="emit('action')" />
       </slot>
     </div>
   </div>
@@ -58,21 +52,6 @@ const emit = defineEmits<{
   width: 100%;
   flex: 1;
   min-height: 0;
-}
-
-.empty-icon-circle {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--p-brand-50, #ffebf0);
-  color: var(--p-brand-600, #fd0054);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  margin-bottom: 0.15rem;
-  border: 1px solid var(--p-brand-200, #ffa3bc);
-  box-shadow: 0 2px 8px rgba(253, 0, 84, 0.06);
 }
 
 .empty-title {

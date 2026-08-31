@@ -2,11 +2,7 @@
   <div>
     <!-- Backdrop Overlay para Mobile -->
     <transition name="fade">
-      <div
-        v-if="isMobileSidebarOpen"
-        class="sidebar-backdrop"
-        @click="closeMobileSidebar"
-      ></div>
+      <div v-if="isMobileSidebarOpen" class="sidebar-backdrop" @click="closeMobileSidebar"></div>
     </transition>
 
     <aside class="app-sidebar" :class="{ 'is-mobile-open': isMobileSidebarOpen }">
@@ -18,22 +14,15 @@
           </div>
           <span class="font-bold text-sm text-(--text-primary)">Navegação</span>
         </div>
-        <Button
-          icon="ri-close-line"
-          severity="secondary"
-          variant="text"
-          size="small"
-          rounded
-          aria-label="Fechar Menu"
-          @click="closeMobileSidebar"
-        />
+        <Button icon="ri-close-line" severity="secondary" variant="text" size="small" rounded aria-label="Fechar Menu"
+          @click="closeMobileSidebar" />
       </div>
 
       <nav class="sidebar-nav">
         <!-- Seção Operacional (Para todos) -->
         <div class="nav-group">
           <span class="group-label">ATENDIMENTO & VENDAS</span>
-          
+
           <router-link to="/checkout" class="nav-item" active-class="is-active" @click="closeMobileSidebar">
             <i class="ri-shopping-bag-3-line"></i>
             <span>Frente de Caixa</span>
@@ -99,11 +88,7 @@
       <div class="sidebar-bottom-block">
         <div class="sidebar-user-card">
           <div class="user-card-top">
-            <Avatar
-              icon="ri-user-3-line"
-              shape="circle"
-              class="user-card-avatar"
-            />
+            <Avatar icon="ri-user-3-line" shape="circle" class="user-card-avatar" />
             <div class="user-card-meta">
               <span class="user-card-name" :title="authStore.userName">{{ authStore.userName }}</span>
               <span class="user-card-role" :class="{ 'is-admin': authStore.isAdmin }">
@@ -111,16 +96,8 @@
                 {{ authStore.isAdmin ? 'Administrador' : 'Operador' }}
               </span>
             </div>
-            <Button
-              icon="ri-logout-box-r-line"
-              severity="danger"
-              variant="text"
-              rounded
-              size="small"
-              class="logout-icon-btn"
-              title="Encerrar Sessão"
-              @click="handleLogout"
-            />
+            <Button icon="ri-logout-box-r-line" severity="danger" variant="text" rounded size="small"
+              class="logout-icon-btn" title="Encerrar Sessão" @click="handleLogout" />
           </div>
         </div>
 

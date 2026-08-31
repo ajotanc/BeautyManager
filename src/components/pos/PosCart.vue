@@ -135,7 +135,7 @@
 </template>
 
 <script setup lang="ts">
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import InputNumber from 'primevue/inputnumber'
 import Button from 'primevue/button'
 import AppEmptyState from '@/components/common/AppEmptyState.vue'
@@ -148,7 +148,7 @@ const emit = defineEmits<{
 }>()
 
 const posStore = usePosStore()
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 
 function applyFixedDiscount(amount: number): void {
   const finalDiscount = Math.min(amount, posStore.subtotal)
@@ -161,12 +161,13 @@ function applyPercentageDiscount(percent: number): void {
 }
 
 function confirmClearCart(): void {
-  confirm.require({
+  requireConfirm({
     message: 'Deseja realmente limpar todos os itens do carrinho?',
     header: 'Confirmar Limpeza',
     icon: 'ri-alert-line',
     acceptLabel: 'Sim, limpar',
     rejectLabel: 'Cancelar',
+    severity: 'error',
     accept: () => {
       posStore.clearCart()
     }

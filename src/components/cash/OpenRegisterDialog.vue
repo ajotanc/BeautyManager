@@ -124,7 +124,7 @@ async function handleOpen(): Promise<void> {
       severity: 'error',
       summary: 'Erro ao abrir caixa',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSubmitting.value = false

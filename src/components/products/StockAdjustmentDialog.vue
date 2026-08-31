@@ -87,7 +87,8 @@
         <div class="field-section">
           <label class="section-label">Motivo do Ajuste *</label>
           <Select id="adj_reason" v-model="reason" :options="reasonOptions" option-label="label" option-value="value"
-            :filter="true" filter-placeholder="Buscar motivo..." size="small" fluid class="custom-select" :invalid="!!errors.reason" required />
+            :filter="true" filter-placeholder="Buscar motivo..." size="small" fluid class="custom-select"
+            :invalid="!!errors.reason" required />
           <Message v-if="errors.reason" severity="error" size="small" variant="simple">
             {{ errors.reason }}
           </Message>
@@ -269,7 +270,7 @@ async function handleSubmit(): Promise<void> {
       severity: 'error',
       summary: 'Erro ao movimentar estoque',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSubmitting.value = false

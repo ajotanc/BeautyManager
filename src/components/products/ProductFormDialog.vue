@@ -410,7 +410,7 @@ async function handleSubmit(
       severity: 'error',
       summary: 'Erro ao salvar produto',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSubmitting.value = false

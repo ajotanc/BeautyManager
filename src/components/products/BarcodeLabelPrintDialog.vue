@@ -155,18 +155,7 @@ const { handlePrint } = useVueToPrint({
   gap: 0.85rem;
 }
 
-.header-icon-box {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--p-brand-100);
-  color: var(--p-brand-700);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.35rem;
-  border: 1px solid var(--p-brand-300);
-}
+
 
 .header-title {
   font-family: var(--font-title);

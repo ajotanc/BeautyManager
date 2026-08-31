@@ -127,11 +127,8 @@
         </Column>
 
         <template #empty>
-          <AppEmptyState
-            icon="ri-box-3-line"
-            title="Nenhum produto cadastrado"
-            description="Cadastre seu primeiro produto para gerenciar estoque, preços e realizar vendas."
-          />
+          <AppEmptyState icon="ri-box-3-line" title="Nenhum produto cadastrado"
+            description="Cadastre seu primeiro produto para gerenciar estoque, preços e realizar vendas." />
         </template>
       </DataTable>
     </div>
@@ -170,7 +167,7 @@ import type { IProduct } from '@/types/product'
 import { formatCurrency, formatPercent } from '@/utils/currency'
 import { formatDate, isExpiringSoon, isExpired } from '@/utils/date'
 import { exportToExcel } from '@/utils/exportExcel'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useToast } from 'primevue/usetoast'
 import { FilterMatchMode } from '@primevue/core/api'
 
@@ -178,7 +175,7 @@ import { ProductService } from '@/services/products'
 import { parseErrorMessage } from '@/types/errors'
 
 const productStore = useProductStore()
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 const toast = useToast()
 
 const filters = ref({
@@ -213,19 +210,13 @@ function openBarcodePrint(product: IProduct): void {
 }
 
 function confirmDelete(product: IProduct): void {
-  confirm.require({
+  requireConfirm({
     message: `Você tem certeza que deseja excluir o produto "${product.name}"?`,
     header: 'Excluir Produto',
-    icon: 'ri-error-warning-line text-rose-500',
-    rejectProps: {
-      label: 'Não',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sim',
-      severity: 'danger'
-    },
+    icon: 'ri-alert-line',
+    acceptLabel: 'Sim',
+    rejectLabel: 'Não',
+    severity: 'error',
     accept: async () => {
       try {
         await ProductService.delete(product.$id)

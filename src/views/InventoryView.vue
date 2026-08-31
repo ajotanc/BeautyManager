@@ -51,11 +51,8 @@
         </Column>
 
         <template #empty>
-          <AppEmptyState
-            icon="ri-archive-line"
-            title="Nenhuma movimentação encontrada"
-            description="Ainda não há histórico de entradas, saídas ou vendas registradas no estoque."
-          />
+          <AppEmptyState icon="ri-archive-line" title="Nenhuma movimentação encontrada"
+            description="Ainda não há histórico de entradas, saídas ou vendas registradas no estoque." />
         </template>
       </DataTable>
     </div>

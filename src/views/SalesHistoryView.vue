@@ -73,17 +73,15 @@
         </Column>
 
         <template #empty>
-          <AppEmptyState
-            icon="ri-file-list-3-line"
-            title="Nenhuma venda registrada"
-            description="Não foram encontradas vendas concluídas ou canceladas no sistema."
-          />
+          <AppEmptyState icon="ri-file-list-3-line" title="Nenhuma venda registrada"
+            description="Não foram encontradas vendas concluídas ou canceladas no sistema." />
         </template>
       </DataTable>
     </div>
 
     <!-- Modal de Detalhes dos Itens da Venda -->
-    <AppDialog v-model:visible="showDetailsDialog" title="Detalhes da Venda" subtitle="Visualização detalhada dos itens e valores da compra" icon="ri-receipt-line" width="560px">
+    <AppDialog v-model:visible="showDetailsDialog" title="Detalhes da Venda"
+      subtitle="Visualização detalhada dos itens e valores da compra" icon="ri-receipt-line" width="560px">
       <div v-if="selectedSale" class="sale-details-content">
         <div class="details-meta-box">
           <div><strong>Data / Hora:</strong> <span>{{ formatDateTime(selectedSale.$createdAt) }}</span></div>
@@ -111,7 +109,8 @@
       </div>
       <template #footer>
         <div class="flex items-center justify-end gap-2.5 w-full">
-          <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small" @click="showDetailsDialog = false" />
+          <Button label="Fechar" icon="ri-close-line" severity="secondary" variant="text" size="small"
+            @click="showDetailsDialog = false" />
           <Button label="Reimprimir Cupom" icon="ri-printer-line" severity="primary" size="small"
             @click="handleReprint(selectedSale)" />
         </div>
@@ -145,12 +144,12 @@ import { formatPaymentMethod, type ISale } from '@/types/sale'
 import { formatCurrency } from '@/utils/currency'
 import { formatDateTime } from '@/utils/date'
 import { exportToExcel } from '@/utils/exportExcel'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useToast } from 'primevue/usetoast'
 
 const authStore = useAuthStore()
 const settingsStore = useSettingsStore()
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 const toast = useToast()
 const { printReceipt } = useThermalPrinter()
 
@@ -170,8 +169,8 @@ async function fetchSales(): Promise<void> {
 }
 
 async function openSaleDetails(sale: ISale): Promise<void> {
-    selectedSale.value = sale
-    showDetailsDialog.value = true
+  selectedSale.value = sale
+  showDetailsDialog.value = true
 }
 
 async function handleReprint(sale: ISale | null): Promise<void> {
@@ -187,12 +186,13 @@ function openWhatsapp(sale: ISale): void {
 }
 
 function confirmCancelSale(sale: ISale): void {
-  confirm.require({
+  requireConfirm({
     message: `Deseja realmente cancelar a venda #${sale.$id.slice(-6).toUpperCase()} no valor de ${formatCurrency(sale.total_amount)}? Os produtos retornarão ao estoque.`,
     header: 'Cancelar Venda',
     icon: 'ri-alert-line',
     acceptLabel: 'Sim, Cancelar Venda',
     rejectLabel: 'Não',
+    severity: 'error',
     accept: async () => {
       try {
         await sales.cancelSale(sale)

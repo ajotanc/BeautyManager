@@ -34,7 +34,7 @@
             <span class="stat-pill stat-pill-purchases" title="Total de compras registradas no sistema">
               <i class="ri-shopping-bag-3-line"></i>
               {{ Number(customer.total_purchases || 0) }} compra{{ Number(customer.total_purchases || 0) === 1 ? '' :
-              's' }}
+                's' }}
             </span>
 
             <span v-if="customer.last_purchase_at" class="stat-pill stat-pill-recent"
@@ -257,7 +257,7 @@ async function copyText(text: string, label: string): Promise<void> {
       severity: 'info',
       summary: 'Copiado',
       detail: `${label} copiado para a área de transferência.`,
-      life: 2500
+      life: 3000
     })
   } catch {
     toast.add({

@@ -19,14 +19,10 @@ const colorClass = computed(() => {
 </script>
 
 <template>
-  <div
-    class="metric-card glass-panel floating-card"
-    :class="[
-      isClickable ? 'cursor-pointer' : '',
-      isActive ? 'ring-2 ring-(--p-brand-500) ring-offset-2' : ''
-    ]"
-    @click="isClickable ? $emit('click') : undefined"
-  >
+  <div class="metric-card glass-panel floating-card" :class="[
+    isClickable ? 'cursor-pointer' : '',
+    isActive ? 'ring-2 ring-(--p-brand-500) ring-offset-2' : ''
+  ]" @click="isClickable ? $emit('click') : undefined">
     <div class="icon-wrap" :class="colorClass">
       <i :class="icon"></i>
     </div>
@@ -63,7 +59,8 @@ const colorClass = computed(() => {
   box-shadow: var(--shadow-xs);
 }
 
-.bg-rose, .bg-brand {
+.bg-rose,
+.bg-brand {
   background: var(--grad-primary);
   color: #ffffff;
 }
@@ -118,9 +115,24 @@ const colorClass = computed(() => {
   white-space: nowrap;
 }
 
-.text-brand, .text-rose { color: var(--p-brand-600); }
-.text-gold { color: var(--p-gold-600); }
-.text-emerald { color: #059669; }
-.text-amber { color: #d97706; }
-.text-purple { color: #7c3aed; }
+.text-brand,
+.text-rose {
+  color: var(--p-brand-600);
+}
+
+.text-gold {
+  color: var(--p-gold-600);
+}
+
+.text-emerald {
+  color: #059669;
+}
+
+.text-amber {
+  color: #d97706;
+}
+
+.text-purple {
+  color: #7c3aed;
+}
 </style>

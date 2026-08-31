@@ -79,7 +79,7 @@
           <template #body="{ data }">
             <div class="flex items-center gap-2">
               <span v-if="data.birth_date" class="text-sm font-medium text-(--text-primary)">{{ data.birth_date
-                }}</span>
+              }}</span>
               <span v-else class="text-muted">-</span>
               <Tag v-if="isToday(data.birth_date)" severity="success" value="Hoje!" class="mini-tag" />
               <Tag v-else-if="isThisMonth(data.birth_date)" severity="info" value="No Mês" class="mini-tag" />
@@ -160,7 +160,7 @@ import WhatsappMarketingDialog from '@/components/customers/WhatsappMarketingDia
 import { useCustomerStore } from '@/stores/customerStore'
 import { CustomerService } from '@/services/customers'
 import type { ICustomer } from '@/types/customer'
-import { useConfirm } from 'primevue/useconfirm'
+import { useAppConfirm } from '@/composables/useAppConfirm'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { dayjs } from '@/utils/date'
@@ -168,7 +168,7 @@ import { maskCpf } from '@/utils/security'
 import { FilterMatchMode } from '@primevue/core/api'
 
 const customerStore = useCustomerStore()
-const confirm = useConfirm()
+const { requireConfirm } = useAppConfirm()
 const toast = useToast()
 
 const filters = ref({
@@ -190,7 +190,7 @@ onMounted(async () => {
       severity: 'error',
       summary: 'Erro ao carregar clientes',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   }
 })
@@ -256,19 +256,13 @@ function handleCustomerSaved(): void {
 }
 
 function confirmDelete(customer: ICustomer): void {
-  confirm.require({
+  requireConfirm({
     message: `Você tem certeza que deseja excluir o cadastro de "${customer.name}"?`,
     header: 'Excluir Cliente',
-    icon: 'ri-error-warning-line text-rose-500',
-    rejectProps: {
-      label: 'Não',
-      severity: 'secondary',
-      outlined: true
-    },
-    acceptProps: {
-      label: 'Sim',
-      severity: 'danger'
-    },
+    icon: 'ri-alert-line',
+    acceptLabel: 'Sim',
+    rejectLabel: 'Não',
+    severity: 'error',
     accept: async () => {
       try {
         await CustomerService.delete(customer.$id)
@@ -284,7 +278,7 @@ function confirmDelete(customer: ICustomer): void {
           severity: 'error',
           summary: 'Erro ao excluir',
           detail: parseErrorMessage(error),
-          life: 4000
+          life: 3000
         })
       }
     }

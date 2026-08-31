@@ -1,8 +1,8 @@
 <template>
   <div class="app-root">
     <!-- Toast Global para notificações -->
-    <Toast position="top-right" />
-    <ConfirmDialog />
+    <Toast position="top-right" autoZIndex :pt="{ root: { class: 'w-md max-w-[90vw]' } }" />
+    <AppConfirmDialog />
 
     <!-- Tela de Login sem Navbar/Sidebar -->
     <template v-if="isLoginRoute">
@@ -34,7 +34,7 @@
 import { computed, onMounted, onUnmounted, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import Toast from 'primevue/toast'
-import ConfirmDialog from 'primevue/confirmdialog'
+import AppConfirmDialog from '@/components/common/AppConfirmDialog.vue'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppSidebar from '@/components/layout/AppSidebar.vue'
 import { useAuthStore } from '@/stores/authStore'
@@ -108,11 +108,13 @@ function handleGlobalKeydown(event: KeyboardEvent): void {
     return
   }
 
-  // F6 - Clientes (Apenas Admin)
+  // F6 - Clientes (Apenas Admin e fora do Checkout)
   if (event.key === 'F6') {
-    event.preventDefault()
-    if (authStore.isAdmin && route.name !== 'customers') {
-      router.push({ name: 'customers' })
+    if (route.name !== 'checkout') {
+      event.preventDefault()
+      if (authStore.isAdmin && route.name !== 'customers') {
+        router.push({ name: 'customers' })
+      }
     }
     return
   }
@@ -201,6 +203,7 @@ onUnmounted(() => {
     padding: 0.75rem 0.85rem;
     overflow-x: hidden !important;
   }
+
   .app-content:has(.pos-view) {
     padding: 0.75rem 0.85rem;
     overflow-y: auto !important;
@@ -212,12 +215,14 @@ onUnmounted(() => {
   .app-content {
     padding: 0.65rem 0.65rem;
   }
+
   .app-content:has(.pos-view) {
     padding: 0.65rem 0.65rem;
   }
 }
 
 @media print {
+
   #app,
   .app-root,
   .app-body,

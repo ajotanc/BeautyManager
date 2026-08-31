@@ -466,7 +466,7 @@ async function handleSubmit(event: FormSubmitEvent): Promise<void> {
       severity: 'error',
       summary: 'Erro ao salvar',
       detail: parseErrorMessage(error),
-      life: 4000
+      life: 3000
     })
   } finally {
     isSaving.value = false

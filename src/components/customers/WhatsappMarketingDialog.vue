@@ -19,14 +19,15 @@
               </div>
             </template>
             <template #option="slotProps">
-              <div class="flex items-center justify-between w-full !py-1">
+              <div class="flex items-center justify-between w-full py-1!">
                 <div class="flex items-center gap-2.5">
                   <div class="w-8 h-8 rounded-full bg-rose-50 text-rose-500 flex items-center justify-center">
                     <i class="ri-user-smile-line text-lg"></i>
                   </div>
-                  <span class="font-medium text-[var(--text-primary)]">{{ slotProps.option.name }}</span>
+                  <span class="font-medium text-(--text-primary)">{{ slotProps.option.name }}</span>
                 </div>
-                <span class="text-xs font-medium px-2.5 py-1 bg-[var(--bg-secondary)] rounded-md text-[var(--p-brand-600)]">{{ slotProps.option.phone || 'Sem número' }}</span>
+                <span class="text-xs font-medium px-2.5 py-1 bg-(--bg-secondary) rounded-md text-(--p-brand-600)">{{
+                  slotProps.option.phone || 'Sem número' }}</span>
               </div>
             </template>
           </Select>
@@ -46,16 +47,19 @@
               </div>
             </template>
             <template #option="slotProps">
-              <div class="flex items-center justify-between w-full !py-1">
+              <div class="flex items-center justify-between w-full py-1!">
                 <div class="flex items-center gap-2.5">
-                  <div class="w-8 h-8 rounded-full bg-[var(--bg-secondary)] flex items-center justify-center text-[var(--p-brand-500)]">
+                  <div
+                    class="w-8 h-8 rounded-full bg-(--bg-secondary) flex items-center justify-center text-(--p-brand-500)">
                     <i class="ri-shopping-bag-line text-lg"></i>
                   </div>
-                  <span class="font-medium text-[var(--text-primary)]">{{ slotProps.option.name }}</span>
+                  <span class="font-medium text-(--text-primary)">{{ slotProps.option.name }}</span>
                 </div>
                 <Tag v-if="isExpiringSoonFn(slotProps.option.expiry_date)" severity="danger" value="Perto Vencer"
-                  class="text-[10px] !px-2" />
-                <span v-else class="text-xs font-medium px-2.5 py-1 bg-[var(--bg-secondary)] rounded-md text-[var(--text-secondary)]">Est: {{ slotProps.option.stock_quantity }}</span>
+                  class="text-[10px] px-2!" />
+                <span v-else
+                  class="text-xs font-medium px-2.5 py-1 bg-(--bg-secondary) rounded-md text-(--text-secondary)">Est: {{
+                    slotProps.option.stock_quantity }}</span>
               </div>
             </template>
           </Select>
@@ -66,7 +70,7 @@
       <!-- Tipo de Mensagem -->
       <div v-if="(activeMode === 'customer' && selectedCustomer) || (activeMode === 'product' && selectedProduct)"
         class="flex flex-col gap-2">
-        <label class="block text-xs font-bold tracking-wider text-[var(--p-brand-600)] uppercase mt-2 mb-1">
+        <label class="block text-xs font-bold tracking-wider text-(--p-brand-600) uppercase mt-2 mb-1">
           {{ activeMode === 'customer' ? 'Tipo de Mensagem' : 'Estratégia de Venda' }}
         </label>
 
@@ -86,18 +90,18 @@
       <!-- Caixa de Mensagem Final -->
       <div class="message-box mt-3 p-4 glass-panel"
         v-if="selectedType && ((activeMode === 'customer' && selectedCustomer) || (activeMode === 'product' && selectedProduct))">
-        
+
         <div class="flex items-center gap-2 mb-3">
-          <div class="w-6 h-6 rounded-full bg-[var(--p-gold-100)] flex items-center justify-center">
-            <i class="ri-magic-line text-[var(--p-gold-600)] text-xs"></i>
+          <div class="w-6 h-6 rounded-sm bg-(--p-gold-100) flex items-center justify-center">
+            <i class="ri-magic-line text-(--p-gold-600) text-xs"></i>
           </div>
-          <span class="text-sm font-bold text-[var(--text-primary)]">Resultado da IA</span>
+          <span class="text-sm font-bold text-(--text-primary)">Resultado da IA</span>
         </div>
 
-        <Textarea v-model="generatedMessage" rows="6" fluid :disabled="isGenerating" 
-          class="!text-sm !leading-relaxed border-none !bg-[var(--bg-primary)] shadow-inner" placeholder="O anúncio ou mensagem aparecerá aqui..." />
-        
-        <p class="text-[11px] font-medium text-[var(--p-brand-600)] mt-2.5 flex items-center gap-1.5">
+        <Textarea v-model="generatedMessage" rows="6" fluid :disabled="isGenerating" class="text-sm! leading-relaxed!"
+          placeholder="O anúncio ou mensagem aparecerá aqui..." />
+
+        <p class="text-[11px] font-medium text-(--p-brand-600) mt-2.5 flex items-center gap-1.5">
           <i class="ri-edit-line text-sm"></i>
           Você pode editar o texto livremente antes de copiar ou enviar.
         </p>
@@ -265,16 +269,16 @@ async function generateAIMessage() {
 
     if (execution.status === 'completed' && result?.message) {
       generatedMessage.value = result.message
-      toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Anúncio gerado com IA!', life: 2500 })
+      toast.add({ severity: 'success', summary: 'Sucesso', detail: 'Anúncio gerado com IA!', life: 3000 })
     } else if (result?.message) {
       generatedMessage.value = result.message
-      toast.add({ severity: 'warn', summary: 'Aviso', detail: result.error || 'IA indisponível. Usando texto padrão.', life: 4000 })
+      toast.add({ severity: 'warn', summary: 'Aviso', detail: result.error || 'IA indisponível. Usando texto padrão.', life: 3000 })
     } else {
       throw new Error(`Falha na execução: ${execution.responseBody || execution.errors || execution.status}`)
     }
   } catch (error) {
     console.error('Erro ao gerar mensagem via IA:', error)
-    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Erro na IA. O texto precisará ser escrito manualmente.', life: 4000 })
+    toast.add({ severity: 'warn', summary: 'Aviso', detail: 'Erro na IA. O texto precisará ser escrito manualmente.', life: 3000 })
   } finally {
     isGenerating.value = false
   }
@@ -297,7 +301,7 @@ async function copyToClipboard() {
 
   try {
     await navigator.clipboard.writeText(generatedMessage.value)
-    toast.add({ severity: 'success', summary: 'Copiado!', detail: 'Texto copiado para a área de transferência.', life: 2500 })
+    toast.add({ severity: 'success', summary: 'Copiado!', detail: 'Texto copiado para a área de transferência.', life: 3000 })
   } catch (err) {
     toast.add({ severity: 'error', summary: 'Erro', detail: 'Falha ao copiar o texto.', life: 3000 })
   }
