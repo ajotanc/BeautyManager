@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite'
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { IBrand } from '@/types/brand'
 
 export const BrandService = {
@@ -36,7 +36,8 @@ export const BrandService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.BRANDS,
         rowId: ID.unique(),
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao criar marca:', error)

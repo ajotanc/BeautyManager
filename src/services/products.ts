@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite'
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { IProduct } from '@/types/product'
 
 export const ProductService = {
@@ -81,7 +81,8 @@ export const ProductService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.PRODUCTS,
         rowId: ID.unique(),
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao criar produto:', error)
@@ -95,7 +96,8 @@ export const ProductService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.PRODUCTS,
         rowId,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao atualizar produto:', error)
@@ -114,7 +116,8 @@ export const ProductService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.PRODUCTS,
         rowId: id,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro no upsert de produto:', error)
@@ -130,7 +133,8 @@ export const ProductService = {
         rowId,
         data: {
           stock_quantity: newQuantity
-        }
+        },
+        permissions
       })
     } catch (error: unknown) {
       console.error('Erro ao atualizar estoque:', error)

@@ -1,4 +1,4 @@
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { IKit } from '@/types/kit'
 import { ID, Query } from 'appwrite'
 
@@ -83,7 +83,8 @@ export const KitService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.KITS,
         rowId: id,
-        data
+        data,
+        permissions
       })
     } catch (error: unknown) {
       console.error('Erro no saveKit:', error)
@@ -99,7 +100,8 @@ export const KitService = {
         rowId: kitId,
         data: {
           is_active: isActive
-        }
+        },
+        permissions
       })
     } catch (error: unknown) {
       console.error('Erro ao alterar status do kit:', error)

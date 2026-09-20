@@ -356,6 +356,7 @@ function generateRandomBarcode(
   if (formRef.value?.validate) {
     formRef.value.validate('barcode')
   }
+
 }
 
 async function handleSubmit(
@@ -389,7 +390,7 @@ async function handleSubmit(
       selling_price: toDecimalString(sellingPrice.value ?? 0),
       stock_quantity: Number(values.stock_quantity),
       min_stock_alert: Number(values.min_stock_alert),
-      expiry_date: values.expiry_date ? dayjs(values.expiry_date).toISOString() : null,
+      expiry_date: values.expiry_date ? dayjs(values.expiry_date).format("YYYY-MM-DD") : null,
       is_quick_sale: values.is_quick_sale
     }
 
@@ -405,11 +406,12 @@ async function handleSubmit(
     emit('saved', result)
     emit('update:visible', false)
 
-  } catch (error: unknown) {
+  } catch (error) {
+    const message = parseErrorMessage(error)
     toast.add({
       severity: 'error',
       summary: 'Erro ao salvar produto',
-      detail: parseErrorMessage(error),
+      detail: message,
       life: 3000
     })
   } finally {

@@ -22,7 +22,7 @@ export const useSettingsStore = defineStore('settings', () => {
     const id = currentSettings.value?.$id
     isLoading.value = true
     try {
-      const updated = await settings.saveSettings(id, dto)
+      const updated = await settings.upsert(id, dto)
       currentSettings.value = updated
       return updated
     } finally {

@@ -1,4 +1,4 @@
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ISale, ISaleItem } from '@/types/sale'
 import { InventoryService } from './inventory'
 import { ID, Query } from 'appwrite'
@@ -47,7 +47,8 @@ export const SalesService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.SALES,
         rowId: ID.unique(),
-        data
+        data,
+        permissions
       })
 
       if (createdSale.items) {
@@ -94,7 +95,8 @@ export const SalesService = {
         rowId: sale.$id,
         data: {
           status: 'canceled'
-        }
+        },
+        permissions
       })
     } catch (error: unknown) {
       console.error('Erro ao cancelar venda:', error)

@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite'
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ICategory } from '@/types/category'
 
 export const CategoryService = {
@@ -36,7 +36,8 @@ export const CategoryService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CATEGORIES,
         rowId: ID.unique(),
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao criar categoria:', error)
@@ -50,7 +51,8 @@ export const CategoryService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CATEGORIES,
         rowId,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao atualizar categoria:', error)
@@ -69,7 +71,8 @@ export const CategoryService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CATEGORIES,
         rowId: id,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro no upsert de categoria:', error)

@@ -1,4 +1,4 @@
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ICashRegister, ICashMovement } from '@/types/cashRegister'
 import { nowIso, dayjs } from '@/utils/date'
 import { toNumber, toDecimalString } from '@/utils/currency'
@@ -46,13 +46,14 @@ export const CashRegisterService = {
     }
   },
 
-  async create(data: Partial<ICashRegister>): Promise<ICashRegister> {
+  async create(data: ICashRegister): Promise<ICashRegister> {
     try {
       return await databases.createRow({
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CASH_REGISTER,
         rowId: ID.unique(),
-        data: data as ICashRegister
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao criar registro de caixa:', error)
@@ -66,7 +67,8 @@ export const CashRegisterService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CASH_REGISTER,
         rowId,
-        data: data as Record<string, unknown>
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao atualizar registro de caixa:', error)
@@ -85,7 +87,8 @@ export const CashRegisterService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CASH_REGISTER,
         rowId: id,
-        data: data as Record<string, unknown>
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro no upsert de caixa:', error)
@@ -107,7 +110,7 @@ export const CashRegisterService = {
       status: 'open',
       user_id: dto.user_id || '',
       notes: dto.notes || null
-    })
+    } as ICashRegister)
   },
 
   async recordCashMovement(registerId: string, movement: ICashMovement): Promise<ICashRegister> {

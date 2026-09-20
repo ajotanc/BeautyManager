@@ -1,4 +1,4 @@
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { IInventoryTransaction, InventoryReason, InventoryTransactionType } from '@/types/inventory'
 import type { IProduct } from '@/types/product'
 import { ProductService } from './products'
@@ -65,7 +65,8 @@ export const InventoryService = {
           transaction_type: dto.transaction_type,
           quantity: dto.quantity,
           reason: dto.reason
-        }
+        },
+        permissions
       })
     } catch (error) {
       console.error('Erro ao registrar transação de estoque:', error)

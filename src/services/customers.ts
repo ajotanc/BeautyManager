@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite'
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ICustomer } from '@/types/customer'
 import dayjs from 'dayjs'
 
@@ -42,7 +42,8 @@ export const CustomerService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CUSTOMERS,
         rowId: ID.unique(),
-        data
+        data,
+        permissions
       });
     } catch (error) {
       console.error('Erro ao criar cliente:', error)
@@ -56,7 +57,8 @@ export const CustomerService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CUSTOMERS,
         rowId,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro ao atualizar cliente:', error)
@@ -75,7 +77,8 @@ export const CustomerService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.CUSTOMERS,
         rowId: id,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro no upsert de cliente:', error)

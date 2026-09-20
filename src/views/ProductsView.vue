@@ -54,9 +54,11 @@
             <div class="product-name-cell">
               <span class="name-text">{{ data.name }}</span>
               <div class="meta-tags">
-                <span class="cat-brand-tag">{{ data.category.name }} • {{ data.brand.name }}</span>
-                <Tag v-if="data.is_quick_sale" severity="info" value="Venda Rápida" class="mini-tag" />
+                <span v-if="data.category" class="cat-brand-tag">{{ data.category.name }}</span>
+                <span v-if="data.category && data.brand" class="cat-brand-tag">•</span>
+                <span v-if="data.brand" class="cat-brand-tag">{{ data.brand.name }}</span>
               </div>
+              <Tag v-if="data.is_quick_sale" severity="info" value="Venda Rápida" class="mini-tag" />
             </div>
           </template>
         </Column>
@@ -346,6 +348,7 @@ onMounted(async () => {
 .product-name-cell {
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
   gap: 0.2rem;
 }
 

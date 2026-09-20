@@ -1,5 +1,5 @@
 import { ID, Query } from 'appwrite'
-import { databases, APPWRITE_DATABASE_ID, TABLES } from './appwrite'
+import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ISettings } from '@/types/storeSettings'
 
 export const SettingsService = {
@@ -29,17 +29,14 @@ export const SettingsService = {
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.STORE_SETTINGS,
         rowId: id,
-        data
+        data,
+        permissions
       })
     } catch (error) {
       console.error('Erro no upsert de configurações:', error)
       throw error
     }
   },
-
-  async saveSettings(id: string | undefined, data: Partial<ISettings>): Promise<ISettings> {
-    return this.upsert(id, data)
-  }
 }
 
 export const settings = SettingsService
