@@ -36,7 +36,8 @@
 
             <div class="field-item">
               <FloatLabel variant="in">
-                <InputText id="document_number" v-model="formData.document_number" fluid />
+                <InputText id="document_number" :model-value="formData.document_number" maxlength="18" fluid
+                  @input="handleDocumentInput" />
                 <label for="document_number">CNPJ ou CPF (Opcional)</label>
               </FloatLabel>
             </div>
@@ -181,6 +182,7 @@ import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 import { settingsSchema } from '@/schemas/settingsSchema'
 import AppSectionHeader from '@/components/common/AppSectionHeader.vue'
+import { maskCpfCnpj, formatDocument } from '@/utils/masks'
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()
@@ -221,13 +223,18 @@ function clearErrors(): void {
   Object.keys(errors).forEach((key) => delete errors[key])
 }
 
+function handleDocumentInput(event: Event): void {
+  const target = event.target as HTMLInputElement
+  formData.value.document_number = maskCpfCnpj(target.value)
+}
+
 watch(
   () => settingsStore.settings,
   (s) => {
     if (s) {
       formData.value = {
         store_name: s.store_name || '',
-        document_number: s.document_number || '',
+        document_number: s.document_number ? formatDocument(s.document_number) : '',
         phone: s.phone || '',
         instagram: s.instagram || '',
         address: s.address || '',
@@ -243,6 +250,7 @@ watch(
   },
   { immediate: true }
 )
+
 
 const computedSettings = computed<Partial<ISettings>>(() => {
   return {
