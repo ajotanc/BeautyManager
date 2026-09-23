@@ -247,6 +247,8 @@ async function handleSubmit(): Promise<void> {
 
   isSubmitting.value = true
   try {
+    const targetNewStock = computedNewStock.value
+
     await inventory.recordTransaction({
       product: props.product,
       transaction_type: validation.data.transaction_type,
@@ -254,12 +256,12 @@ async function handleSubmit(): Promise<void> {
       reason: validation.data.reason
     })
 
-    // Atualiza o estoque local do produto
-    props.product.stock_quantity = computedNewStock.value
+    // Atualiza o estoque local do produto com o valor exato calculado
+    props.product.stock_quantity = targetNewStock
     toast.add({
       severity: 'success',
       summary: 'Estoque Atualizado',
-      detail: `Estoque de "${props.product.name}" agora é ${computedNewStock.value} un.`,
+      detail: `Estoque de "${props.product.name}" agora é ${targetNewStock} un.`,
       life: 3000
     })
 
