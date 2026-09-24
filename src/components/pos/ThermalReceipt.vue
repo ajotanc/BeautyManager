@@ -3,9 +3,9 @@
     <div id="thermal-receipt-print-area" class="paper-content thermal-receipt print-only"
       :class="settings?.receipt_width === '80mm' ? 'receipt-80mm' : 'receipt-58mm'"
       :style="{
-        width: settings?.receipt_width === '80mm' ? '72mm' : '48mm',
-        maxWidth: settings?.receipt_width === '80mm' ? '72mm' : '48mm',
-        margin: '0 auto'
+        width: settings?.receipt_width === '80mm' ? '76mm' : '56mm',
+        maxWidth: settings?.receipt_width === '80mm' ? '76mm' : '56mm',
+        margin: settings?.receipt_width === '80mm' ? '0 2mm' : '0 1mm'
       }">
       <!-- Cabeçalho -->
       <div class="text-center">
@@ -245,8 +245,8 @@ const qrLabel = computed(() => {
 }
 
 .paper-content {
-  padding: 2mm 1.5mm;
-  margin: 0 auto;
+  padding: 2mm 2mm;
+  margin: 0 1mm;
   font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
   font-size: 9.5px;
   line-height: 1.25;

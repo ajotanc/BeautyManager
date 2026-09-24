@@ -1,5 +1,5 @@
 @page {
-  size: auto;
+  size: 58mm auto;
   margin: 0mm;
 }
 
@@ -15,10 +15,7 @@ html,
 body {
   margin: 0 !important;
   padding: 0 !important;
-  width: 100% !important;
-  display: flex !important;
-  flex-direction: column !important;
-  align-items: center !important;
+  width: 58mm !important;
   background: #ffffff !important;
   color: #111111 !important;
   font-family: 'JetBrains Mono', 'Courier New', Courier, monospace !important;
@@ -26,13 +23,13 @@ body {
   print-color-adjust: exact;
 }
 
-/* Área padrão para bobina 56mm / 58mm (Largura útil de cabeçote: 48mm) */
+/* Área padrão para bobina 58mm (Conteúdo com 56mm e margem simétrica de 1mm) */
 #thermal-receipt-print-area {
   display: block !important;
-  width: 48mm !important;
-  max-width: 48mm !important;
-  margin: 0 auto !important;
-  padding: 2mm 1.5mm !important;
+  width: 56mm !important;
+  max-width: 56mm !important;
+  margin: 0 1mm !important;
+  padding: 2mm 2mm !important;
   font-size: 9.5px !important;
   line-height: 1.25 !important;
   box-sizing: border-box !important;
@@ -40,11 +37,11 @@ body {
   overflow: hidden !important;
 }
 
-/* Área para bobina larga 80mm (Largura útil de cabeçote: 72mm) */
+/* Área para bobina larga 80mm (Conteúdo com 76mm e margem simétrica de 2mm) */
 #thermal-receipt-print-area.receipt-80mm {
-  width: 72mm !important;
-  max-width: 72mm !important;
-  margin: 0 auto !important;
+  width: 76mm !important;
+  max-width: 76mm !important;
+  margin: 0 2mm !important;
   padding: 3mm 2mm !important;
   font-size: 11px !important;
 }
