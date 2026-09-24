@@ -17,7 +17,7 @@
     <!-- Tabela de Movimentações -->
     <div class="table-wrapper glass-panel">
       <DataTable :value="transactions" paginator :rows="15" :rows-per-page-options="[15, 30, 50]" :loading="isLoading"
-        responsive-layout="scroll" empty-message="Nenhuma movimentação registrada.">
+        size="small" responsive-layout="scroll" empty-message="Nenhuma movimentação registrada.">
         <Column field="transaction_type" header="Tipo" sortable style="min-width: 130px">
           <template #body="{ data }">
             <Tag :severity="data.transaction_type === 'IN' ? 'success' : 'danger'"

@@ -30,7 +30,7 @@
     <div class="table-container glass-panel">
       <DataTable v-model:filters="filters" :value="filteredCustomers" paginator :rows="12"
         :rows-per-page-options="[12, 24, 48]" data-key="$id" :loading="customerStore.isLoading" filter-display="row"
-        :global-filter-fields="['name', 'phone', 'document_number']" responsive-layout="scroll"
+        :global-filter-fields="['name', 'phone', 'document_number']" size="small" responsive-layout="scroll"
         empty-message="Nenhum cliente por aqui ainda. Seu primeiro cliente está a um clique de distância!">
         <template #header>
           <div class="table-header-bar">

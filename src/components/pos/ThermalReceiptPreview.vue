@@ -13,9 +13,9 @@
           <div v-if="settings?.address" class="sub-text">{{ settings.address }}</div>
           <div v-if="settings?.phone" class="sub-text">WhatsApp: {{ settings.phone }}</div>
           <div v-if="settings?.instagram" class="sub-text">Instagram: {{ settings.instagram }}</div>
-          <div class="receipt-divider">==============================================</div>
+          <div class="receipt-divider">================================</div>
           <div class="font-bold">** CUPOM NÃO FISCAL **</div>
-          <div class="receipt-divider">==============================================</div>
+          <div class="receipt-divider">================================</div>
         </div>
 
         <!-- Info da Venda / Simulação -->
@@ -23,7 +23,7 @@
           <div>DATA: {{ formatDateTime(nowIso()) }}</div>
           <div>CUPOM: #PREVIEW</div>
           <div>CLIENTE: Consumidor Final</div>
-          <div class="receipt-divider">----------------------------------------------</div>
+          <div class="receipt-divider">--------------------------------</div>
         </div>
 
         <!-- Lista de Itens Demonstrativos -->
@@ -33,7 +33,7 @@
             <span>QTD x UN</span>
             <span>TOTAL</span>
           </div>
-          <div class="receipt-divider">----------------------------------------------</div>
+          <div class="receipt-divider">--------------------------------</div>
 
           <div v-for="(item, idx) in sampleItems" :key="idx" class="item-line">
             <div class="item-title">{{ item.name }}</div>
@@ -44,7 +44,7 @@
           </div>
         </div>
 
-        <div class="receipt-divider">----------------------------------------------</div>
+        <div class="receipt-divider">--------------------------------</div>
 
         <!-- Totais -->
         <div class="totals-block">
@@ -62,7 +62,7 @@
           </div>
         </div>
 
-        <div class="receipt-divider">==============================================</div>
+        <div class="receipt-divider">================================</div>
 
         <!-- QR Code Preview em Tempo Real -->
         <div v-if="settings?.show_qrcode && qrPayload" class="text-center qrcode-block">
@@ -71,7 +71,7 @@
             <QrcodeVue :value="qrPayload" :size="qrSize" level="M" render-as="svg" />
           </div>
           <div class="sub-text">Aponte a câmera do seu celular</div>
-          <div class="receipt-divider">==============================================</div>
+          <div class="receipt-divider">================================</div>
         </div>
 
         <!-- Mensagem de Rodapé -->
@@ -105,11 +105,11 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const previewWidth = computed(() => {
-  return props.settings?.receipt_width === '80mm' ? '320px' : '260px'
+  return props.settings?.receipt_width === '80mm' ? '290px' : '210px'
 })
 
 const qrSize = computed(() => {
-  return props.settings?.receipt_width === '80mm' ? 120 : 100
+  return props.settings?.receipt_width === '80mm' ? 110 : 85
 })
 
 const sampleItems = [
@@ -191,9 +191,9 @@ const qrLabel = computed(() => {
 }
 
 .paper-content {
-  padding: 1rem 0.85rem;
+  padding: 0.75rem 0.5rem;
   font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
-  font-size: 11px;
+  font-size: 10px;
   line-height: 1.25;
   color: #111111;
 }
@@ -207,92 +207,97 @@ const qrLabel = computed(() => {
 }
 
 .store-name {
-  font-size: 12px;
+  font-size: 11.5px;
   font-weight: 800;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.2px;
+  white-space: normal;
+  word-break: break-word;
 }
 
 .sub-text {
-  font-size: 10px;
+  font-size: 9px;
   color: #444;
+  word-break: break-word;
 }
 
 .receipt-divider {
   overflow: hidden;
   white-space: nowrap;
   letter-spacing: -1px;
-  font-size: 10px;
-  margin: 3px 0;
+  font-size: 8.5px;
+  margin: 2px 0;
   color: #777;
 }
 
 .sale-meta {
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .items-header {
   display: flex;
   justify-content: space-between;
   font-weight: 700;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .item-line {
-  margin-bottom: 4px;
+  margin-bottom: 3px;
 }
 
 .item-title {
   font-weight: 600;
+  font-size: 9.5px;
+  word-break: break-word;
 }
 
 .item-details {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 9px;
 }
 
 .totals-block .row {
   display: flex;
   justify-content: space-between;
-  font-size: 11px;
+  font-size: 9.5px;
   margin-bottom: 2px;
 }
 
 .totals-block .grand-total {
-  font-size: 13px;
+  font-size: 11.5px;
   font-weight: 800;
-  margin: 4px 0;
+  margin: 3px 0;
   color: #000;
 }
 
 .qrcode-block {
-  margin: 6px 0;
+  margin: 4px 0;
 }
 
 .qrcode-header {
-  font-size: 10px;
-  margin-bottom: 4px;
+  font-size: 9px;
+  margin-bottom: 2px;
 }
 
 .qrcode-render {
   display: flex;
   justify-content: center;
-  padding: 6px;
+  padding: 4px;
   background: white;
 }
 
 .footer-block {
-  margin-top: 6px;
+  margin-top: 4px;
 }
 
 .footer-text {
-  font-size: 10px;
+  font-size: 9px;
   white-space: pre-line;
 }
 
 .tech-sub {
-  font-size: 8px;
+  font-size: 7.5px;
   color: #888;
-  margin-top: 4px;
+  margin-top: 3px;
 }
 </style>

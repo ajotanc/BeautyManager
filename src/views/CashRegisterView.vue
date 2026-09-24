@@ -83,7 +83,7 @@
       </div>
 
       <DataTable :value="cashRegisterStore.history" paginator :rows="8" :rows-per-page-options="[8, 16, 24]"
-        :loading="cashRegisterStore.isLoading" responsive-layout="scroll"
+        :loading="cashRegisterStore.isLoading" size="small" responsive-layout="scroll"
         empty-message="Nenhum histórico de fechamento anterior.">
         <Column field="opened_at" header="Abertura" sortable style="min-width: 150px">
           <template #body="{ data }">

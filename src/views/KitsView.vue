@@ -91,7 +91,7 @@
     <!-- Visualização em Tabela DataTable -->
     <div v-else class="table-container glass-panel">
       <DataTable :value="filteredKits" paginator :rows="10" :rows-per-page-options="[10, 20, 50]" data-key="$id"
-        :loading="kitStore.isLoading" responsive-layout="scroll" empty-message="Nenhum kit encontrado.">
+        :loading="kitStore.isLoading" size="small" responsive-layout="scroll" empty-message="Nenhum kit encontrado.">
         <!-- Campanha -->
         <Column field="campaign_event" header="Campanha" sortable style="min-width: 150px">
           <template #body="{ data }">

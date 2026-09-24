@@ -18,7 +18,7 @@
     <!-- Tabela de Vendas -->
     <div class="table-container glass-panel">
       <DataTable :value="salesList" paginator :rows="12" :rows-per-page-options="[12, 24, 48]" :loading="isLoading"
-        responsive-layout="scroll" empty-message="Nenhuma venda registrada.">
+        size="small" responsive-layout="scroll" empty-message="Nenhuma venda registrada.">
         <Column field="$createdAt" header="Data / Hora" sortable style="min-width: 160px">
           <template #body="{ data }">
             <span class="text-sm">{{ formatDateTime(data.$createdAt) }}</span>
