@@ -15,6 +15,10 @@ html,
 body {
   margin: 0 !important;
   padding: 0 !important;
+  width: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
   background: #ffffff !important;
   color: #111111 !important;
   font-family: 'JetBrains Mono', 'Courier New', Courier, monospace !important;
@@ -27,7 +31,8 @@ body {
   display: block !important;
   width: 48mm !important;
   max-width: 48mm !important;
-  padding: 2mm 1mm !important;
+  margin: 0 auto !important;
+  padding: 2mm 1.5mm !important;
   font-size: 9.5px !important;
   line-height: 1.25 !important;
   box-sizing: border-box !important;
@@ -39,6 +44,7 @@ body {
 #thermal-receipt-print-area.receipt-80mm {
   width: 72mm !important;
   max-width: 72mm !important;
+  margin: 0 auto !important;
   padding: 3mm 2mm !important;
   font-size: 11px !important;
 }

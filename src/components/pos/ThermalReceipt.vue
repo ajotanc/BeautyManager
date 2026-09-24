@@ -2,7 +2,11 @@
   <Teleport to="body">
     <div id="thermal-receipt-print-area" class="paper-content thermal-receipt print-only"
       :class="settings?.receipt_width === '80mm' ? 'receipt-80mm' : 'receipt-58mm'"
-      :style="{ width: settings?.receipt_width === '80mm' ? '72mm' : '48mm', maxWidth: settings?.receipt_width === '80mm' ? '72mm' : '48mm' }">
+      :style="{
+        width: settings?.receipt_width === '80mm' ? '72mm' : '48mm',
+        maxWidth: settings?.receipt_width === '80mm' ? '72mm' : '48mm',
+        margin: '0 auto'
+      }">
       <!-- Cabeçalho -->
       <div class="text-center">
         <div class="store-name">{{ settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS' }}</div>
@@ -241,7 +245,8 @@ const qrLabel = computed(() => {
 }
 
 .paper-content {
-  padding: 2mm 1mm;
+  padding: 2mm 1.5mm;
+  margin: 0 auto;
   font-family: 'JetBrains Mono', 'Courier New', Courier, monospace;
   font-size: 9.5px;
   line-height: 1.25;
