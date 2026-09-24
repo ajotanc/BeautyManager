@@ -24,16 +24,15 @@ body {
 }
 
 /* Knup KP-IM607 / Padrão 58mm: Cabeça térmica útil de 384 dots (48mm).
-   Conteúdo em 46mm com margem esquerda de 1mm e padding de 1mm,
-   garantindo margens simétricas e zero corte no lado direito. */
+   Conteúdo em 48mm com margem esquerda de 1mm e padding de 1mm. */
 #thermal-receipt-print-area {
   display: block !important;
-  width: 46mm !important;
-  max-width: 46mm !important;
+  width: 48mm !important;
+  max-width: 48mm !important;
   margin-left: 1mm !important;
   margin-right: auto !important;
   padding: 2mm 1mm !important;
-  font-size: 9px !important;
+  font-size: 9.5px !important;
   line-height: 1.25 !important;
   box-sizing: border-box !important;
   word-break: break-word !important;
