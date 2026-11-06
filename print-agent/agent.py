@@ -435,6 +435,8 @@ def open_settings(cfg: dict) -> None:
     style.configure("TCombobox", arrowcolor=BRAND, background="#fff0f4", arrowsize=18)
     style.map("TCombobox", background=[("active", "#ffe0e8"), ("readonly", "#fff0f4")], arrowcolor=[("active", BRAND_DARK)],
               fieldbackground=[("readonly", "white")])
+    # Com foco, o texto selecionado de um combo somente-leitura saía branco no branco (parecia vazio).
+    style.map("TCombobox", foreground=[("readonly", TEXT)], selectforeground=[("readonly", TEXT)], selectbackground=[("readonly", "#ffe0e8")])
     root.option_add("*TCombobox*Listbox.font", (FONT, 10))
     root.option_add("*TCombobox*Listbox.selectBackground", BRAND)
     root.option_add("*TCombobox*Listbox.selectForeground", "white")
