@@ -61,6 +61,42 @@ class PrinterTests(unittest.TestCase):
             self.assertIsNone(agent.resolve_printer(dict(agent.DEFAULTS), "Outra"))
 
 
+class PrepareJobTests(unittest.TestCase):
+    cupom = b"\x1b@texto\n\x1d\x56\x01"
+
+    def cfg(self, **extra):
+        return dict(agent.DEFAULTS, **extra)
+
+    def test_padrao_nao_muda_o_cupom(self):
+        self.assertEqual(agent.prepare_job(self.cupom, self.cfg()), self.cupom)
+
+    def test_corte_total_sem_corte_e_avanco(self):
+        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_mode="full")).endswith(b"\x1d\x56\x00"))
+        self.assertEqual(agent.prepare_job(self.cupom, self.cfg(cut_mode="none")), b"\x1b@texto\n")
+        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_feed_lines=2)).endswith(b"\n\n\x1d\x56\x01"))
+
+    def test_densidade_vai_depois_do_esc_arroba(self):
+        out = agent.prepare_job(self.cupom, self.cfg(print_density=5))
+        self.assertTrue(out.startswith(b"\x1b@\x1b\x37\x07\x8c\x02texto"))
+
+    def test_gaveta_so_no_cupom(self):
+        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(open_drawer=True)).endswith(agent.DRAWER_PULSE))
+        etiqueta = b"\x1b@etiqueta\n\n"
+        self.assertEqual(agent.prepare_job(etiqueta, self.cfg(open_drawer=True, cut_mode="full")), etiqueta)
+
+
+class RetryTests(unittest.TestCase):
+    def test_tenta_de_novo_e_depois_desiste(self):
+        cfg = dict(agent.DEFAULTS, print_retries=2, retry_delay_ms=0)
+        with mock.patch.object(agent, "send_raw", side_effect=[OSError("x"), OSError("x"), None]) as send, mock.patch.object(agent, "log_line"):
+            agent.send_with_retry("P", b"a", cfg)
+        self.assertEqual(send.call_count, 3)
+        with mock.patch.object(agent, "send_raw", side_effect=OSError("x")) as send, mock.patch.object(agent, "log_line") as log:
+            with self.assertRaises(OSError):
+                agent.send_with_retry("P", b"a", cfg)
+        self.assertEqual((send.call_count, log.call_count), (3, 3))
+
+
 class InstallTests(unittest.TestCase):
     def test_url_com_nome_estranho_e_recusada_antes_de_baixar(self):
         # o nome do arquivo iria para um script de administrador (aspa simples escaparia do texto)

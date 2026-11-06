@@ -15,6 +15,7 @@ import subprocess
 import sys
 import tempfile
 import threading
+import time
 import urllib.request
 import winreg
 from datetime import datetime
@@ -42,6 +43,12 @@ DEFAULTS = {
     "allowed_routes": list(ROUTES),
     "max_payload_mb": 4,
     "log_requests": False,
+    "cut_mode": "partial",  # partial | full | none
+    "cut_feed_lines": 0,  # linhas em branco antes do corte
+    "print_density": 0,  # 0 = padrão da impressora; 1 a 5 = mais escuro
+    "open_drawer": False,  # pulso na gaveta de dinheiro ao imprimir cupom
+    "print_retries": 2,
+    "retry_delay_ms": 1500,
     "autostart": True,
     "open_settings_on_start": False,
     "printer_install_name": "KNUP KP-IM607",
@@ -154,6 +161,49 @@ def send_raw(printer: str, data: bytes) -> None:
         winspool.ClosePrinter(handle)
 
 
+CUT = b"\x1d\x56\x01"  # o site termina o cupom com este corte parcial
+CUT_COMMANDS = {"partial": CUT, "full": b"\x1d\x56\x00", "none": b""}
+DRAWER_PULSE = b"\x1b\x70\x00\x19\xfa"  # ESC p 0: pino 2, 50 ms ligado, 500 ms desligado
+DENSITY_HEAT_TIME = {1: 60, 2: 80, 3: 100, 4: 120, 5: 140}  # ESC 7: tempo de aquecimento (80 é o padrão comum)
+
+
+def prepare_job(data: bytes, cfg: dict) -> bytes:
+    """Aplica as opções do agente: densidade, corte (tipo e avanço) e gaveta. O corte e a gaveta
+    só valem para cupom (trabalho que termina com o corte do site); etiquetas passam como vieram."""
+    density = int(cfg.get("print_density", 0))
+    if density in DENSITY_HEAT_TIME:
+        heat = b"\x1b\x37\x07" + bytes([DENSITY_HEAT_TIME[density]]) + b"\x02"
+        head = 2 if data.startswith(b"\x1b@") else 0  # depois do ESC @, que reinicia a impressora
+        data = data[:head] + heat + data[head:]
+    if not data.endswith(CUT):
+        return data
+    body = data[: -len(CUT)] + b"\n" * max(0, int(cfg.get("cut_feed_lines", 0)))
+    out = body + CUT_COMMANDS.get(cfg.get("cut_mode"), CUT)
+    return out + DRAWER_PULSE if cfg.get("open_drawer") else out
+
+
+def log_line(message: str) -> None:
+    log = CONFIG_PATH.parent / "agent.log"
+    log.parent.mkdir(parents=True, exist_ok=True)
+    if log.exists() and log.stat().st_size > 1024 * 1024:
+        log.unlink()
+    with log.open("a", encoding="utf-8") as f:
+        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} {message}\n")
+
+
+def send_with_retry(printer: str, data: bytes, cfg: dict) -> None:
+    """Envia; se a impressora não responder (USB solto, spooler ocupado), tenta de novo e registra a falha."""
+    attempts = 1 + max(0, int(cfg.get("print_retries", 0)))
+    for attempt in range(1, attempts + 1):
+        try:
+            return send_raw(printer, data)
+        except OSError as err:
+            log_line(f"falha ao imprimir em {printer} (tentativa {attempt}/{attempts}): {err}")
+            if attempt == attempts:
+                raise
+            time.sleep(int(cfg.get("retry_delay_ms", 1500)) / 1000)
+
+
 # ---------- Início automático e instalação de driver ----------
 def resource_path(name: str) -> Path:
     """Arquivo empacotado no exe (PyInstaller) ou ao lado do script."""
@@ -253,11 +303,7 @@ class Handler(BaseHTTPRequestHandler):
     def _log(self, message: str) -> None:
         if not self.cfg["log_requests"]:
             return
-        log = CONFIG_PATH.parent / "agent.log"
-        if log.exists() and log.stat().st_size > 1024 * 1024:
-            log.unlink()
-        with log.open("a", encoding="utf-8") as f:
-            f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} {self.client_address[0]} {message}\n")
+        log_line(f"{self.client_address[0]} {message}")
 
     def _route_ok(self) -> bool:
         return self.path in self.cfg["allowed_routes"]
@@ -308,7 +354,7 @@ class Handler(BaseHTTPRequestHandler):
         if not printer:
             return self._reply(404, {"ok": False, "error": "printer_not_found"})
         try:
-            send_raw(printer, data)
+            send_with_retry(printer, prepare_job(data, self.cfg), self.cfg)
         except OSError as err:
             return self._reply(500, {"ok": False, "error": str(err)})
         self._reply(200, {"ok": True, "printer": printer})
@@ -344,6 +390,25 @@ MUTED = "#6b7280"
 OK_COLOR = "#16a34a"
 ERR_COLOR = "#dc2626"
 FONT = "Segoe UI"
+
+
+def show_log(parent) -> None:
+    """Janela com as últimas linhas do agent.log."""
+    import tkinter as tk
+
+    log = CONFIG_PATH.parent / "agent.log"
+    try:
+        text = "".join(log.read_text(encoding="utf-8", errors="replace").splitlines(keepends=True)[-300:])
+    except OSError:
+        text = ""
+    win = tk.Toplevel(parent)
+    win.title("Log do agente")
+    win.iconbitmap(str(resource_path("icon.ico")))
+    box = tk.Text(win, width=100, height=24, font=("Consolas", 9), wrap="none")
+    box.insert("1.0", text or "Nenhum evento registrado ainda.")
+    box.see("end")
+    box.configure(state="disabled")
+    box.pack(fill="both", expand=True)
 
 
 def open_settings(cfg: dict) -> None:
@@ -414,6 +479,13 @@ def open_settings(cfg: dict) -> None:
     url_var = tk.StringVar(value=cfg["driver_url"])
     sha_var = tk.StringVar(value=cfg["driver_sha256"])
     route_vars = {r: tk.BooleanVar(value=r in cfg["allowed_routes"]) for r in ROUTES}
+    cut_labels = {"partial": "Parcial", "full": "Total", "none": "Sem corte"}
+    density_labels = {0: "Padrão da impressora", 1: "1 - mais claro", 2: "2", 3: "3 - médio", 4: "4", 5: "5 - mais escuro"}
+    cut_var = tk.StringVar(value=cut_labels.get(cfg["cut_mode"], cut_labels["partial"]))
+    feed_var = tk.StringVar(value=str(cfg["cut_feed_lines"]))
+    density_var = tk.StringVar(value=density_labels.get(int(cfg["print_density"]), density_labels[0]))
+    drawer_var = tk.BooleanVar(value=cfg["open_drawer"])
+    retries_var = tk.StringVar(value=str(cfg["print_retries"]))
 
     def refresh_status(*_args) -> None:
         names = list_printers()
@@ -461,7 +533,26 @@ def open_settings(cfg: dict) -> None:
     sha_entry = ttk.Entry(t1, textvariable=sha_var)
     field(t1, 4, "SHA256 do driver", "Confere a integridade do download antes de instalar.", sha_entry)
 
-    # Aba 2: Conexão
+    # Aba 2: Cupom e corte
+    t_cut = new_tab("Corte e envio")
+    cut_combo = ttk.Combobox(t_cut, textvariable=cut_var, values=list(cut_labels.values()), state="readonly", width=34)
+    field(t_cut, 0, "Tipo de corte", "Parcial deixa o cupom preso por um pontinho; total solta o papel.", cut_combo)
+    feed_row = ttk.Frame(t_cut)
+    ttk.Spinbox(feed_row, from_=0, to=10, textvariable=feed_var, width=5).pack(side="left")
+    ttk.Label(feed_row, text="linhas em branco", style="Muted.TLabel").pack(side="left", padx=6)
+    field(t_cut, 1, "Espaço antes do corte", "0 deixa só o espaço que a própria impressora já dá até a guilhotina.", feed_row)
+    density_combo = ttk.Combobox(t_cut, textvariable=density_var, values=list(density_labels.values()), state="readonly", width=34)
+    field(t_cut, 2, "Escuridão da impressão", "Mais escuro ajuda com papel fraco ou código de barras claro. Padrão não envia nada à impressora.", density_combo)
+    extra = ttk.Frame(t_cut)
+    ttk.Checkbutton(extra, text="Abrir a gaveta de dinheiro ao imprimir o cupom", variable=drawer_var).pack(anchor="w", pady=2)
+    retry_row = ttk.Frame(extra)
+    ttk.Label(retry_row, text="Tentar de novo até").pack(side="left")
+    ttk.Spinbox(retry_row, from_=0, to=5, textvariable=retries_var, width=4).pack(side="left", padx=6)
+    ttk.Label(retry_row, text="vezes se a impressora não responder", style="Muted.TLabel").pack(side="left")
+    retry_row.pack(anchor="w", pady=4)
+    field(t_cut, 3, "Gaveta e novas tentativas", "A gaveta precisa estar ligada na porta da impressora (RJ11).", extra)
+
+    # Aba 3: Conexão
     t2 = new_tab("Conexão")
     port_row = ttk.Frame(t2)
     ttk.Entry(port_row, textvariable=port_var, width=8).pack(side="left")
@@ -487,6 +578,8 @@ def open_settings(cfg: dict) -> None:
     ):
         ttk.Checkbutton(startup, text=text, variable=var).pack(anchor="w", pady=3)
     field(t3, 0, "Comportamento", "O agente fica na bandeja do Windows; clique duas vezes no ícone para abrir esta janela.", startup)
+    log_btn = ttk.Button(t3, text="Ver log", style="Soft.TButton", command=lambda: show_log(root))
+    field(t3, 1, "Registro de eventos", "Falhas de impressão ficam sempre no log; com a opção acima, as requisições também.", log_btn)
     ttk.Label(t3, text=f"Configuração: {CONFIG_PATH}", style="Muted.TLabel", wraplength=470).grid(row=9, column=0, sticky="w")
 
     # ---- Ações ----
@@ -502,6 +595,11 @@ def open_settings(cfg: dict) -> None:
             open_settings_on_start=open_var.get(),
             log_requests=log_var.get(),
             max_payload_mb=max(1, int(payload_var.get())),
+            cut_mode=next((k for k, v in cut_labels.items() if v == cut_var.get()), "partial"),
+            cut_feed_lines=min(10, max(0, int(feed_var.get()))),
+            print_density=next((k for k, v in density_labels.items() if v == density_var.get()), 0),
+            open_drawer=drawer_var.get(),
+            print_retries=min(5, max(0, int(retries_var.get()))),
             allowed_routes=[r for r, v in route_vars.items() if v.get()],
             allowed_origins=[o.strip() for o in origins.get("1.0", "end").splitlines() if o.strip()],
             driver_url=url_var.get().strip(),
@@ -526,7 +624,7 @@ def open_settings(cfg: dict) -> None:
         if not printer:
             return messagebox.showerror("Erro", "Nenhuma impressora térmica encontrada.")
         try:
-            send_raw(printer, text_test_bytes())
+            send_with_retry(printer, prepare_job(text_test_bytes(), cfg), cfg)
         except OSError as err:
             return messagebox.showerror("Erro", f"Falha ao enviar para {printer}: {err}")
         messagebox.showinfo("Teste", f"Enviado para {printer}.")
