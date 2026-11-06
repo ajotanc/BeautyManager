@@ -1,7 +1,7 @@
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ICashRegister, ICashMovement } from '@/types/cashRegister'
 import { nowIso, dayjs } from '@/utils/date'
-import { toNumber, toDecimalString } from '@/utils/currency'
+import { toNumber, toMoney } from '@/utils/currency'
 import { appendNote } from '@/utils/notes'
 import { ID, Query } from 'appwrite'
 
@@ -105,9 +105,9 @@ export const CashRegisterService = {
 
     return await this.create({
       opened_at: nowIso(),
-      opening_balance: toDecimalString(dto.opening_balance || 0),
-      total_in: toDecimalString(0),
-      total_out: toDecimalString(0),
+      opening_balance: toMoney(dto.opening_balance || 0),
+      total_in: toMoney(0),
+      total_out: toMoney(0),
       status: 'open',
       user_id: dto.user_id || '',
       notes: dto.notes || null
@@ -132,8 +132,8 @@ export const CashRegisterService = {
     const updatedNotes = appendNote(register.notes, noteAppend)
 
     return await this.update(registerId, {
-      total_in: toDecimalString(newTotalIn),
-      total_out: toDecimalString(newTotalOut),
+      total_in: toMoney(newTotalIn),
+      total_out: toMoney(newTotalOut),
       notes: updatedNotes
     })
   },
@@ -145,14 +145,14 @@ export const CashRegisterService = {
     const added = toNumber(amount)
 
     return await this.update(registerId, {
-      total_in: toDecimalString(currentTotalIn + added)
+      total_in: toMoney(currentTotalIn + added)
     })
   },
 
   async closeRegister(registerId: string, dto: Partial<ICashRegister>): Promise<ICashRegister> {
     return await this.update(registerId, {
       closed_at: nowIso(),
-      closing_balance: toDecimalString(dto.closing_balance || 0),
+      closing_balance: toMoney(dto.closing_balance || 0),
       status: 'closed',
       notes: dto.notes || null
     })

@@ -159,8 +159,8 @@ export interface IKit extends Models.Row {
   barcode: string
   campaign_event: CampaignEventType | string
   event_date?: string | null // Formato brasileiro DD/MM/YYYY ou DD/MM
-  packaging_cost?: string | null // Armazenado como string (ex: "4.50")
-  selling_price: string // Armazenado como string (ex: "89.90")
+  packaging_cost?: number | null
+  selling_price: number
   description?: string | null
   is_active: boolean
   items?: IKitItem[]

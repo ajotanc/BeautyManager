@@ -31,9 +31,8 @@ export function formatPercent(value: number | string | undefined | null): string
 }
 
 /**
- * Formata o valor numérico para a string decimal padrão do banco (ex: "3.50")
+ * Arredonda para 2 casas e devolve número, no formato das colunas decimais (double) do banco
  */
-export function toDecimalString(value: number | string | undefined | null, decimals: number = 2): string {
-  const num = toNumber(value)
-  return num.toFixed(decimals)
+export function toMoney(value: number | string | undefined | null, decimals: number = 2): number {
+  return Number(toNumber(value).toFixed(decimals))
 }

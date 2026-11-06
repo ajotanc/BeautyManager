@@ -257,7 +257,7 @@ import { CAMPAIGN_EVENT_OPTIONS, getCampaignEvent } from '@/types/kit'
 import type { IProduct } from '@/types/product'
 import { useProductStore } from '@/stores/productStore'
 import { useKitStore } from '@/stores/kitStore'
-import { formatCurrency, toNumber, toDecimalString } from '@/utils/currency'
+import { formatCurrency, toNumber, toMoney } from '@/utils/currency'
 import { useToast } from 'primevue/usetoast'
 import { parseErrorMessage } from '@/types/errors'
 
@@ -443,8 +443,8 @@ async function handleSubmit(event: FormSubmitEvent): Promise<void> {
       barcode: values.barcode.trim(),
       campaign_event: values.campaign_event,
       event_date: values.event_date?.trim() || null,
-      packaging_cost: toDecimalString(packagingCostNum.value),
-      selling_price: toDecimalString(sellingPriceNum.value),
+      packaging_cost: toMoney(packagingCostNum.value),
+      selling_price: toMoney(sellingPriceNum.value),
       description: values.description?.trim() || null,
       is_active: values.is_active,
       items: itemsList.value as unknown as IKitItem[]

@@ -219,7 +219,7 @@ import type { IProduct } from '@/types/product'
 import {
   formatCurrency,
   toNumber,
-  toDecimalString
+  toMoney
 } from '@/utils/currency'
 
 import { useToast } from 'primevue/usetoast'
@@ -385,9 +385,9 @@ async function handleSubmit(
       barcode: values.barcode.trim(),
       category: values.category || null,
       brand: values.brand || null,
-      cost_price: toDecimalString(costPrice.value ?? 0),
-      profit_margin: toDecimalString(profitMargin.value ?? 0),
-      selling_price: toDecimalString(sellingPrice.value ?? 0),
+      cost_price: toMoney(costPrice.value ?? 0),
+      profit_margin: toMoney(profitMargin.value ?? 0),
+      selling_price: toMoney(sellingPrice.value ?? 0),
       stock_quantity: Number(values.stock_quantity),
       min_stock_alert: Number(values.min_stock_alert),
       expiry_date: values.expiry_date ? dayjs(values.expiry_date).format("YYYY-MM-DD") : null,

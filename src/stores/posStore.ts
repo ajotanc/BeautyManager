@@ -11,7 +11,7 @@ import { CustomerService } from '@/services/customers'
 import { useAuthStore } from './authStore'
 import { useCashRegisterStore } from './cashRegisterStore'
 import { useProductStore } from './productStore'
-import { toDecimalString, toNumber } from '@/utils/currency'
+import { toMoney, toNumber } from '@/utils/currency'
 
 export const usePosStore = defineStore('pos', () => {
   const cart = ref<ICartItem[]>([])
@@ -160,8 +160,8 @@ export const usePosStore = defineStore('pos', () => {
           saleItems.push({
             product: item.product,
             quantity: item.quantity,
-            unit_price: toDecimalString(item.unit_price),
-            subtotal: toDecimalString(item.subtotal)
+            unit_price: toMoney(item.unit_price),
+            subtotal: toMoney(item.subtotal)
           } as ISaleItem)
         } else if (item.kit && item.kit.items && item.kit.items.length > 0) {
           const kitTotalOriginal = item.kit.items.reduce((acc, comp) => {
@@ -197,16 +197,16 @@ export const usePosStore = defineStore('pos', () => {
               product: comp.product,
               kit: item.kit, // Rastreabilidade do Kit para histórico
               quantity: compQty,
-              unit_price: toDecimalString(compUnitPrice),
-              subtotal: toDecimalString(compSubtotal)
+              unit_price: toMoney(compUnitPrice),
+              subtotal: toMoney(compSubtotal)
             } as ISaleItem)
           })
         }
       }
 
       const createdSale = await sales.createSale({
-        total_amount: toDecimalString(totalAmount.value),
-        discount_amount: toDecimalString(Math.min(discount.value, subtotal.value)),
+        total_amount: toMoney(totalAmount.value),
+        discount_amount: toMoney(Math.min(discount.value, subtotal.value)),
         payment_method: selectedPaymentMethod.value,
         customer_name: customerName.value.trim() || null,
         customer_phone: customerPhone.value.trim() || null,

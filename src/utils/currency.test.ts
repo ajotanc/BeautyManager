@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { formatCurrency, toDecimalString, toNumber } from './currency'
+import { formatCurrency, toMoney, toNumber } from './currency'
 
 describe('toNumber', () => {
   it('lê decimais simples do banco sem tratar inteiros como centavos', () => {
@@ -27,10 +27,11 @@ describe('toNumber', () => {
   })
 })
 
-describe('toDecimalString / formatCurrency', () => {
+describe('toMoney / formatCurrency', () => {
   it('grava sempre com 2 casas e lê de volta igual', () => {
-    expect(toDecimalString(10)).toBe('10.00')
-    expect(toNumber(toDecimalString(7.1))).toBe(7.1)
+    expect(toMoney(10)).toBe(10)
+    expect(toMoney(0.1 + 0.2)).toBe(0.3)
+    expect(toMoney('7.10')).toBe(7.1)
   })
 
   it('formata em reais', () => {

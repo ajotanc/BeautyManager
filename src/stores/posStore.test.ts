@@ -75,8 +75,8 @@ describe('checkout', () => {
     pos.addToCart(product('p1', 30))
     pos.discount = 100
     await pos.checkout()
-    expect(lastSale().discount_amount).toBe('30.00')
-    expect(lastSale().total_amount).toBe('0.00')
+    expect(lastSale().discount_amount).toBe(30)
+    expect(lastSale().total_amount).toBe(0)
   })
 
   it('o kit é rateado nos componentes e fecha exatamente no valor do kit', async () => {

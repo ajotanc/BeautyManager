@@ -98,30 +98,30 @@
                 },
                 {
                     "key": "cost_price",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "profit_margin",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "selling_price",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "stock_quantity",
@@ -361,21 +361,21 @@
                 },
                 {
                     "key": "total_amount",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "discount_amount",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 }
             ],
             "indexes": []
@@ -404,21 +404,21 @@
                 },
                 {
                     "key": "unit_price",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "subtotal",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "product",
@@ -478,39 +478,39 @@
                 },
                 {
                     "key": "opening_balance",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "total_in",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "total_out",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "closing_balance",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "status",
@@ -849,21 +849,21 @@
                 },
                 {
                     "key": "packaging_cost",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "selling_price",
-                    "type": "string",
+                    "type": "double",
                     "required": false,
                     "array": false,
-                    "size": 255,
                     "default": null,
-                    "encrypt": false
+                    "min": -1.7976931348623157e+308,
+                    "max": 1.7976931348623157e+308
                 },
                 {
                     "key": "description",

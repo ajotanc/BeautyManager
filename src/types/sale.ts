@@ -29,13 +29,13 @@ export interface ISaleItem extends Models.Row {
   product: IProduct
   kit?: IKit
   quantity: number
-  unit_price: number | string
-  subtotal: number | string
+  unit_price: number
+  subtotal: number
 }
 
 export interface ISale extends Models.Row {
-  total_amount: number | string
-  discount_amount?: number | string
+  total_amount: number
+  discount_amount?: number
   payment_method: PaymentMethod
   customer_name?: string | null
   customer_phone?: string | null
