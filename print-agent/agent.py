@@ -45,7 +45,6 @@ DEFAULTS = {
     "log_requests": False,
     "cut_mode": "partial",  # partial | full | none
     "cut_feed_lines": 0,  # linhas em branco antes do corte
-    "print_density": 0,  # 0 = padrão da impressora; 1 a 5 = mais escuro
     "open_drawer": False,  # pulso na gaveta de dinheiro ao imprimir cupom
     "print_retries": 2,
     "retry_delay_ms": 1500,
@@ -168,13 +167,8 @@ DENSITY_HEAT_TIME = {1: 60, 2: 80, 3: 100, 4: 120, 5: 140}  # ESC 7: tempo de aq
 
 
 def prepare_job(data: bytes, cfg: dict) -> bytes:
-    """Aplica as opções do agente: densidade, corte (tipo e avanço) e gaveta. O corte e a gaveta
+    """Aplica as opções do agente: corte (tipo e avanço) e gaveta. O corte e a gaveta
     só valem para cupom (trabalho que termina com o corte do site); etiquetas passam como vieram."""
-    density = int(cfg.get("print_density", 0))
-    if density in DENSITY_HEAT_TIME:
-        heat = b"\x1b\x37\x07" + bytes([DENSITY_HEAT_TIME[density]]) + b"\x02"
-        head = 2 if data.startswith(b"\x1b@") else 0  # depois do ESC @, que reinicia a impressora
-        data = data[:head] + heat + data[head:]
     if not data.endswith(CUT):
         return data
     body = data[: -len(CUT)] + b"\n" * max(0, int(cfg.get("cut_feed_lines", 0)))
@@ -480,10 +474,8 @@ def open_settings(cfg: dict) -> None:
     sha_var = tk.StringVar(value=cfg["driver_sha256"])
     route_vars = {r: tk.BooleanVar(value=r in cfg["allowed_routes"]) for r in ROUTES}
     cut_labels = {"partial": "Parcial", "full": "Total", "none": "Sem corte"}
-    density_labels = {0: "Padrão da impressora", 1: "1 - mais claro", 2: "2", 3: "3 - médio", 4: "4", 5: "5 - mais escuro"}
     cut_var = tk.StringVar(value=cut_labels.get(cfg["cut_mode"], cut_labels["partial"]))
     feed_var = tk.StringVar(value=str(cfg["cut_feed_lines"]))
-    density_var = tk.StringVar(value=density_labels.get(int(cfg["print_density"]), density_labels[0]))
     drawer_var = tk.BooleanVar(value=cfg["open_drawer"])
     retries_var = tk.StringVar(value=str(cfg["print_retries"]))
 
@@ -541,8 +533,6 @@ def open_settings(cfg: dict) -> None:
     ttk.Spinbox(feed_row, from_=0, to=10, textvariable=feed_var, width=5).pack(side="left")
     ttk.Label(feed_row, text="linhas em branco", style="Muted.TLabel").pack(side="left", padx=6)
     field(t_cut, 1, "Espaço antes do corte", "0 deixa só o espaço que a própria impressora já dá até a guilhotina.", feed_row)
-    density_combo = ttk.Combobox(t_cut, textvariable=density_var, values=list(density_labels.values()), state="readonly", width=34)
-    field(t_cut, 2, "Escuridão da impressão", "Mais escuro ajuda com papel fraco ou código de barras claro. Padrão não envia nada à impressora.", density_combo)
     extra = ttk.Frame(t_cut)
     ttk.Checkbutton(extra, text="Abrir a gaveta de dinheiro ao imprimir o cupom", variable=drawer_var).pack(anchor="w", pady=2)
     retry_row = ttk.Frame(extra)
@@ -550,7 +540,7 @@ def open_settings(cfg: dict) -> None:
     ttk.Spinbox(retry_row, from_=0, to=5, textvariable=retries_var, width=4).pack(side="left", padx=6)
     ttk.Label(retry_row, text="vezes se a impressora não responder", style="Muted.TLabel").pack(side="left")
     retry_row.pack(anchor="w", pady=4)
-    field(t_cut, 3, "Gaveta e novas tentativas", "A gaveta precisa estar ligada na porta da impressora (RJ11).", extra)
+    field(t_cut, 2, "Gaveta e novas tentativas", "A gaveta precisa estar ligada na porta da impressora (RJ11).", extra)
 
     # Aba 3: Conexão
     t2 = new_tab("Conexão")
@@ -597,7 +587,6 @@ def open_settings(cfg: dict) -> None:
             max_payload_mb=max(1, int(payload_var.get())),
             cut_mode=next((k for k, v in cut_labels.items() if v == cut_var.get()), "partial"),
             cut_feed_lines=min(10, max(0, int(feed_var.get()))),
-            print_density=next((k for k, v in density_labels.items() if v == density_var.get()), 0),
             open_drawer=drawer_var.get(),
             print_retries=min(5, max(0, int(retries_var.get()))),
             allowed_routes=[r for r, v in route_vars.items() if v.get()],

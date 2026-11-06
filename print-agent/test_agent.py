@@ -75,10 +75,6 @@ class PrepareJobTests(unittest.TestCase):
         self.assertEqual(agent.prepare_job(self.cupom, self.cfg(cut_mode="none")), b"\x1b@texto\n")
         self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_feed_lines=2)).endswith(b"\n\n\x1d\x56\x01"))
 
-    def test_densidade_vai_depois_do_esc_arroba(self):
-        out = agent.prepare_job(self.cupom, self.cfg(print_density=5))
-        self.assertTrue(out.startswith(b"\x1b@\x1b\x37\x07\x8c\x02texto"))
-
     def test_gaveta_so_no_cupom(self):
         self.assertTrue(agent.prepare_job(self.cupom, self.cfg(open_drawer=True)).endswith(agent.DRAWER_PULSE))
         etiqueta = b"\x1b@etiqueta\n\n"

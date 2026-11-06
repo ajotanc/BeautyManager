@@ -21,7 +21,6 @@ Salvas em `%APPDATA%\BeautyPrintAgent\config.json`. As mudanças valem na hora; 
 | Impressora | Modo do texto do cupom | **Texto** (padrão, nativo e sem acentos) ou **Imagem** (mantém acentos, mas as letras mudam). |
 | Impressora | URL e SHA256 do driver | download automático do driver (opcional). |
 | Corte e envio | Tipo de corte e espaço antes | Parcial (padrão), total ou sem corte; linhas em branco antes de cortar (padrão 0). Vale só para cupom. |
-| Corte e envio | Escuridão da impressão | Padrão da impressora (não envia nada) ou níveis 1 a 5 (comando ESC 7). Confirme o efeito no seu modelo. |
 | Corte e envio | Gaveta de dinheiro | pulso ESC p ao imprimir o cupom (precisa da gaveta ligada na impressora). |
 | Corte e envio | Novas tentativas | até 5 reenvios se a impressora não responder (padrão 2); a falha vai para o log. |
 | Conexão | Porta | padrão 9101. |
