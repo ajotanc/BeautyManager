@@ -68,8 +68,7 @@ class PrepareJobTests(unittest.TestCase):
         return dict(agent.DEFAULTS, **extra)
 
     def test_padrao_e_sem_corte(self):
-        self.assertEqual(agent.prepare_job(self.cupom, self.cfg()), b"@texto
-")
+        self.assertEqual(agent.prepare_job(self.cupom, self.cfg()), b"\x1b@texto\n")
 
     def test_corte_parcial_mantem_o_cupom(self):
         self.assertEqual(agent.prepare_job(self.cupom, self.cfg(cut_mode="partial")), self.cupom)
