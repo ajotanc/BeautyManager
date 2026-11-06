@@ -136,14 +136,14 @@ describe('cupom', () => {
     expect(text).toMatch(/INSTAGRAM DA LOJA\n·E·\n·a·/)
   })
 
-  it('nome do produto em maiúsculas e só uma linha em branco antes do corte', () => {
+  it('nome do produto em maiúsculas e sem linha em branco antes do corte', () => {
     const sale = { total_amount: 10, items: [{ quantity: 1, unit_price: 10, subtotal: 10, product: { name: 'batom rosa' } }] }
     const bytes = buildReceiptEscPos({ settings: { receipt_width: '58mm' }, sale } as never)
     expect(ascii(bytes)).toContain('BATOM ROSA')
     const cut = bytes.length - 3 // GS V 1 é o fim do cupom
     expect(Array.from(bytes.slice(cut))).toEqual([0x1d, 0x56, 0x01])
-    expect(Array.from(bytes.slice(cut - 2, cut))).toEqual([0x0a, 0x0a]) // LF da última linha + 1 de avanço
-    expect(bytes[cut - 3]).not.toBe(0x0a)
+    expect(bytes[cut - 1]).toBe(0x0a) // só o LF da última linha
+    expect(bytes[cut - 2]).not.toBe(0x0a)
   })
 
   it('usa a largura do agente quando informada', () => {

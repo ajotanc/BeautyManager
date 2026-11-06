@@ -117,7 +117,7 @@ export class EscPosBuilder {
   }
 
   cut(): this {
-    return this.feed(30).raw(0x1d, 0x56, 0x01)
+    return this.raw(0x1d, 0x56, 0x01) // a própria impressora já avança até a guilhotina
   }
 
   /** QR nativo da impressora (GS ( k), nível M, centralizado. */
