@@ -17,4 +17,6 @@ export interface ISettings extends Models.Row {
   qrcode_payload: string
   pix_key?: string
   loyalty_milestone?: number
+  /** Arquivo da logo no bucket `logos` (opcional). */
+  logo_file_id?: string | null
 }

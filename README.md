@@ -60,6 +60,7 @@ Cupom e etiquetas saem de dois jeitos, escolhidos em **Configurações → Desti
 
 1. **Navegador:** abre a janela de impressão (`window.print()`); a etiqueta usa folha A4 de 96 etiquetas (31 × 17 mm).
 2. **Impressora térmica direta:** o site monta os comandos ESC/POS e envia ao **agente local** (`print-agent/`), que imprime sem abrir diálogo. É o padrão assim que o agente é encontrado.
+   - **Logo da loja (opcional):** enviada em Configurações para o bucket `logos` (só usuários logados) e impressa no topo do cupom; sem logo, o cupom sai como antes.
 
 O texto na térmica sai **sem acentos** (`ç→c`, `ã→a`), porque a KNUP KP-IM607 não aceita acentos como texto; o QR e o código de barras (EAN-13) usam os comandos da própria impressora. Instalação, configuração e API do agente: [print-agent/README.md](print-agent/README.md).
 

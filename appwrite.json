@@ -669,6 +669,15 @@
                     "default": 2,
                     "min": 0,
                     "max": 9223372036854775807
+                },
+                {
+                    "key": "logo_file_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": []
@@ -895,6 +904,31 @@
                 }
             ],
             "indexes": []
+        }
+    ],
+    "buckets": [
+        {
+            "$id": "logos",
+            "$permissions": [
+                "read(\"users\")",
+                "create(\"users\")",
+                "update(\"users\")",
+                "delete(\"users\")"
+            ],
+            "fileSecurity": false,
+            "name": "Logos",
+            "enabled": true,
+            "maximumFileSize": 2097152,
+            "allowedFileExtensions": [
+                "png",
+                "jpg",
+                "jpeg",
+                "webp"
+            ],
+            "compression": "none",
+            "encryption": false,
+            "antivirus": false,
+            "transformations": false
         }
     ]
 }

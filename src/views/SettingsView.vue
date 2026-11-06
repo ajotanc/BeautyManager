@@ -66,6 +66,24 @@
             </FloatLabel>
           </div>
 
+          <div class="field-item logo-field">
+            <div class="logo-thumb">
+              <img v-if="logoUrl" :src="logoUrl" alt="Logo da loja" />
+              <i v-else class="ri-image-line"></i>
+            </div>
+            <div class="logo-actions">
+              <strong class="text-sm">Logo da loja (opcional)</strong>
+              <p class="text-xs text-slate-500">Aparece no topo do cupom não fiscal. PNG, JPG ou WebP, até 2 MB.</p>
+              <div class="flex gap-2 mt-2">
+                <Button type="button" :label="formData.logo_file_id ? 'Trocar imagem' : 'Escolher imagem'" icon="ri-upload-2-line"
+                  size="small" severity="secondary" :loading="isUploadingLogo" @click="logoInput?.click()" />
+                <Button v-if="formData.logo_file_id" type="button" label="Remover" icon="ri-delete-bin-line" size="small"
+                  severity="danger" text @click="removeLogo" />
+              </div>
+              <input ref="logoInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="handleLogoPicked" />
+            </div>
+          </div>
+
           <div class="divider"></div>
 
           <!-- Impressora Térmica & QR Code -->
@@ -197,6 +215,8 @@ import { parseErrorMessage } from '@/types/errors'
 import { settingsSchema } from '@/schemas/settingsSchema'
 import AppSectionHeader from '@/components/common/AppSectionHeader.vue'
 import { maskCpfCnpj, formatDocument } from '@/utils/masks'
+import { LogoService, LOGO_MAX_BYTES, LOGO_TYPES } from '@/services/logo'
+import { useStoreLogo } from '@/composables/useStoreLogo'
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()
@@ -219,6 +239,7 @@ const formData = ref<{
   qrcode_payload: string
   pix_key: string
   loyalty_milestone: number
+  logo_file_id: string
 }>({
   store_name: '',
   document_number: '',
@@ -231,8 +252,48 @@ const formData = ref<{
   qrcode_type: 'whatsapp',
   qrcode_payload: '',
   pix_key: '',
-  loyalty_milestone: 2
+  loyalty_milestone: 2,
+  logo_file_id: ''
 })
+
+const logoInput = ref<HTMLInputElement | null>(null)
+const isUploadingLogo = ref<boolean>(false)
+const logoUrl = useStoreLogo(computed(() => formData.value.logo_file_id))
+/** Logos salvas que foram trocadas/removidas: só são apagadas do storage quando as configurações são salvas. */
+const replacedLogos: string[] = []
+
+function dropLogo(): void {
+  const id = formData.value.logo_file_id
+  if (!id) return
+  if (id === settingsStore.settings?.logo_file_id) replacedLogos.push(id)
+  else void LogoService.remove(id) // enviada nesta sessão e nunca salva
+  formData.value.logo_file_id = ''
+}
+
+function removeLogo(): void {
+  dropLogo()
+}
+
+async function handleLogoPicked(event: Event): Promise<void> {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  input.value = ''
+  if (!file) return
+  if (!LOGO_TYPES.includes(file.type) || file.size > LOGO_MAX_BYTES) {
+    toast.add({ severity: 'warn', summary: 'Imagem inválida', detail: 'Use PNG, JPG ou WebP de até 2 MB.', life: 4000 })
+    return
+  }
+  isUploadingLogo.value = true
+  try {
+    const id = await LogoService.upload(file)
+    dropLogo()
+    formData.value.logo_file_id = id
+  } catch (error: unknown) {
+    toast.add({ severity: 'error', summary: 'Erro ao enviar a logo', detail: parseErrorMessage(error), life: 4000 })
+  } finally {
+    isUploadingLogo.value = false
+  }
+}
 
 function clearErrors(): void {
   Object.keys(errors).forEach((key) => delete errors[key])
@@ -259,7 +320,8 @@ watch(
         qrcode_type: s.qrcode_type || 'whatsapp',
         qrcode_payload: s.qrcode_payload || '',
         pix_key: s.pix_key || '',
-        loyalty_milestone: s.loyalty_milestone !== undefined ? s.loyalty_milestone : 2
+        loyalty_milestone: s.loyalty_milestone !== undefined ? s.loyalty_milestone : 2,
+        logo_file_id: s.logo_file_id || ''
       }
     }
   },
@@ -281,7 +343,8 @@ const computedSettings = computed<Partial<ISettings>>(() => {
     qrcode_type: formData.value.qrcode_type,
     qrcode_payload: formData.value.qrcode_payload,
     pix_key: formData.value.pix_key,
-    loyalty_milestone: formData.value.loyalty_milestone
+    loyalty_milestone: formData.value.loyalty_milestone,
+    logo_file_id: formData.value.logo_file_id || null
   }
 })
 
@@ -302,7 +365,8 @@ async function handleSaveSettings(): Promise<void> {
     qrcode_type: formData.value.qrcode_type,
     qrcode_payload: formData.value.qrcode_payload || undefined,
     pix_key: formData.value.pix_key || undefined,
-    loyalty_milestone: formData.value.loyalty_milestone
+    loyalty_milestone: formData.value.loyalty_milestone,
+    logo_file_id: formData.value.logo_file_id || null
   })
 
   if (!validation.success) {
@@ -324,6 +388,7 @@ async function handleSaveSettings(): Promise<void> {
   isSaving.value = true
   try {
     await settingsStore.saveSettings(validation.data)
+    await Promise.all(replacedLogos.splice(0).map((id) => LogoService.remove(id))) // só depois de salvar
     toast.add({
       severity: 'success',
       summary: 'Configurações Salvas!',
@@ -460,6 +525,32 @@ onMounted(async () => {
 .section-sub {
   font-size: 0.74rem;
   color: var(--text-muted);
+}
+
+.logo-field {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.logo-thumb {
+  width: 5.5rem;
+  height: 5.5rem;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border: 1px dashed var(--p-surface-300, #cbd5e1);
+  border-radius: 0.75rem;
+  background: #fff;
+  overflow: hidden;
+  font-size: 1.75rem;
+  color: var(--p-surface-400, #94a3b8);
+}
+
+.logo-thumb img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
 }
 
 .field-item {

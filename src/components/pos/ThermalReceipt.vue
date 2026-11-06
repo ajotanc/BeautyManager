@@ -10,6 +10,7 @@
       }">
       <!-- Cabeçalho -->
       <div class="text-center">
+        <img v-if="logoUrl" :src="logoUrl" alt="Logo da loja" style="display: block; margin: 0 auto 6px; max-width: 70%; max-height: 60px; filter: grayscale(1)" />
         <div class="store-name">{{ settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS' }}</div>
         <div v-if="settings?.document_number" class="sub-text">CNPJ: {{ settings.document_number }}</div>
         <div v-if="settings?.address" class="sub-text">{{ settings.address }}</div>
@@ -101,6 +102,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useStoreLogo } from '@/composables/useStoreLogo'
 import QrcodeVue from 'qrcode.vue'
 import { formatPaymentMethod, type ISale, type IReceiptItem } from '@/types/sale'
 import type { ISettings } from '@/types/storeSettings'
@@ -121,6 +123,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const year = dayjs().year();
+const logoUrl = useStoreLogo(computed(() => props.settings?.logo_file_id))
 
 /**
  * Normalização dos itens para impressão idêntica ao preview

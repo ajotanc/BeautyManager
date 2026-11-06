@@ -1,4 +1,4 @@
-import { Client, Account, TablesDB, Functions, Permission, Role } from 'appwrite'
+import { Client, Account, TablesDB, Functions, Storage, Permission, Role } from 'appwrite'
 
 export const APPWRITE_ENDPOINT = import.meta.env.VITE_APPWRITE_ENDPOINT || 'https://api.ajotanc.com.br/v1'
 export const APPWRITE_PROJECT_ID = import.meta.env.VITE_APPWRITE_PROJECT_ID || 'beauty-manager'
@@ -18,6 +18,10 @@ export const TABLES = {
   KIT_ITEMS: 'kit_items'
 } as const
 
+export const BUCKETS = {
+  LOGOS: 'logos'
+} as const
+
 export const client = new Client()
 client
   .setEndpoint(APPWRITE_ENDPOINT)
@@ -26,6 +30,7 @@ client
 export const account = new Account(client)
 export const databases = new TablesDB(client)
 export const functions = new Functions(client)
+export const storage = new Storage(client)
 
 export const permissions = [
   Permission.write(Role.users()),
