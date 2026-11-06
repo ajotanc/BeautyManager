@@ -1,6 +1,7 @@
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
 import type { ISale, ISaleItem } from '@/types/sale'
 import { InventoryService } from './inventory'
+import { listAllRows } from './listAll'
 import { ID, Query } from 'appwrite'
 import { IProduct } from '@/types/product'
 
@@ -35,6 +36,20 @@ export const SalesService = {
       return response.rows
     } catch (error) {
       console.error('Erro ao listar vendas recentes:', error)
+      return []
+    }
+  },
+
+  /** Vendas desde uma data (todas, com paginação), só com os campos dos indicadores: sem os itens de cada venda. */
+  async listSince(startIso: string): Promise<ISale[]> {
+    try {
+      return await listAllRows<ISale>(TABLES.SALES, [
+        Query.select(['$id', 'total_amount', 'payment_method', 'status', '$createdAt']),
+        Query.greaterThanEqual('$createdAt', startIso),
+        Query.orderDesc('$createdAt')
+      ])
+    } catch (error) {
+      console.error('Erro ao listar vendas do período:', error)
       return []
     }
   },

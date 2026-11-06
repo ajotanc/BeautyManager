@@ -1,11 +1,5 @@
 import { AppwriteException } from 'appwrite'
 
-export interface IError {
-  message: string
-  code?: number
-  type?: string
-}
-
 /**
  * Função utilitária para tratamento de erros sem uso de any ou unknown
  */

@@ -20,7 +20,6 @@ function loadDestination(): PrintDestination | null {
 // Sem escolha salva, o padrão vira "térmica" assim que o agente local responde.
 const storedDestination = loadDestination()
 let hasExplicitChoice = storedDestination !== null
-let probe: Promise<boolean> | null = null
 const destination = ref<PrintDestination>(storedDestination ?? 'browser')
 const agentOnline = ref<boolean>(false)
 const agentPrinter = ref<string | null>(null)
@@ -85,10 +84,13 @@ export function usePrintAgent() {
     }
   }
 
-  /** Aguarda a primeira detecção do agente (uma vez): define o destino padrão e a medida do papel. */
+  /**
+   * Lê o /status do agente antes de imprimir (chamada local, rápida): traz a configuração atual (largura, margem,
+   * modo) e pega o agente que subiu depois da página. Com "navegador" escolhido, nem consulta.
+   */
   function ready(): Promise<boolean> {
-    probe ??= checkAgent()
-    return probe
+    if (hasExplicitChoice && destination.value === 'browser') return Promise.resolve(false)
+    return checkAgent()
   }
   ready()
 

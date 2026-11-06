@@ -1,5 +1,6 @@
 import { ID, Query } from 'appwrite'
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
+import { listAllRows } from './listAll'
 import type { IProduct } from '@/types/product'
 
 export const ProductService = {
@@ -18,18 +19,8 @@ export const ProductService = {
 
   async list(queries: string[] = []): Promise<IProduct[]> {
     try {
-      const defaultQueries = [
-        Query.select(['*', 'category.*', 'brand.*']),
-        Query.orderAsc('name'),
-        Query.limit(500)
-      ]
-      const combinedQueries = queries.length > 0 ? queries : defaultQueries
-      const response = await databases.listRows<IProduct>({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: TABLES.PRODUCTS,
-        queries: combinedQueries
-      })
-      return response.rows
+      const defaultQueries = [Query.select(['*', 'category.*', 'brand.*']), Query.orderAsc('name')]
+      return await listAllRows<IProduct>(TABLES.PRODUCTS, queries.length > 0 ? queries : defaultQueries)
     } catch (error) {
       console.error('Erro ao listar produtos:', error)
       return []
@@ -51,6 +42,22 @@ export const ProductService = {
       console.error('Erro ao buscar por código de barras:', error)
       return null
     }
+  },
+
+  /**
+   * Recusa um código de barras que já é de outro produto: o PDV vende o primeiro que o banco devolver, então
+   * dois produtos com o mesmo código fazem a leitura vender o errado.
+   */
+  async assertBarcodeFree(barcode: string | undefined, ownId?: string): Promise<void> {
+    const code = barcode?.trim()
+    if (!code) return
+    const response = await databases.listRows<IProduct>({
+      databaseId: APPWRITE_DATABASE_ID,
+      tableId: TABLES.PRODUCTS,
+      queries: [Query.equal('barcode', code), Query.select(['$id', 'name']), Query.limit(2)]
+    })
+    const other = response.rows.find((row) => row.$id !== ownId)
+    if (other) throw new Error(`O código de barras ${code} já pertence ao produto "${other.name}".`)
   },
 
   async getByBarcode(barcode: string): Promise<IProduct | null> {
@@ -77,6 +84,7 @@ export const ProductService = {
 
   async create(data: IProduct): Promise<IProduct> {
     try {
+      await this.assertBarcodeFree(data.barcode)
       return await databases.createRow({
         databaseId: APPWRITE_DATABASE_ID,
         tableId: TABLES.PRODUCTS,
@@ -111,6 +119,7 @@ export const ProductService = {
   ): Promise<IProduct> {
     try {
       const id = rowId || ID.unique()
+      await this.assertBarcodeFree(data.barcode, rowId)
 
       return await databases.upsertRow({
         databaseId: APPWRITE_DATABASE_ID,

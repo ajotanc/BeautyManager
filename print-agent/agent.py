@@ -183,7 +183,11 @@ def install_printer(cfg: dict) -> str:
     lines = ["$ErrorActionPreference='Stop'"]
     driver = cfg["driver_name"] or "Generic / Text Only"  # RAW/ESC-POS não depende do driver do fabricante
     if cfg["driver_url"]:
-        file = work / (Path(cfg["driver_url"]).name or "driver.bin")
+        # O nome do arquivo vai para um script de administrador: nunca usa o texto da URL, só a extensão permitida.
+        suffix = Path(cfg["driver_url"].split("?")[0]).suffix.lower()
+        if suffix not in (".zip", ".exe"):
+            raise ValueError("A URL do driver deve apontar para um arquivo .zip ou .exe.")
+        file = work / f"driver{suffix}"
         urllib.request.urlretrieve(cfg["driver_url"], file)
         if cfg["driver_sha256"]:
             if hashlib.sha256(file.read_bytes()).hexdigest().lower() != cfg["driver_sha256"].lower():
@@ -234,6 +238,11 @@ try {{
     return outcome if outcome != "OK" else "O Windows não listou a impressora após a instalação."
 
 
+def origin_allowed(origin: str | None, patterns: list[str]) -> bool:
+    """Sem Origin (curl, teste local) passa; com Origin, só se casar com algum padrão (aceita curinga *)."""
+    return origin is None or any(fnmatch.fnmatchcase(origin, p) for p in patterns)
+
+
 # ---------- Servidor HTTP ----------
 class Handler(BaseHTTPRequestHandler):
     cfg: dict = {}
@@ -254,9 +263,7 @@ class Handler(BaseHTTPRequestHandler):
         return self.path in self.cfg["allowed_routes"]
 
     def _origin_ok(self) -> bool:
-        origin = self.headers.get("Origin")
-        # Aceita curinga, ex.: https://*.ajotanc.com.br
-        return origin is None or any(fnmatch.fnmatchcase(origin, p) for p in self.cfg["allowed_origins"])
+        return origin_allowed(self.headers.get("Origin"), self.cfg["allowed_origins"])
 
     def _reply(self, status: int, body: dict | None = None) -> None:
         raw = json.dumps(body).encode() if body is not None else b""

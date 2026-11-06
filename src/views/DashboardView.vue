@@ -18,21 +18,21 @@
     <!-- Cards de Métricas Principais -->
     <div class="metrics-row">
       <MetricCard
-        label="Faturamento Total"
+        label="Faturamento do Mês"
         :value="formatCurrency(totalRevenue)"
         icon="ri-money-dollar-circle-line"
         color="rose"
       />
 
       <MetricCard
-        label="Vendas Concluídas"
+        label="Vendas no Mês"
         :value="completedSalesCount"
         icon="ri-shopping-bag-3-line"
         color="gold"
       />
 
       <MetricCard
-        label="Ticket Médio"
+        label="Ticket Médio do Mês"
         :value="formatCurrency(averageTicket)"
         icon="ri-line-chart-line"
         color="emerald"
@@ -52,7 +52,7 @@
         <span class="heading-title">
           <i class="ri-pie-chart-2-line"></i> Vendas por Forma de Pagamento
         </span>
-        <span class="text-xs text-muted font-medium">Baseado nas vendas registradas</span>
+        <span class="text-xs text-muted font-medium">Vendas concluídas no mês atual</span>
       </div>
 
       <div v-if="completedSalesCount === 0" class="empty-notice">
@@ -159,7 +159,7 @@ import { useAuthStore } from '@/stores/authStore'
 import { sales } from '@/services/sales'
 import type { ISale, PaymentMethod } from '@/types/sale'
 import { formatCurrency, toNumber } from '@/utils/currency'
-import { formatDate } from '@/utils/date'
+import { dayjs, formatDate } from '@/utils/date'
 
 interface IPaymentStat {
   method: PaymentMethod
@@ -189,7 +189,7 @@ async function loadDashboardData(): Promise<void> {
   isLoading.value = true
   try {
     const [list] = await Promise.all([
-      sales.listRecent(300),
+      sales.listSince(dayjs().startOf('month').toISOString()),
       productStore.fetchAll()
     ])
     salesList.value = list

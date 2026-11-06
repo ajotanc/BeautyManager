@@ -47,4 +47,3 @@ export class Auth {
 
 export const auth = new Auth()
 // Alias para compatibilidade
-export const authService = auth

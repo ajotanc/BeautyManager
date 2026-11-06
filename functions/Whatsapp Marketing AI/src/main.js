@@ -7,7 +7,12 @@ export default async ({ req, res, log, error }) => {
 
   try {
     const payload = typeof req.body === 'string' ? JSON.parse(req.body) : req.body;
-    const { customerName, productName, messageType, customSubject, marketingMode } = payload;
+    // Entradas curtas: o texto entra no pedido da IA e não pode ser um parágrafo de instruções.
+    const clip = (value) => (typeof value === 'string' ? value.trim().slice(0, 100) : value);
+    const { messageType, marketingMode } = payload;
+    const customerName = clip(payload.customerName);
+    const productName = clip(payload.productName);
+    const customSubject = clip(payload.customSubject);
 
     const isProductMode = marketingMode === 'product';
 

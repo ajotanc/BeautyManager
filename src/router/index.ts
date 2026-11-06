@@ -12,13 +12,13 @@ const routes: RouteRecordRaw[] = [
     path: '/privacy',
     name: 'privacy',
     component: () => import('@/views/PrivacyView.vue'),
-    meta: { public: true }
+    meta: { public: true, title: 'Política de Privacidade' }
   },
   {
     path: '/terms',
     name: 'terms',
     component: () => import('@/views/TermsView.vue'),
-    meta: { public: true }
+    meta: { public: true, title: 'Termos de Serviço' }
   },
   {
     path: '/',
@@ -90,5 +90,8 @@ const router = createRouter({
 })
 
 router.beforeEach(authGuard)
+router.afterEach((to) => {
+  document.title = typeof to.meta.title === 'string' ? `${to.meta.title} • Beauty Manager` : 'Beauty Manager'
+})
 
 export default router

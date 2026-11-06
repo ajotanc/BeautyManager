@@ -5,6 +5,6 @@
   "main": "src/main.js",
   "type": "module",
   "dependencies": {
-    "@google/genai": "latest"
+    "@google/genai": "^2.32.0"
   }
 }

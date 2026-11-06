@@ -1,6 +1,5 @@
 import type { NavigationGuardNext, RouteLocationNormalized } from 'vue-router'
 import { useAuthStore } from '@/stores/authStore'
-import { isLocalEnvironment } from '@/utils/security'
 
 export async function authGuard(
   to: RouteLocationNormalized,
@@ -8,11 +7,6 @@ export async function authGuard(
   next: NavigationGuardNext
 ): Promise<void> {
   const authStore = useAuthStore()
-
-  // Verificação de ambiente local
-  if (!isLocalEnvironment()) {
-    console.warn('Acesso fora do ambiente local detectado.')
-  }
 
   // Se a store ainda não verificou a sessão, faz a verificação
   if (!authStore.isInitialized) {

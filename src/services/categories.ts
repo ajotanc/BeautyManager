@@ -1,5 +1,6 @@
 import { ID, Query } from 'appwrite'
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
+import { listAllRows } from './listAll'
 import type { ICategory } from '@/types/category'
 
 export const CategoryService = {
@@ -18,12 +19,7 @@ export const CategoryService = {
 
   async list(): Promise<ICategory[]> {
     try {
-      const response = await databases.listRows<ICategory>({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: TABLES.CATEGORIES,
-        queries: [Query.orderAsc('name'), Query.limit(100)]
-      })
-      return response.rows
+      return await listAllRows<ICategory>(TABLES.CATEGORIES, [Query.orderAsc('name')])
     } catch (error) {
       console.error('Erro ao listar categorias:', error)
       return []

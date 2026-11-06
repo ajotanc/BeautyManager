@@ -5,7 +5,7 @@ export function useLoyalty(customerTotalPurchases: Ref<number>) {
   const settingsStore = useSettingsStore()
 
   // Retorna a meta configurada, ou 2 por padrão, ou 0 se desativado
-  const milestoneTarget = computed(() => settingsStore.settings?.loyalty_milestone || 2)
+  const milestoneTarget = computed(() => settingsStore.settings?.loyalty_milestone ?? 2)
 
   const isLoyaltyEnabled = computed(() => milestoneTarget.value > 0)
 

@@ -206,7 +206,7 @@ export const usePosStore = defineStore('pos', () => {
 
       const createdSale = await sales.createSale({
         total_amount: toDecimalString(totalAmount.value),
-        discount_amount: toDecimalString(discount.value),
+        discount_amount: toDecimalString(Math.min(discount.value, subtotal.value)),
         payment_method: selectedPaymentMethod.value,
         customer_name: customerName.value.trim() || null,
         customer_phone: customerPhone.value.trim() || null,
@@ -229,12 +229,17 @@ export const usePosStore = defineStore('pos', () => {
         }
       }
 
-      if (selectedCustomer.value?.$id) {
-        await CustomerService.recordPurchase(selectedCustomer.value, 'purchase')
-      }
-
-      if (selectedPaymentMethod.value === 'cash' && cashRegisterStore.currentRegister) {
-        await cashRegisterStore.addCashSale(totalAmount.value)
+      // A venda já está salva: uma falha nos passos abaixo não pode deixar o carrinho cheio, senão o
+      // clique seguinte grava a venda de novo (e baixa o estoque duas vezes). Registra o erro e segue.
+      try {
+        if (selectedCustomer.value?.$id) {
+          await CustomerService.recordPurchase(selectedCustomer.value, 'purchase')
+        }
+        if (selectedPaymentMethod.value === 'cash' && cashRegisterStore.currentRegister) {
+          await cashRegisterStore.addCashSale(totalAmount.value)
+        }
+      } catch (error) {
+        console.error('Venda salva, mas falhou atualizar cliente ou caixa:', error)
       }
 
       lastCompletedSale.value = createdSale

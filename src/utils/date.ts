@@ -34,16 +34,6 @@ export function formatDate(dateInput?: string | Date | dayjs.Dayjs | null, forma
 }
 
 /**
- * Formata apenas hora (padrão: HH:mm)
- */
-export function formatTime(dateInput?: string | Date | dayjs.Dayjs | null, format: string = 'HH:mm'): string {
-  if (!dateInput) return '-'
-  const d = dayjs(dateInput)
-  if (!d.isValid()) return '-'
-  return d.format(format)
-}
-
-/**
  * Verifica se um produto cosmético está próximo do vencimento
  */
 export function isExpiringSoon(expiryDate?: string | Date | dayjs.Dayjs | null, daysThreshold: number = 45): boolean {

@@ -8,6 +8,8 @@ export function toNumber(value: number | string | undefined | null): number {
   if (typeof value === 'number') {
     return isNaN(value) ? 0 : value
   }
+  // Decimal simples do banco ("10", "3.50"): o parseCurrency trataria "10" como centavos (0,10).
+  if (/^-?\d+(\.\d+)?$/.test(value.trim())) return parseFloat(value)
   const parsed = typeof brParseCurrency === 'function' ? brParseCurrency(value) : parseFloat(value)
   return isNaN(parsed) ? 0 : parsed
 }

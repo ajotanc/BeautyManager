@@ -15,9 +15,8 @@ export function paperDotsFor(width: ReceiptWidth | undefined): number {
   return PAPER_DOTS[width ?? '58mm'] ?? PAPER_DOTS['58mm']
 }
 
-
 /** Remove acentos (ç→c, ã→a, º→o): a impressora recebe só ASCII e não depende de página de código. */
-function encodeText(text: string): number[] {
+export function encodeText(text: string): number[] {
   return Array.from(text.normalize('NFKD'))
     .filter((ch) => {
       const code = ch.charCodeAt(0)
@@ -297,7 +296,7 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
 }
 
 /** EAN-13 válido: 13 dígitos e dígito verificador correto (pesos 1 e 3). */
-function isEan13(v: string): boolean {
+export function isEan13(v: string): boolean {
   if (!/^[0-9]{13}$/.test(v)) return false
   const sum = Array.from(v.slice(0, 12)).reduce((acc, d, i) => acc + Number(d) * (i % 2 === 0 ? 1 : 3), 0)
   return (10 - (sum % 10)) % 10 === Number(v[12])
@@ -308,7 +307,7 @@ function isEan13(v: string): boolean {
  * mais larga); o resto vai em CODE128 (tipo 73): pares de dígitos no conjunto C (mais curto), o resto no conjunto B.
  * `modules` é a largura total em módulos, para escolher a barra mais larga que cabe no papel.
  */
-function barcode(value: string): { type: number; bytes: number[]; modules: number } {
+export function barcode(value: string): { type: number; bytes: number[]; modules: number } {
   const v = value.trim()
   if (isEan13(v)) return { type: 67, bytes: Array.from(v, (d) => d.charCodeAt(0)), modules: 95 }
   const digits = /^[0-9]+$/.test(v) ? v.length - (v.length % 2) : 0
@@ -345,7 +344,7 @@ function wrapTokens(tokens: string[], cols: number): string[] {
  * "NOME DO PRODUTO - R$ 0,01" em maiúsculo e sem acentos, em até 2 linhas. Se não couber, o nome é encurtado
  * com "..." (o preço nunca é cortado).
  */
-function labelTitle(name: string, price: string, cols: number): string[] {
+export function labelTitle(name: string, price: string, cols: number): string[] {
   const words = toAscii(name.toUpperCase()).trim().split(/\s+/)
   const tail = ['-', toAscii(price)]
   let cut = false

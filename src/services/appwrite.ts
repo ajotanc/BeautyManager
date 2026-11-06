@@ -25,7 +25,6 @@ client
 
 export const account = new Account(client)
 export const databases = new TablesDB(client)
-export const tables = databases
 export const functions = new Functions(client)
 
 export const permissions = [

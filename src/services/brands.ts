@@ -1,5 +1,6 @@
 import { ID, Query } from 'appwrite'
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
+import { listAllRows } from './listAll'
 import type { IBrand } from '@/types/brand'
 
 export const BrandService = {
@@ -18,12 +19,7 @@ export const BrandService = {
 
   async list(): Promise<IBrand[]> {
     try {
-      const response = await databases.listRows<IBrand>({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: TABLES.BRANDS,
-        queries: [Query.orderAsc('name'), Query.limit(100)]
-      })
-      return response.rows
+      return await listAllRows<IBrand>(TABLES.BRANDS, [Query.orderAsc('name')])
     } catch (error) {
       console.error('Erro ao listar marcas:', error)
       return []

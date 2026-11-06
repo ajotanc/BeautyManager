@@ -103,7 +103,8 @@ function translateReason(reason: InventoryReason): string {
     sale: 'Venda no PDV',
     adjustment: 'Ajuste de Balanço',
     damage: 'Avaria / Perda / Vencido',
-    devolution: 'Devolução / Estorno'
+    devolution: 'Devolução / Estorno',
+    internal_use: 'Uso Interno / Demonstração'
   }
   return map[reason] || reason
 }

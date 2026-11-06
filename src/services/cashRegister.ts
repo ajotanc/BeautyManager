@@ -2,6 +2,7 @@ import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite
 import type { ICashRegister, ICashMovement } from '@/types/cashRegister'
 import { nowIso, dayjs } from '@/utils/date'
 import { toNumber, toDecimalString } from '@/utils/currency'
+import { appendNote } from '@/utils/notes'
 import { ID, Query } from 'appwrite'
 
 export const CashRegisterService = {
@@ -128,7 +129,7 @@ export const CashRegisterService = {
 
     const timeStr = dayjs().format('HH:mm:ss')
     const noteAppend = `\n[${timeStr}] ${movement.type === 'IN' ? 'Suprimento' : 'Sangria'}: R$ ${movAmount.toFixed(2)} - ${movement.reason}`
-    const updatedNotes = (register.notes || '') + noteAppend
+    const updatedNotes = appendNote(register.notes, noteAppend)
 
     return await this.update(registerId, {
       total_in: toDecimalString(newTotalIn),

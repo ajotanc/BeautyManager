@@ -154,7 +154,7 @@ import { z } from 'zod'
 const stockAdjustmentSchema = z.object({
   quantity: z.number().int().min(1, 'A quantidade mínima para movimentação é 1'),
   transaction_type: z.enum(['IN', 'OUT']),
-  reason: z.enum(['purchase', 'sale', 'adjustment', 'damage', 'devolution'])
+  reason: z.enum(['purchase', 'sale', 'adjustment', 'damage', 'devolution', 'internal_use'])
 })
 
 interface Props {
@@ -205,7 +205,7 @@ const inReasonOptions = [
 const outReasonOptions = [
   { label: 'Avaria / Perda / Produto Danificado', value: 'damage' },
   { label: 'Ajuste de Balanço / Contagem Física (-)', value: 'adjustment' },
-  { label: 'Uso Interno / Demonstração Loja', value: 'damage' }
+  { label: 'Uso Interno / Demonstração Loja', value: 'internal_use' }
 ]
 
 const reasonOptions = computed(() => {

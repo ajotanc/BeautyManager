@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "appwrite": {
+      "command": "node",
+      "args": ["scripts/mcp-appwrite.mjs"]
+    }
+  }
+}

@@ -1,4 +1,5 @@
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
+import { listAllRows } from './listAll'
 import type { IKit } from '@/types/kit'
 import { ID, Query } from 'appwrite'
 
@@ -21,18 +22,8 @@ export const KitService = {
 
   async list(queries: string[] = []): Promise<IKit[]> {
     try {
-      const defaultQueries = [
-        Query.select(['*', 'items.*', 'items.product.*']),
-        Query.orderAsc('name'),
-        Query.limit(200)
-      ]
-      const combinedQueries = queries.length > 0 ? queries : defaultQueries
-      const response = await databases.listRows<IKit>({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: TABLES.KITS,
-        queries: combinedQueries
-      })
-      return response.rows
+      const defaultQueries = [Query.select(['*', 'items.*', 'items.product.*']), Query.orderAsc('name')]
+      return await listAllRows<IKit>(TABLES.KITS, queries.length > 0 ? queries : defaultQueries)
     } catch (error) {
       console.error('Erro ao listar kits:', error)
       return []
@@ -44,8 +35,7 @@ export const KitService = {
       return await this.list([
         Query.equal('is_active', true),
         Query.select(['*', 'items.*', 'items.product.*']),
-        Query.orderAsc('name'),
-        Query.limit(200)
+        Query.orderAsc('name')
       ])
     } catch (error) {
       console.error('Erro ao listar kits ativos:', error)

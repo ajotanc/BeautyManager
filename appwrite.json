@@ -21,7 +21,7 @@
                 "jwt": true,
                 "phone": true,
                 "invites": true,
-                "anonymous": true,
+                "anonymous": false,
                 "email-otp": true,
                 "magic-url": true,
                 "email-password": true
@@ -44,7 +44,7 @@
             "name": "Whatsapp Marketing AI",
             "runtime": "node-20.0",
             "execute": [
-                "any"
+                "users"
             ],
             "events": [],
             "schedule": "",
@@ -660,6 +660,15 @@
                     "size": 255,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "loyalty_milestone",
+                    "type": "integer",
+                    "required": false,
+                    "array": false,
+                    "default": 2,
+                    "min": 0,
+                    "max": 9223372036854775807
                 }
             ],
             "indexes": []

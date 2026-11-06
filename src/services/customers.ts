@@ -1,5 +1,6 @@
 import { ID, Query } from 'appwrite'
 import { databases, APPWRITE_DATABASE_ID, TABLES, permissions } from './appwrite'
+import { listAllRows } from './listAll'
 import type { ICustomer } from '@/types/customer'
 import dayjs from 'dayjs'
 
@@ -19,17 +20,11 @@ export const CustomerService = {
 
   async list(search?: string): Promise<ICustomer[]> {
     try {
-      const queries = [Query.orderAsc('name'), Query.limit(200)]
+      const queries = [Query.orderAsc('name')]
       if (search && search.trim()) {
         queries.push(Query.contains('name', search.trim()))
       }
-
-      const response = await databases.listRows<ICustomer>({
-        databaseId: APPWRITE_DATABASE_ID,
-        tableId: TABLES.CUSTOMERS,
-        queries
-      })
-      return response.rows
+      return await listAllRows<ICustomer>(TABLES.CUSTOMERS, queries)
     } catch (error) {
       console.error('Erro ao listar clientes:', error)
       return []
