@@ -38,7 +38,7 @@
         <div class="receipt-divider">--------------------------------</div>
 
         <div v-for="item in receiptItems" :key="item.id" class="item-line">
-          <div class="item-title">{{ item.name }}</div>
+          <div class="item-title">{{ item.name.toUpperCase() }}</div>
           <div class="item-details">
             <span>{{ item.quantity }}x {{ formatCurrency(item.unitPrice) }}</span>
             <span class="font-bold">{{ formatCurrency(item.subtotal) }}</span>
@@ -46,7 +46,7 @@
           <!-- Componentes inclusos no Kit -->
           <div v-if="item.isKit && item.components && item.components.length > 0" class="kit-receipt-components">
             <div v-for="(comp, cIdx) in item.components" :key="cIdx" class="kit-component-line text-[0.82em] text-slate-700 pl-2">
-              - {{ comp.quantity }}x {{ comp.name }}
+              - {{ comp.quantity }}x {{ comp.name.toUpperCase() }}
             </div>
           </div>
         </div>

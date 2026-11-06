@@ -117,7 +117,7 @@ export class EscPosBuilder {
   }
 
   cut(): this {
-    return this.feed(40).raw(0x1d, 0x56, 0x01)
+    return this.feed(30).raw(0x1d, 0x56, 0x01)
   }
 
   /** QR nativo da impressora (GS ( k), nível M, centralizado. */
@@ -270,10 +270,10 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
 
   for (const item of lines) {
     b.bold(true)
-    wrap(item.name, cols).forEach((l) => b.line(l))
+    wrap(item.name.toUpperCase(), cols).forEach((l) => b.line(l))
     b.bold(false)
     b.line(pair(`${item.quantity}x ${formatCurrency(item.unitPrice)}`, formatCurrency(item.subtotal), cols))
-    item.components?.forEach((c) => b.line(`  - ${c.quantity}x ${c.name}`.slice(0, cols)))
+    item.components?.forEach((c) => b.line(`  - ${c.quantity}x ${c.name.toUpperCase()}`.slice(0, cols)))
   }
   b.line(rule)
 
