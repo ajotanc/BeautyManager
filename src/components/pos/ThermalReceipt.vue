@@ -106,6 +106,7 @@ import { formatPaymentMethod, type ISale, type IReceiptItem } from '@/types/sale
 import type { ISettings } from '@/types/storeSettings'
 import { formatCurrency, toNumber } from '@/utils/currency'
 import { dayjs, formatDateTime, nowIso } from '@/utils/date'
+import { getReceiptQr } from '@/utils/receipt'
 
 interface Props {
   sale?: ISale | null
@@ -212,28 +213,9 @@ const paymentMethodLabel = computed<string>(() => {
 
 const qrSize = computed(() => (props.settings?.receipt_width === '80mm' ? 120 : 85))
 
-const qrPayload = computed(() => {
-  if (!props.settings) return 'https://beautymanager.loja'
-  if (props.settings.qrcode_type === 'whatsapp') {
-    const rawPhone = props.settings.phone?.replace(/\D/g, '') || ''
-    return rawPhone ? `https://api.whatsapp.com/send?phone=55${rawPhone}` : props.settings.qrcode_payload || 'https://api.whatsapp.com/'
-  }
-  if (props.settings.qrcode_type === 'instagram') {
-    const cleanUser = props.settings.instagram?.replace('@', '').trim() || ''
-    return cleanUser ? `https://instagram.com/${cleanUser}` : props.settings.qrcode_payload || 'https://instagram.com'
-  }
-  if (props.settings.qrcode_type === 'pix') {
-    return props.settings.pix_key || props.settings.qrcode_payload || 'pix-chave'
-  }
-  return props.settings.qrcode_payload || 'https://beautymanager.loja'
-})
+const qrPayload = computed(() => getReceiptQr(props.settings).payload)
 
-const qrLabel = computed(() => {
-  if (props.settings?.qrcode_type === 'whatsapp') return 'WHATSAPP DA LOJA'
-  if (props.settings?.qrcode_type === 'instagram') return 'INSTAGRAM DA LOJA'
-  if (props.settings?.qrcode_type === 'pix') return 'CHAVE PIX'
-  return 'ESCANEIE AQUI'
-})
+const qrLabel = computed(() => getReceiptQr(props.settings).label)
 </script>
 
 <style scoped>

@@ -1,0 +1,13 @@
+User-agent: *
+Disallow: /login
+Disallow: /dashboard
+Disallow: /checkout
+Disallow: /products
+Disallow: /kits
+Disallow: /customers
+Disallow: /inventory
+Disallow: /sales
+Disallow: /cashier
+Disallow: /settings
+Allow: /privacy
+Allow: /terms

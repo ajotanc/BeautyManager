@@ -18,7 +18,7 @@ body {
   width: 100% !important;
   background: #ffffff !important;
   color: #111111 !important;
-  font-family: 'JetBrains Mono', 'Courier New', Courier, monospace !important;
+  font-family: 'JetBrains Mono Variable', 'JetBrains Mono', 'Courier New', Courier, monospace !important;
   -webkit-print-color-adjust: exact;
   print-color-adjust: exact;
 }

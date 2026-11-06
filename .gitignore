@@ -29,3 +29,8 @@ appwrite
 .playwright-mcp
 .netlify
 .agents
+print-agent/build/
+print-agent/dist/
+print-agent/*.spec
+__pycache__/
+public/print-agent/

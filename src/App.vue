@@ -1,5 +1,6 @@
 <template>
   <div class="app-root">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-9999 focus:bg-white focus:text-black focus:px-3 focus:py-2 focus:rounded">Pular para o conteúdo</a>
     <!-- Toast Global para notificações -->
     <Toast position="top-right" autoZIndex :pt="{ root: { class: 'w-md max-w-[90vw]' } }" />
     <AppConfirmDialog />
@@ -18,7 +19,7 @@
       <AppNavbar />
       <div class="app-body">
         <AppSidebar />
-        <main class="app-content">
+        <main id="main-content" class="app-content">
           <router-view v-slot="{ Component }">
             <transition name="fade-page" mode="out-in">
               <component :is="Component" />
@@ -47,7 +48,7 @@ const authStore = useAuthStore()
 const cashRegisterStore = useCashRegisterStore()
 const settingsStore = useSettingsStore()
 
-const isLoginRoute = computed(() => route.name === 'login')
+const isLoginRoute = computed(() => route.meta.public === true)
 
 function handleGlobalKeydown(event: KeyboardEvent): void {
   if (isLoginRoute.value) return

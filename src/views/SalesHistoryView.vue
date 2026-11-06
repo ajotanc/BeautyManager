@@ -177,7 +177,7 @@ async function handleReprint(sale: ISale | null): Promise<void> {
   if (!sale) return
   selectedSale.value = sale
   await nextTick()
-  await printReceipt()
+  await printReceipt({ sale, settings: settingsStore.settings })
 }
 
 function openWhatsapp(sale: ISale): void {

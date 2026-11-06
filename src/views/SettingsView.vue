@@ -96,6 +96,19 @@
             </div>
           </div>
 
+          <div class="field-item">
+            <FloatLabel variant="in">
+              <Select id="print_destination" :model-value="printDestination" :options="[
+                { label: 'Navegador (janela de impressão)', value: 'browser' },
+                { label: 'Impressora térmica direta (agente local)', value: 'thermal' }
+              ]" option-label="label" option-value="value" fluid @update:model-value="setPrintDestination" />
+              <label for="print_destination">Destino da Impressão (este computador)</label>
+            </FloatLabel>
+            <small v-if="printDestination === 'thermal'" :class="agentOnline ? 'text-emerald-600' : 'text-red-600'">
+              {{ agentOnline ? `Agente conectado${agentPrinter ? ` • ${agentPrinter}` : ''}` : 'Agente não encontrado. Abra o BeautyPrintAgent.exe (print-agent/README.md).' }}
+            </small>
+          </div>
+
           <div v-if="formData.qrcode_type === 'pix'" class="field-item">
             <FloatLabel variant="in">
               <InputText id="pix_key" v-model="formData.pix_key" fluid />
@@ -176,6 +189,7 @@ import ThermalReceiptPreview from '@/components/pos/ThermalReceiptPreview.vue'
 import ThermalReceipt from '@/components/pos/ThermalReceipt.vue'
 
 import { useSettingsStore } from '@/stores/settingsStore'
+import { usePrintAgent } from '@/composables/usePrintAgent'
 import { useThermalPrinter } from '@/composables/useThermalPrinter'
 import type { ReceiptWidth, QrCodeType, ISettings } from '@/types/storeSettings'
 import { useToast } from 'primevue/usetoast'
@@ -186,6 +200,7 @@ import { maskCpfCnpj, formatDocument } from '@/utils/masks'
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()
+const { destination: printDestination, agentOnline, agentPrinter, setDestination: setPrintDestination, checkAgent } = usePrintAgent()
 const toast = useToast()
 
 const isSaving = ref<boolean>(false)
@@ -328,10 +343,11 @@ async function handleSaveSettings(): Promise<void> {
 }
 
 async function handleTestPrint(): Promise<void> {
-  await printReceipt()
+  await printReceipt({ settings: computedSettings.value })
 }
 
 onMounted(async () => {
+  checkAgent()
   await settingsStore.fetchSettings()
 })
 </script>

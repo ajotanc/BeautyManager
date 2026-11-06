@@ -337,6 +337,18 @@
         </div>
 
         <div class="flex items-center gap-2">
+          <Select
+            :model-value="destination"
+            :options="[
+              { label: 'Folha A4 (navegador)', value: 'browser' },
+              { label: `Térmica ${labelSizeText}`, value: 'thermal' }
+            ]"
+            option-label="label"
+            option-value="value"
+            size="small"
+            aria-label="Destino da impressão"
+            @update:model-value="setDestination"
+          />
           <Button
             label="Fechar"
             icon="ri-close-line"
@@ -351,7 +363,8 @@
             severity="primary"
             size="small"
             :disabled="totalLabels === 0"
-            @click="handlePrint"
+            :loading="isSending"
+            @click="printLabels"
           />
         </div>
       </div>
@@ -372,6 +385,10 @@ import type { IProduct } from '@/types/product'
 import { formatCurrency } from '@/utils/currency'
 import { useProductStore } from '@/stores/productStore'
 import { useDragScroll } from '@/composables/useDragScroll'
+import { useToast } from 'primevue/usetoast'
+import { usePrintAgent } from '@/composables/usePrintAgent'
+import { useSettingsStore } from '@/stores/settingsStore'
+import { buildLabelsEscPos, paperDotsFor } from '@/utils/escpos'
 
 interface PrintQueueItem {
   product: IProduct
@@ -392,6 +409,11 @@ const emit = defineEmits<{
 }>()
 
 const productStore = useProductStore()
+const settingsStore = useSettingsStore()
+const toast = useToast()
+const { destination, setDestination, sendToAgent, ready, agentPaperDots, agentLeftMargin } = usePrintAgent()
+const isSending = ref<boolean>(false)
+const labelSizeText = 'papel inteiro'
 
 const printQueue = ref<PrintQueueItem[]>([])
 const selectedProductToAdd = ref<IProduct | null>(null)
@@ -511,6 +533,25 @@ const { handlePrint } = useVueToPrint({
   copyStyles: false,
   pageStyle: labelsPrintCss
 })
+
+/** Térmica: texto nativo direto pelo agente; A4: diálogo do navegador. */
+async function printLabels(): Promise<void> {
+  await ready()
+  if (destination.value !== 'thermal') return handlePrint()
+  isSending.value = true
+  try {
+    await sendToAgent(buildLabelsEscPos(flatStickers.value, agentPaperDots.value ?? paperDotsFor(settingsStore.settings?.receipt_width), agentLeftMargin.value))
+  } catch (err: unknown) {
+    toast.add({
+      severity: 'error',
+      summary: 'Erro na impressão',
+      detail: err instanceof Error ? err.message : 'Não foi possível imprimir as etiquetas.',
+      life: 4000
+    })
+  } finally {
+    isSending.value = false
+  }
+}
 </script>
 
 <style scoped>

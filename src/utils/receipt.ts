@@ -63,3 +63,26 @@ export function generateSaleReceiptText(sale: ISale, settings?: ISettings | null
 
   return text
 }
+
+/** Rótulo e conteúdo do QR Code do cupom conforme as configurações da loja. */
+export function getReceiptQr(settings?: Partial<ISettings> | null): { label: string; payload: string } {
+  if (!settings) return { label: 'ESCANEIE AQUI', payload: 'https://beautymanager.loja' }
+  if (settings.qrcode_type === 'whatsapp') {
+    const rawPhone = settings.phone?.replace(/\D/g, '') || ''
+    return {
+      label: 'WHATSAPP DA LOJA',
+      payload: rawPhone ? `https://api.whatsapp.com/send?phone=55${rawPhone}` : settings.qrcode_payload || 'https://api.whatsapp.com/'
+    }
+  }
+  if (settings.qrcode_type === 'instagram') {
+    const cleanUser = settings.instagram?.replace('@', '').trim() || ''
+    return {
+      label: 'INSTAGRAM DA LOJA',
+      payload: cleanUser ? `https://instagram.com/${cleanUser}` : settings.qrcode_payload || 'https://instagram.com'
+    }
+  }
+  if (settings.qrcode_type === 'pix') {
+    return { label: 'CHAVE PIX', payload: settings.pix_key || settings.qrcode_payload || 'pix-chave' }
+  }
+  return { label: 'ESCANEIE AQUI', payload: settings.qrcode_payload || 'https://beautymanager.loja' }
+}

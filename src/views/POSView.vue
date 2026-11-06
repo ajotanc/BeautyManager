@@ -387,7 +387,7 @@ async function onSaleCompleted(sale: ISale, shouldPrint: boolean, shouldOpenWhat
   // Impressão Térmica Automática
   if (shouldPrint) {
     await nextTick()
-    await printReceipt()
+    await printReceipt({ sale: lastSale.value, settings: settingsStore.settings, changeAmount: posStore.changeAmount })
   }
 
   // Se a opção de envio por WhatsApp estiver ativa

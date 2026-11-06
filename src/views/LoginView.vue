@@ -48,6 +48,10 @@
           <i class="ri-shield-check-line"></i>
           <span>Ambiente Seguro • Modo PDV Ativo</span>
         </div>
+        <p class="mt-2 text-xs text-center">
+          <router-link to="/terms" class="underline">Termos de Serviço</router-link> •
+          <router-link to="/privacy" class="underline">Política de Privacidade</router-link>
+        </p>
       </div>
     </div>
   </div>
