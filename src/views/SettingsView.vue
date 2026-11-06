@@ -193,7 +193,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch, reactive, onMounted } from 'vue'
+import { ref, computed, watch, reactive, onMounted, nextTick } from 'vue'
 import InputText from 'primevue/inputtext'
 import InputNumber from 'primevue/inputnumber'
 import Textarea from 'primevue/textarea'
@@ -259,19 +259,22 @@ const formData = ref<{
 const logoInput = ref<HTMLInputElement | null>(null)
 const isUploadingLogo = ref<boolean>(false)
 const logoUrl = useStoreLogo(computed(() => formData.value.logo_file_id))
-/** Logos salvas que foram trocadas/removidas: só são apagadas do storage quando as configurações são salvas. */
-const replacedLogos: string[] = []
-
-function dropLogo(): void {
-  const id = formData.value.logo_file_id
-  if (!id) return
-  if (id === settingsStore.settings?.logo_file_id) replacedLogos.push(id)
-  else void LogoService.remove(id) // enviada nesta sessão e nunca salva
-  formData.value.logo_file_id = ''
+/** Grava a logo (ou a remoção) na hora, sem esperar o "Salvar Alterações", e só então apaga o arquivo antigo. */
+async function saveLogo(newId: string): Promise<void> {
+  const draft = { ...formData.value } // salvar atualiza a loja no store e o watch recarregaria o formulário
+  const oldId = draft.logo_file_id
+  await settingsStore.saveSettings({ logo_file_id: newId || null })
+  await nextTick()
+  formData.value = { ...draft, logo_file_id: newId }
+  if (oldId && oldId !== newId) await LogoService.remove(oldId)
 }
 
-function removeLogo(): void {
-  dropLogo()
+async function removeLogo(): Promise<void> {
+  try {
+    await saveLogo('')
+  } catch (error: unknown) {
+    toast.add({ severity: 'error', summary: 'Erro ao remover a logo', detail: parseErrorMessage(error), life: 4000 })
+  }
 }
 
 async function handleLogoPicked(event: Event): Promise<void> {
@@ -284,12 +287,14 @@ async function handleLogoPicked(event: Event): Promise<void> {
     return
   }
   isUploadingLogo.value = true
+  let uploaded = ''
   try {
-    const id = await LogoService.upload(file)
-    dropLogo()
-    formData.value.logo_file_id = id
+    uploaded = await LogoService.upload(file)
+    await saveLogo(uploaded)
+    toast.add({ severity: 'success', summary: 'Logo salva', detail: 'Ela já aparece no topo do cupom.', life: 3000 })
   } catch (error: unknown) {
-    toast.add({ severity: 'error', summary: 'Erro ao enviar a logo', detail: parseErrorMessage(error), life: 4000 })
+    if (uploaded) void LogoService.remove(uploaded) // não ficou ligada às configurações
+    toast.add({ severity: 'error', summary: 'Erro ao salvar a logo', detail: parseErrorMessage(error), life: 5000 })
   } finally {
     isUploadingLogo.value = false
   }
@@ -388,7 +393,6 @@ async function handleSaveSettings(): Promise<void> {
   isSaving.value = true
   try {
     await settingsStore.saveSettings(validation.data)
-    await Promise.all(replacedLogos.splice(0).map((id) => LogoService.remove(id))) // só depois de salvar
     toast.add({
       severity: 'success',
       summary: 'Configurações Salvas!',
