@@ -8,9 +8,9 @@ export function fitSize(width: number, height: number, maxW: number, maxH: numbe
  * Logo para a térmica: canvas com a largura da área útil (centralizada, fundo branco para PNG transparente)
  * e até `maxH` pontos de altura (uma faixa só de GS v 0).
  */
-export async function logoToCanvas(blob: Blob, area: number, maxH = 140): Promise<HTMLCanvasElement> {
+export async function logoToCanvas(blob: Blob, area: number, maxH = 170): Promise<HTMLCanvasElement> {
   const bitmap = await createImageBitmap(blob)
-  const size = fitSize(bitmap.width, bitmap.height, Math.min(area, 280), maxH)
+  const size = fitSize(bitmap.width, bitmap.height, Math.min(area, 330), maxH)
   const canvas = document.createElement('canvas')
   canvas.width = area
   canvas.height = size.height
