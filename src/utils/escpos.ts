@@ -9,8 +9,6 @@ import { getReceiptQr } from './receipt'
 const PAPER_DOTS: Record<ReceiptWidth, number> = { '58mm': 384, '80mm': 576 }
 /** Fonte A da impressora: 12 pontos por caractere. */
 const DOTS_PER_CHAR = 12
-/** Cabeçalho: fonte B (altura menor, 9 pontos) com 3 pontos de espaço entre letras = 12 pontos, a mesma largura da A. */
-const HEADER_SPACING = 3
 
 /** Largura útil em pontos pela configuração da loja; o agente pode informar a medida real da cabeça. */
 export function paperDotsFor(width: ReceiptWidth | undefined): number {
@@ -66,11 +64,6 @@ export class EscPosBuilder {
   /** Linha de texto nativo (sem acentos) no alinhamento atual da impressora (ESC a). */
   plain(text: string): this {
     return this.raw(...encodeText(text), 0x0a)
-  }
-
-  /** Fonte B (menor) com espaçamento que mantém os 12 pontos por caractere, ou volta à fonte A. */
-  small(on: boolean): this {
-    return this.raw(0x1b, 0x4d, on ? 1 : 0, 0x1b, 0x20, on ? HEADER_SPACING : 0)
   }
 
   bold(on: boolean): this {
@@ -264,14 +257,14 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
 
   const b = new EscPosBuilder(dots, leftMargin, textMode).init()
   if (logo) b.raster(logo).line()
-  b.align('center').small(true).bold(true)
+  b.align('center').bold(true)
   wrap(settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS', cols).forEach((l) => b.line(l))
   b.bold(false)
   if (settings?.document_number) b.line(`CNPJ: ${settings.document_number}`)
   if (settings?.address) wrap(settings.address, cols).forEach((l) => b.line(l))
   if (settings?.phone) b.line(`WhatsApp: ${settings.phone}`)
   if (settings?.instagram) b.line(`Instagram: ${settings.instagram}`)
-  b.small(false).line(strong).bold(true).line('** CUPOM NÃO FISCAL **').bold(false).line(strong)
+  b.line(strong).bold(true).line('** CUPOM NÃO FISCAL **').bold(false).line(strong)
 
   b.align('left')
   b.line(`DATA: ${formatDateTime(sale?.$createdAt || new Date().toISOString())}`)
