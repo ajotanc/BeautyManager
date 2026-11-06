@@ -9,10 +9,6 @@ import { getReceiptQr } from './receipt'
 const PAPER_DOTS: Record<ReceiptWidth, number> = { '58mm': 384, '80mm': 576 }
 /** Fonte A da impressora: 12 pontos por caractere. */
 const DOTS_PER_CHAR = 12
-/** Espaço extra entre caracteres (ESC SP) na fonte B: 9 + 2 = 11 pontos, um meio-termo entre a B pura (9) e a A (12). */
-const SMALL_SPACING = 2
-/** Fonte B da impressora (menor, 9 pontos) com o espaçamento acima: ~34 colunas em 58 mm. */
-const SMALL_DOTS_PER_CHAR = 9 + SMALL_SPACING
 
 /** Largura útil em pontos pela configuração da loja; o agente pode informar a medida real da cabeça. */
 export function paperDotsFor(width: ReceiptWidth | undefined): number {
@@ -36,7 +32,6 @@ export class EscPosBuilder {
   private bytes: number[] = []
   private centered = false
   private boldOn = false
-  private charDots = DOTS_PER_CHAR
 
   constructor(
     private paperDots = 384,
@@ -71,12 +66,6 @@ export class EscPosBuilder {
     return this.raw(...encodeText(text), 0x0a)
   }
 
-  /** Fonte menor (B) ou normal (A) para as próximas linhas; a largura de cada caractere acompanha. */
-  small(on: boolean): this {
-    this.charDots = on ? SMALL_DOTS_PER_CHAR : DOTS_PER_CHAR
-    return this.raw(0x1b, 0x4d, on ? 1 : 0, 0x1b, 0x20, on ? SMALL_SPACING : 0)
-  }
-
   bold(on: boolean): this {
     this.boldOn = on
     return this.raw(0x1b, 0x45, on ? 1 : 0)
@@ -88,7 +77,7 @@ export class EscPosBuilder {
     // Linha vazia: só a quebra de linha. Um ESC $ logo após o QR nativo desloca o código e ele não é lido.
     if (!text) return this.raw(0x0a)
     const bytes = encodeText(text)
-    const x = this.leftMargin + (this.centered ? Math.max(0, Math.floor((this.area - bytes.length * this.charDots) / 2)) : 0)
+    const x = this.leftMargin + (this.centered ? Math.max(0, Math.floor((this.area - bytes.length * DOTS_PER_CHAR) / 2)) : 0)
     return this.raw(0x1b, 0x24, x & 0xff, x >> 8, ...bytes, 0x0a)
   }
 
@@ -116,7 +105,7 @@ export class EscPosBuilder {
     const family = 'Consolas, "Courier New", monospace'
     const weight = bold ? 'bold ' : ''
     ctx.font = `${weight}100px ${family}`
-    ctx.font = `${weight}${Math.floor(this.charDots / (ctx.measureText('M').width / 100))}px ${family}`
+    ctx.font = `${weight}${Math.floor(DOTS_PER_CHAR / (ctx.measureText('M').width / 100))}px ${family}`
   }
 
   /**
@@ -259,7 +248,6 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
   const width: ReceiptWidth = settings?.receipt_width === '80mm' ? '80mm' : '58mm'
   const dots = paperDots ?? paperDotsFor(width)
   const cols = Math.floor((dots - leftMargin) / DOTS_PER_CHAR)
-  const smallCols = Math.floor((dots - leftMargin) / SMALL_DOTS_PER_CHAR)
   const rule = '-'.repeat(cols)
   const strong = '='.repeat(cols)
   const lines = toReceiptLines(sale)
@@ -269,14 +257,14 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
 
   const b = new EscPosBuilder(dots, leftMargin, textMode).init()
   if (logo) b.raster(logo).line()
-  b.align('center').small(true).bold(true)
-  wrap(settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS', smallCols).forEach((l) => b.line(l))
+  b.align('center').bold(true)
+  wrap(settings?.store_name || 'BEAUTY MANAGER COSMÉTICOS', cols).forEach((l) => b.line(l))
   b.bold(false)
   if (settings?.document_number) b.line(`CNPJ: ${settings.document_number}`)
-  if (settings?.address) wrap(settings.address, smallCols).forEach((l) => b.line(l))
+  if (settings?.address) wrap(settings.address, cols).forEach((l) => b.line(l))
   if (settings?.phone) b.line(`WhatsApp: ${settings.phone}`)
   if (settings?.instagram) b.line(`Instagram: ${settings.instagram}`)
-  b.small(false).line(strong).bold(true).line('** CUPOM NÃO FISCAL **').bold(false).line(strong)
+  b.line(strong).bold(true).line('** CUPOM NÃO FISCAL **').bold(false).line(strong)
 
   b.align('left')
   b.line(`DATA: ${formatDateTime(sale?.$createdAt || new Date().toISOString())}`)
@@ -284,15 +272,14 @@ export function buildReceiptEscPos({ sale, settings, changeAmount = 0, paperDots
   wrap(`CLIENTE: ${sale?.customer_name || 'Consumidor Final'}`, cols).forEach((l) => b.line(l))
   b.line(rule)
 
-  b.small(true)
   for (const item of lines) {
     b.bold(true)
-    wrap(item.name.toUpperCase(), smallCols).forEach((l) => b.line(l))
+    wrap(item.name.toUpperCase(), cols).forEach((l) => b.line(l))
     b.bold(false)
-    b.line(pair(`${item.quantity}x ${formatCurrency(item.unitPrice)}`, formatCurrency(item.subtotal), smallCols))
-    item.components?.forEach((c) => b.line(`  - ${c.quantity}x ${c.name.toUpperCase()}`.slice(0, smallCols)))
+    b.line(pair(`${item.quantity}x ${formatCurrency(item.unitPrice)}`, formatCurrency(item.subtotal), cols))
+    item.components?.forEach((c) => b.line(`  - ${c.quantity}x ${c.name.toUpperCase()}`.slice(0, cols)))
   }
-  b.small(false).line(rule)
+  b.line(rule)
 
   b.line(pair('SUBTOTAL:', formatCurrency(subtotal), cols))
   if (discount > 0) b.line(pair('DESCONTO:', `- ${formatCurrency(discount)}`, cols))

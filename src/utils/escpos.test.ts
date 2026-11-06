@@ -146,15 +146,6 @@ describe('cupom', () => {
     expect(bytes[cut - 2]).not.toBe(0x0a)
   })
 
-  it('cabeçalho e itens na fonte menor (ESC M 1) e o resto na normal', () => {
-    const sale = { total_amount: 10, items: [{ quantity: 1, unit_price: 10, subtotal: 10, product: { name: 'batom rosa' } }] }
-    const bytes = buildReceiptEscPos({ settings: { receipt_width: '58mm', store_name: 'Loja' }, sale } as never)
-    const text = ascii(bytes)
-    expect(has(bytes, [0x1b, 0x4d, 0x01])).toBe(true)
-    expect(text.indexOf('M')).toBeLessThan(text.indexOf('LOJA') >= 0 ? text.indexOf('LOJA') : text.indexOf('Loja'))
-    expect(has(bytes, [0x1b, 0x4d, 0x00])).toBe(true)
-  })
-
   it('logo vai no topo, antes do nome da loja', () => {
     const logo = { width: 16, height: 2, getContext: () => ({ getImageData: () => ({ data: new Uint8ClampedArray(16 * 2 * 4).fill(0) }) }) } as unknown as HTMLCanvasElement
     const bytes = buildReceiptEscPos({ settings: { receipt_width: '58mm', store_name: 'Loja' }, logo })
