@@ -20,7 +20,7 @@ Salvas em `%APPDATA%\BeautyPrintAgent\config.json`. As mudanças valem na hora; 
 | Impressora | Largura e margem (pontos) | 58 mm = 384 pontos no máximo. A margem esquerda (8 pontos = 1 mm) fica **dentro** da largura e centraliza o conteúdo. **Teste de largura** imprime uma moldura para medir. |
 | Impressora | Modo do texto do cupom | **Texto** (padrão, nativo e sem acentos) ou **Imagem** (mantém acentos, mas as letras mudam). |
 | Impressora | URL e SHA256 do driver | download automático do driver (opcional). |
-| Corte e envio | Tipo de corte e espaço antes | Parcial (padrão), total ou sem corte; linhas em branco antes de cortar (padrão 0). Vale só para cupom. |
+| Corte e envio | Tipo de corte e espaço antes | Sem corte (padrão), parcial ou total; linhas em branco antes de cortar (padrão 0). Vale só para cupom. |
 | Corte e envio | Gaveta de dinheiro | pulso ESC p ao imprimir o cupom (precisa da gaveta ligada na impressora). |
 | Corte e envio | Novas tentativas | até 5 reenvios se a impressora não responder (padrão 2); a falha vai para o log. |
 | Conexão | Porta | padrão 9101. |

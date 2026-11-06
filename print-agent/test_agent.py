@@ -67,16 +67,20 @@ class PrepareJobTests(unittest.TestCase):
     def cfg(self, **extra):
         return dict(agent.DEFAULTS, **extra)
 
-    def test_padrao_nao_muda_o_cupom(self):
-        self.assertEqual(agent.prepare_job(self.cupom, self.cfg()), self.cupom)
+    def test_padrao_e_sem_corte(self):
+        self.assertEqual(agent.prepare_job(self.cupom, self.cfg()), b"@texto
+")
+
+    def test_corte_parcial_mantem_o_cupom(self):
+        self.assertEqual(agent.prepare_job(self.cupom, self.cfg(cut_mode="partial")), self.cupom)
 
     def test_corte_total_sem_corte_e_avanco(self):
         self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_mode="full")).endswith(b"\x1d\x56\x00"))
         self.assertEqual(agent.prepare_job(self.cupom, self.cfg(cut_mode="none")), b"\x1b@texto\n")
-        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_feed_lines=2)).endswith(b"\n\n\x1d\x56\x01"))
+        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(cut_mode="partial", cut_feed_lines=2)).endswith(b"\n\n\x1d\x56\x01"))
 
     def test_gaveta_so_no_cupom(self):
-        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(open_drawer=True)).endswith(agent.DRAWER_PULSE))
+        self.assertTrue(agent.prepare_job(self.cupom, self.cfg(open_drawer=True, cut_mode="partial")).endswith(agent.DRAWER_PULSE))
         etiqueta = b"\x1b@etiqueta\n\n"
         self.assertEqual(agent.prepare_job(etiqueta, self.cfg(open_drawer=True, cut_mode="full")), etiqueta)
 

@@ -43,7 +43,7 @@ DEFAULTS = {
     "allowed_routes": list(ROUTES),
     "max_payload_mb": 4,
     "log_requests": False,
-    "cut_mode": "partial",  # partial | full | none
+    "cut_mode": "none",  # partial | full | none
     "cut_feed_lines": 0,  # linhas em branco antes do corte
     "open_drawer": False,  # pulso na gaveta de dinheiro ao imprimir cupom
     "print_retries": 2,
@@ -474,7 +474,7 @@ def open_settings(cfg: dict) -> None:
     sha_var = tk.StringVar(value=cfg["driver_sha256"])
     route_vars = {r: tk.BooleanVar(value=r in cfg["allowed_routes"]) for r in ROUTES}
     cut_labels = {"partial": "Parcial", "full": "Total", "none": "Sem corte"}
-    cut_var = tk.StringVar(value=cut_labels.get(cfg["cut_mode"], cut_labels["partial"]))
+    cut_var = tk.StringVar(value=cut_labels.get(cfg["cut_mode"], cut_labels["none"]))
     feed_var = tk.StringVar(value=str(cfg["cut_feed_lines"]))
     drawer_var = tk.BooleanVar(value=cfg["open_drawer"])
     retries_var = tk.StringVar(value=str(cfg["print_retries"]))
@@ -585,7 +585,7 @@ def open_settings(cfg: dict) -> None:
             open_settings_on_start=open_var.get(),
             log_requests=log_var.get(),
             max_payload_mb=max(1, int(payload_var.get())),
-            cut_mode=next((k for k, v in cut_labels.items() if v == cut_var.get()), "partial"),
+            cut_mode=next((k for k, v in cut_labels.items() if v == cut_var.get()), "none"),
             cut_feed_lines=min(10, max(0, int(feed_var.get()))),
             open_drawer=drawer_var.get(),
             print_retries=min(5, max(0, int(retries_var.get()))),
