@@ -9,8 +9,10 @@ import { getReceiptQr } from './receipt'
 const PAPER_DOTS: Record<ReceiptWidth, number> = { '58mm': 384, '80mm': 576 }
 /** Fonte A da impressora: 12 pontos por caractere. */
 const DOTS_PER_CHAR = 12
-/** Fonte B da impressora (menor): 9 pontos por caractere, ~42 colunas em 58 mm. */
-const SMALL_DOTS_PER_CHAR = 9
+/** Espaço extra entre caracteres (ESC SP) na fonte B: 9 + 2 = 11 pontos, um meio-termo entre a B pura (9) e a A (12). */
+const SMALL_SPACING = 2
+/** Fonte B da impressora (menor, 9 pontos) com o espaçamento acima: ~34 colunas em 58 mm. */
+const SMALL_DOTS_PER_CHAR = 9 + SMALL_SPACING
 
 /** Largura útil em pontos pela configuração da loja; o agente pode informar a medida real da cabeça. */
 export function paperDotsFor(width: ReceiptWidth | undefined): number {
@@ -72,7 +74,7 @@ export class EscPosBuilder {
   /** Fonte menor (B) ou normal (A) para as próximas linhas; a largura de cada caractere acompanha. */
   small(on: boolean): this {
     this.charDots = on ? SMALL_DOTS_PER_CHAR : DOTS_PER_CHAR
-    return this.raw(0x1b, 0x4d, on ? 1 : 0)
+    return this.raw(0x1b, 0x4d, on ? 1 : 0, 0x1b, 0x20, on ? SMALL_SPACING : 0)
   }
 
   bold(on: boolean): this {
