@@ -678,6 +678,15 @@
                     "size": 36,
                     "default": null,
                     "encrypt": false
+                },
+                {
+                    "key": "system_logo_file_id",
+                    "type": "string",
+                    "required": false,
+                    "array": false,
+                    "size": 36,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": []

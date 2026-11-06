@@ -66,22 +66,18 @@
             </FloatLabel>
           </div>
 
-          <div class="field-item logo-field">
-            <div class="logo-thumb">
-              <img v-if="logoUrl" :src="logoUrl" alt="Logo da loja" />
-              <i v-else class="ri-image-line"></i>
-            </div>
-            <div class="logo-actions">
-              <strong class="text-sm">Logo da loja (opcional)</strong>
-              <p class="text-xs text-slate-500">Aparece no topo do cupom não fiscal. PNG, JPG ou WebP, até 2 MB.</p>
-              <div class="flex gap-2 mt-2">
-                <Button type="button" :label="formData.logo_file_id ? 'Trocar imagem' : 'Escolher imagem'" icon="ri-upload-2-line"
-                  size="small" severity="secondary" :loading="isUploadingLogo" @click="logoInput?.click()" />
-                <Button v-if="formData.logo_file_id" type="button" label="Remover" icon="ri-delete-bin-line" size="small"
-                  severity="danger" text @click="removeLogo" />
-              </div>
-              <input ref="logoInput" type="file" accept="image/png,image/jpeg,image/webp" class="hidden" @change="handleLogoPicked" />
-            </div>
+          <div class="field-item">
+            <LogoField :file-id="formData.logo_file_id" label="Logo do cupom (opcional)"
+              hint="Impressa no topo do cupom não fiscal; use a versão toda preta, que sai melhor na térmica."
+              :busy="uploadingLogo === 'logo_file_id'" @pick="handleLogoPicked('logo_file_id', $event)"
+              @remove="removeLogo('logo_file_id')" />
+          </div>
+
+          <div class="field-item">
+            <LogoField :file-id="formData.system_logo_file_id" label="Logo do sistema (opcional)"
+              hint="Versão colorida, para uso no sistema (ainda sem lugar definido)."
+              :busy="uploadingLogo === 'system_logo_file_id'" @pick="handleLogoPicked('system_logo_file_id', $event)"
+              @remove="removeLogo('system_logo_file_id')" />
           </div>
 
           <div class="divider"></div>
@@ -216,7 +212,7 @@ import { settingsSchema } from '@/schemas/settingsSchema'
 import AppSectionHeader from '@/components/common/AppSectionHeader.vue'
 import { maskCpfCnpj, formatDocument } from '@/utils/masks'
 import { LogoService, LOGO_MAX_BYTES, LOGO_TYPES } from '@/services/logo'
-import { useStoreLogo } from '@/composables/useStoreLogo'
+import LogoField from '@/components/settings/LogoField.vue'
 
 const settingsStore = useSettingsStore()
 const { printReceipt } = useThermalPrinter()
@@ -240,6 +236,7 @@ const formData = ref<{
   pix_key: string
   loyalty_milestone: number
   logo_file_id: string
+  system_logo_file_id: string
 }>({
   store_name: '',
   document_number: '',
@@ -253,50 +250,47 @@ const formData = ref<{
   qrcode_payload: '',
   pix_key: '',
   loyalty_milestone: 2,
-  logo_file_id: ''
+  logo_file_id: '',
+  system_logo_file_id: ''
 })
 
-const logoInput = ref<HTMLInputElement | null>(null)
-const isUploadingLogo = ref<boolean>(false)
-const logoUrl = useStoreLogo(computed(() => formData.value.logo_file_id))
-/** Grava a logo (ou a remoção) na hora, sem esperar o "Salvar Alterações", e só então apaga o arquivo antigo. */
-async function saveLogo(newId: string): Promise<void> {
+type LogoSlot = 'logo_file_id' | 'system_logo_file_id'
+const uploadingLogo = ref<LogoSlot | null>(null)
+
+/** Grava a imagem (ou a remoção) na hora, sem esperar o "Salvar Alterações", e só então apaga o arquivo antigo. */
+async function saveLogo(field: LogoSlot, newId: string): Promise<void> {
   const draft = { ...formData.value } // salvar atualiza a loja no store e o watch recarregaria o formulário
-  const oldId = draft.logo_file_id
-  await settingsStore.saveSettings({ logo_file_id: newId || null })
+  const oldId = draft[field]
+  await settingsStore.saveSettings({ [field]: newId || null })
   await nextTick()
-  formData.value = { ...draft, logo_file_id: newId }
+  formData.value = { ...draft, [field]: newId }
   if (oldId && oldId !== newId) await LogoService.remove(oldId)
 }
 
-async function removeLogo(): Promise<void> {
+async function removeLogo(field: LogoSlot): Promise<void> {
   try {
-    await saveLogo('')
+    await saveLogo(field, '')
   } catch (error: unknown) {
-    toast.add({ severity: 'error', summary: 'Erro ao remover a logo', detail: parseErrorMessage(error), life: 4000 })
+    toast.add({ severity: 'error', summary: 'Erro ao remover a imagem', detail: parseErrorMessage(error), life: 4000 })
   }
 }
 
-async function handleLogoPicked(event: Event): Promise<void> {
-  const input = event.target as HTMLInputElement
-  const file = input.files?.[0]
-  input.value = ''
-  if (!file) return
+async function handleLogoPicked(field: LogoSlot, file: File): Promise<void> {
   if (!LOGO_TYPES.includes(file.type) || file.size > LOGO_MAX_BYTES) {
     toast.add({ severity: 'warn', summary: 'Imagem inválida', detail: 'Use PNG, JPG ou WebP de até 2 MB.', life: 4000 })
     return
   }
-  isUploadingLogo.value = true
+  uploadingLogo.value = field
   let uploaded = ''
   try {
     uploaded = await LogoService.upload(file)
-    await saveLogo(uploaded)
-    toast.add({ severity: 'success', summary: 'Logo salva', detail: 'Ela já aparece no topo do cupom.', life: 3000 })
+    await saveLogo(field, uploaded)
+    toast.add({ severity: 'success', summary: 'Imagem salva', life: 3000 })
   } catch (error: unknown) {
     if (uploaded) void LogoService.remove(uploaded) // não ficou ligada às configurações
-    toast.add({ severity: 'error', summary: 'Erro ao salvar a logo', detail: parseErrorMessage(error), life: 5000 })
+    toast.add({ severity: 'error', summary: 'Erro ao salvar a imagem', detail: parseErrorMessage(error), life: 5000 })
   } finally {
-    isUploadingLogo.value = false
+    uploadingLogo.value = null
   }
 }
 
@@ -326,7 +320,8 @@ watch(
         qrcode_payload: s.qrcode_payload || '',
         pix_key: s.pix_key || '',
         loyalty_milestone: s.loyalty_milestone !== undefined ? s.loyalty_milestone : 2,
-        logo_file_id: s.logo_file_id || ''
+        logo_file_id: s.logo_file_id || '',
+        system_logo_file_id: s.system_logo_file_id || ''
       }
     }
   },
@@ -529,32 +524,6 @@ onMounted(async () => {
 .section-sub {
   font-size: 0.74rem;
   color: var(--text-muted);
-}
-
-.logo-field {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.logo-thumb {
-  width: 5.5rem;
-  height: 5.5rem;
-  flex-shrink: 0;
-  display: grid;
-  place-items: center;
-  border: 1px dashed var(--p-surface-300, #cbd5e1);
-  border-radius: 0.75rem;
-  background: #fff;
-  overflow: hidden;
-  font-size: 1.75rem;
-  color: var(--p-surface-400, #94a3b8);
-}
-
-.logo-thumb img {
-  max-width: 100%;
-  max-height: 100%;
-  object-fit: contain;
 }
 
 .field-item {

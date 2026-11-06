@@ -19,4 +19,6 @@ export interface ISettings extends Models.Row {
   loyalty_milestone?: number
   /** Arquivo da logo no bucket `logos` (opcional). */
   logo_file_id?: string | null
+  /** Versão colorida da logo, para uso no sistema (opcional). */
+  system_logo_file_id?: string | null
 }
