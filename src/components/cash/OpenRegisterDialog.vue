@@ -37,7 +37,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import AppDialog from '@/components/common/AppDialog.vue'
 import Button from 'primevue/button'
 import InputNumber from 'primevue/inputnumber'
@@ -60,7 +60,7 @@ interface Props {
   visible: boolean
 }
 
-defineProps<Props>()
+const props = defineProps<Props>()
 const emit = defineEmits<{
   (e: 'update:visible', val: boolean): void
   (e: 'opened'): void
@@ -70,10 +70,18 @@ const cashRegisterStore = useCashRegisterStore()
 const authStore = useAuthStore()
 const toast = useToast()
 
-const openingBalance = ref<number>(100)
+const openingBalance = ref<number>(100) // sem fechamento anterior
 const notes = ref<string>('')
 const isSubmitting = ref<boolean>(false)
 const errors = reactive<Record<string, string>>({})
+
+// Sugere o saldo do último fechamento; continua editável.
+watch(() => props.visible, async (open) => {
+  if (!open) return
+  if (!cashRegisterStore.history.length) await cashRegisterStore.fetchHistory()
+  const last = cashRegisterStore.history.find((r) => r.status === 'closed')
+  if (last?.closing_balance != null) openingBalance.value = last.closing_balance
+}, { immediate: true })
 
 function clearErrors(): void {
   Object.keys(errors).forEach((key) => delete errors[key])
