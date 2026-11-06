@@ -14,8 +14,8 @@ export const settingsSchema = z.object({
   qrcode_payload: z.string().trim().optional(),
   pix_key: z.string().trim().optional(),
   loyalty_milestone: z.number().min(0).optional(),
-  logo_file_id: z.string().trim().max(36).nullish(),
-  system_logo_file_id: z.string().trim().max(36).nullish()
+  logo_id: z.string().trim().max(36).nullish(),
+  system_logo_id: z.string().trim().max(36).nullish()
 })
 
 export type SettingsFormData = z.infer<typeof settingsSchema>

@@ -671,7 +671,7 @@
                     "max": 9223372036854775807
                 },
                 {
-                    "key": "logo_file_id",
+                    "key": "logo_id",
                     "type": "string",
                     "required": false,
                     "array": false,
@@ -680,7 +680,7 @@
                     "encrypt": false
                 },
                 {
-                    "key": "system_logo_file_id",
+                    "key": "system_logo_id",
                     "type": "string",
                     "required": false,
                     "array": false,

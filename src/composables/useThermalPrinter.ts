@@ -45,7 +45,7 @@ export function useThermalPrinter() {
       await ready()
       if (destination.value === 'thermal' && data) {
         const dots = agentPaperDots.value ?? paperDotsFor(data.settings?.receipt_width)
-        const logo = await loadLogo(data.settings?.logo_file_id, dots - agentLeftMargin.value)
+        const logo = await loadLogo(data.settings?.logo_id, dots - agentLeftMargin.value)
         await sendToAgent(buildReceiptEscPos({ ...data, paperDots: dots, leftMargin: agentLeftMargin.value, textMode: agentTextMode.value, logo }))
       } else {
         handlePrint()

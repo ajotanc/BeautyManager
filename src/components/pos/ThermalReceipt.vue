@@ -123,7 +123,7 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const year = dayjs().year();
-const logoUrl = useStoreLogo(computed(() => props.settings?.logo_file_id))
+const logoUrl = useStoreLogo(computed(() => props.settings?.logo_id))
 
 /**
  * Normalização dos itens para impressão idêntica ao preview

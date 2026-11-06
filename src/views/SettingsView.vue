@@ -67,17 +67,17 @@
           </div>
 
           <div class="field-item">
-            <LogoField :file-id="formData.logo_file_id" label="Logo do cupom (opcional)"
+            <LogoField :file-id="formData.logo_id" label="Logo do cupom (opcional)"
               hint="Impressa no topo do cupom não fiscal; use a versão toda preta, que sai melhor na térmica."
-              :busy="uploadingLogo === 'logo_file_id'" @pick="handleLogoPicked('logo_file_id', $event)"
-              @remove="removeLogo('logo_file_id')" />
+              :busy="uploadingLogo === 'logo_id'" @pick="handleLogoPicked('logo_id', $event)"
+              @remove="removeLogo('logo_id')" />
           </div>
 
           <div class="field-item">
-            <LogoField :file-id="formData.system_logo_file_id" label="Logo do sistema (opcional)"
+            <LogoField :file-id="formData.system_logo_id" label="Logo do sistema (opcional)"
               hint="Versão colorida, para uso no sistema (ainda sem lugar definido)."
-              :busy="uploadingLogo === 'system_logo_file_id'" @pick="handleLogoPicked('system_logo_file_id', $event)"
-              @remove="removeLogo('system_logo_file_id')" />
+              :busy="uploadingLogo === 'system_logo_id'" @pick="handleLogoPicked('system_logo_id', $event)"
+              @remove="removeLogo('system_logo_id')" />
           </div>
 
           <div class="divider"></div>
@@ -235,8 +235,8 @@ const formData = ref<{
   qrcode_payload: string
   pix_key: string
   loyalty_milestone: number
-  logo_file_id: string
-  system_logo_file_id: string
+  logo_id: string
+  system_logo_id: string
 }>({
   store_name: '',
   document_number: '',
@@ -250,11 +250,11 @@ const formData = ref<{
   qrcode_payload: '',
   pix_key: '',
   loyalty_milestone: 2,
-  logo_file_id: '',
-  system_logo_file_id: ''
+  logo_id: '',
+  system_logo_id: ''
 })
 
-type LogoSlot = 'logo_file_id' | 'system_logo_file_id'
+type LogoSlot = 'logo_id' | 'system_logo_id'
 const uploadingLogo = ref<LogoSlot | null>(null)
 
 /** Grava a imagem (ou a remoção) na hora, sem esperar o "Salvar Alterações", e só então apaga o arquivo antigo. */
@@ -320,8 +320,8 @@ watch(
         qrcode_payload: s.qrcode_payload || '',
         pix_key: s.pix_key || '',
         loyalty_milestone: s.loyalty_milestone !== undefined ? s.loyalty_milestone : 2,
-        logo_file_id: s.logo_file_id || '',
-        system_logo_file_id: s.system_logo_file_id || ''
+        logo_id: s.logo_id || '',
+        system_logo_id: s.system_logo_id || ''
       }
     }
   },
@@ -344,7 +344,7 @@ const computedSettings = computed<Partial<ISettings>>(() => {
     qrcode_payload: formData.value.qrcode_payload,
     pix_key: formData.value.pix_key,
     loyalty_milestone: formData.value.loyalty_milestone,
-    logo_file_id: formData.value.logo_file_id || null
+    logo_id: formData.value.logo_id || null
   }
 })
 
@@ -366,7 +366,7 @@ async function handleSaveSettings(): Promise<void> {
     qrcode_payload: formData.value.qrcode_payload || undefined,
     pix_key: formData.value.pix_key || undefined,
     loyalty_milestone: formData.value.loyalty_milestone,
-    logo_file_id: formData.value.logo_file_id || null
+    logo_id: formData.value.logo_id || null
   })
 
   if (!validation.success) {

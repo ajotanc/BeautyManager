@@ -106,7 +106,7 @@ const props = withDefaults(defineProps<Props>(), {
   settings: null
 })
 
-const logoUrl = useStoreLogo(computed(() => props.settings?.logo_file_id))
+const logoUrl = useStoreLogo(computed(() => props.settings?.logo_id))
 
 const previewWidth = computed(() => {
   return props.settings?.receipt_width === '80mm' ? '290px' : '210px'
