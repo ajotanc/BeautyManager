@@ -146,6 +146,16 @@ describe('cupom', () => {
     expect(bytes[cut - 2]).not.toBe(0x0a)
   })
 
+  it('só o cabeçalho usa a fonte B (ESC M 1) e volta à A antes do título', () => {
+    const bytes = buildReceiptEscPos({ settings: { receipt_width: '58mm', store_name: 'Loja' } })
+    const at = (seq: number[]) => Array.from(bytes).findIndex((_, i) => seq.every((v, k) => bytes[i + k] === v))
+    const small = at([0x1b, 0x4d, 0x01])
+    const normal = at([0x1b, 0x4d, 0x00])
+    expect(small).toBeGreaterThan(-1)
+    expect(normal).toBeGreaterThan(small)
+    expect(normal).toBeLessThan(ascii(bytes).indexOf('CUPOM NAO FISCAL'))
+  })
+
   it('logo vai no topo, antes do nome da loja', () => {
     const logo = { width: 16, height: 2, getContext: () => ({ getImageData: () => ({ data: new Uint8ClampedArray(16 * 2 * 4).fill(0) }) }) } as unknown as HTMLCanvasElement
     const bytes = buildReceiptEscPos({ settings: { receipt_width: '58mm', store_name: 'Loja' }, logo })
